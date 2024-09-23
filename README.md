@@ -1,2 +1,12 @@
-# ACEHN_23-24
-Environnement numérique des étudiant(e)s Analyse et Conception des Environnements Humains Numériques - 2023 - 2024
+# M2 Thyp projet 1 
+- créer un repository github pour votre projet de cours
+- modifier  README.md pour décrire votre projet :
+   - descriptif rapide
+   - les acteurs du projet
+   - les besoins des acteurs
+- ajouter votre binome et samszo comme collaborateur du projet
+- activer les github pages
+- créer un premier google forms pour récolter des données utiles à votre projet
+   - mettre le lien de votre formulaire dans le README.md 
+- faire une page Web qui récupère les données du formulaire et les affiche
+   - mettre cette page dans le github dans un fichier : data.html
