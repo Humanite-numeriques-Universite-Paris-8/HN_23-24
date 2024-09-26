@@ -3,26 +3,24 @@ header('Content-Type: application/json');
 
 $response = [];
 
-// Get raw POST data
-$input = file_get_contents('php://input');
-$data = json_decode($input, true); // Decode JSON input
 
-// Debugging output
-// Afficher les erreurs pour le débogage
+$input = file_get_contents('php://input');
+$data = json_decode($input, true); 
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Get raw POST data
-$input = file_get_contents('php://input');
-$data = json_decode($input, true); // Decode JSON input
 
-// Log the received data for debugging
+$input = file_get_contents('php://input');
+$data = json_decode($input, true); 
+
+
 file_put_contents('php://stderr', print_r($data, true));
 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Check if data is received
+   
     if (json_last_error() !== JSON_ERROR_NONE) {
         $response['success'] = false;
         $response['message'] = "Invalid JSON format.";
@@ -31,7 +29,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $email = htmlspecialchars($data['email'] ?? '');
         $message = htmlspecialchars($data['message'] ?? '');
 
-        // Server-side validation
         if (!empty($name) && !empty($email) && !empty($message)) {
             $response['success'] = true;
             $response['message'] = "Thank you, $name! Your message has been received.";
