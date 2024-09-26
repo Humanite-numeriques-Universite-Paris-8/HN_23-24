@@ -1,5 +1,16 @@
-# Thyp 24-25
-Test project for HTML form submission and PHP processing.
+# Projet de Cours 2024-2025
 
-## Project Form Link
-[Click here ](https://docs.google.com/forms/d/e/1FAIpQLScAyvTcCYkgsl9wE7qn8zPrgPHWa_T0RlJ_0_GNr25O6bkn8w/viewform?usp=sf_link)
+## Description
+Ce projet consiste à créer un formulaire pour la collecte de données, à afficher ces données dans une page Web, et à utiliser GitHub Pages pour héberger le site. Le projet fait partie du cours `Technologie de l'Hypermédia` de l'année universitaire 2024-2025.
+
+## Acteurs du Projet
+- Anas HEFIED
+- samszo (Professeur et collaborateur GitHub)
+
+## Besoins des Acteurs
+- **Anas HEFIED** : Développer un projet web en utilisant des formulaires Google et afficher les résultats dans une page Web et 
+                   Participer à la création du projet, à la rédaction de la documentation, et à la gestion du repository.
+- **samszo** : Superviser le projet, évaluer le travail et fournir des conseils et du support technique.
+
+## Lien du formulaire Google Forms
+[Formulaire Google](https://docs.google.com/forms/d/e/1FAIpQLScAyvTcCYkgsl9wE7qn8zPrgPHWa_T0RlJ_0_GNr25O6bkn8w/viewform?usp=sf_link)
