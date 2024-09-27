@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 } else {
     $response['success'] = false;
-    $response['message'] = "No data received.";
+    $response['message'] = "No data received !";
 }
 
 echo json_encode($response);
