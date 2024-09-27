@@ -1,25 +1,52 @@
-function handleSubmit(event) {
-    event.preventDefault();
+const sheetID = '1IythoFSP7yu-3qKPh_HPyY_rDxr7p6a2rs3Fx8zIWNI'; // My Google Sheet ID
+const apiKey = 'AIzaSyA0kGOS33BZvkVSI9yfVuxOng3qAKMIGWk'; // My Google API key
 
-    const formData = new FormData(event.target);
-    const data = {};
-    formData.forEach((value, key) => {
-      data[key] = value;
-    });
+async function fetchData() {
+  
+    const range = encodeURIComponent('Réponses au formulaire 1');
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${range}?key=${apiKey}`;
+    
+    try {
+        let response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        let data = await response.json();
+        displayData(data.values);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
 
-    fetch("Php/index.php", {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-
-        window.location.href =
-          "https://docs.google.com/forms/d/e/1FAIpQLScAyvTcCYkgsl9wE7qn8zPrgPHWa_T0RlJ_0_GNr25O6bkn8w/viewform?usp=sf_link";
-      })
-      .catch((error) => console.error("Error:", error));
+fetchData();
+function displayData(data) {
+  if (!data || data.length === 0) {
+      console.error('No data found.');
+      return;
   }
+  
+  const tableBody = document.getElementById('data-table').querySelector('tbody');
+  tableBody.innerHTML = ''; 
+  
+  data.forEach((row, index) => {
+      if (index === 0) return; 
+
+      let tr = document.createElement('tr');
+      
+      row.forEach((cell, cellIndex) => {
+          let td = document.createElement('td');
+          
+        
+          if (cellIndex === 0) {
+              let date = new Date(cell);
+              td.textContent = date.toLocaleString();
+          } else {
+              td.textContent = cell;
+          }
+
+          tr.appendChild(td);
+      });
+
+      tableBody.appendChild(tr);
+  });
+}

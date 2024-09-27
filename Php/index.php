@@ -2,25 +2,18 @@
 header('Content-Type: application/json');
 
 $response = [];
-
-
 $input = file_get_contents('php://input');
-$data = json_decode($input, true); 
+$data = json_decode($input, true);
+
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 
-$input = file_get_contents('php://input');
-$data = json_decode($input, true); 
-
-
 file_put_contents('php://stderr', print_r($data, true));
 
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-   
     if (json_last_error() !== JSON_ERROR_NONE) {
         $response['success'] = false;
         $response['message'] = "Invalid JSON format.";

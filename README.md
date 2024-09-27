@@ -13,4 +13,4 @@ Ce projet consiste à créer un formulaire pour la collecte de données, à affi
 - **samszo** : Superviser le projet, évaluer le travail et fournir des conseils et du support technique.
 
 ## Lien du formulaire Google Forms
-[Formulaire Google](https://docs.google.com/forms/d/e/1FAIpQLScAyvTcCYkgsl9wE7qn8zPrgPHWa_T0RlJ_0_GNr25O6bkn8w/viewform?usp=sf_link)
+[Formulaire Google Form](https://docs.google.com/forms/d/e/1FAIpQLScAyvTcCYkgsl9wE7qn8zPrgPHWa_T0RlJ_0_GNr25O6bkn8w/viewform?usp=sf_link)
