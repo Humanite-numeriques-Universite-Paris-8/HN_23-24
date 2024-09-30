@@ -8,7 +8,8 @@ Ce projet consiste à créer un formulaire pour la collecte de données, à affi
 - samszo (Professeur et collaborateur GitHub)
 
 ## Besoins des Acteurs
-- **Anas HEFIED** : Développer un projet web en utilisant des formulaires Google et afficher les résultats dans une page Web et 
+- **Anas HEFIED** : Développer un projet web  de gestion des patients dans un cabinet comme le site de doctolib  et 
+                   en utilisant des formulaires Google et afficher les résultats dans une page Web et 
                    Participer à la création du projet, à la rédaction de la documentation, et à la gestion du repository.
 - **samszo** : Superviser le projet, évaluer le travail et fournir des conseils et du support technique.
 
