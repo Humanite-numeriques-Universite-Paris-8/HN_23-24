@@ -10,6 +10,7 @@
     <div class="register-container">
         <h2>Inscription</h2>
         <form method="POST" action="../Php/index_app.php?action=register">
+
             <input type="text" name="username" placeholder="Nom d'utilisateur" required>
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Mot de passe" required>
@@ -25,7 +26,9 @@
         <?php endif; ?>
 
         <p class="login-link">Déjà inscrit? 
-            <a href="login.php">Connectez-vous ici.</a>
+        <a href="../View/login.php">Connectez-vous ici.</a>
+
+
         </p>
     </div>
 </body>

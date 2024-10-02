@@ -37,8 +37,15 @@ class AuthController {
             if (password_verify($password, $user['password'])) {
                 session_start();
                 $_SESSION['user'] = $user;
-                header("Location: ../View/dashboard.php");
-                exit();
+    
+                // Vérifiez le rôle de l'utilisateur et redirigez en fonction
+                if ($user['role_id'] == 1) {  // Admin role
+                    header("Location: ../View/Admin/admin_dashboard.php");
+                    exit();
+                } elseif ($user['role_id'] == 2) {  // Patient role
+                    header("Location: ../View/Patient/patient_dashboard.php");
+                    exit();
+                }
             } else {
                 // Redirigez avec un message d'erreur si le mot de passe est incorrect
                 header("Location: ../View/login.php?error=Mot de passe incorrect.");
@@ -46,7 +53,6 @@ class AuthController {
             }
         }
     }
-    
     
     
     
@@ -91,10 +97,9 @@ class AuthController {
     
 
     public function logout() {
-        echo "Logout method called.<br>"; // Add this to verify logout is called
         session_start();
         session_destroy();
-        header("Location: ../View/login.php"); // Correct path to your login page
+        header("Location: ../View/login.php"); // Ensure the path to login.php is correct
         exit();
     }
     
