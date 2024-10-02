@@ -1,0 +1,64 @@
+/* Styles de base pour le formulaire */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+.form-container {
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Titre du formulaire */
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+/* Styles pour les labels */
+label {
+    display: block;
+    margin: 15px 0 5px;
+    color: #666;
+}
+
+/* Styles pour les champs de texte */
+input[type="text"],
+input[type="datetime-local"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Style pour le bouton */
+button.btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745; /* Couleur verte */
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button.btn:hover {
+    background-color: #218838; /* Couleur verte plus foncée au survol */
+}
+
+/* Styles pour les messages d'erreur */
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+}

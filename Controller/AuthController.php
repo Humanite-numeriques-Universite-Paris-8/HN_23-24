@@ -40,10 +40,10 @@ class AuthController {
     
                 // Vérifiez le rôle de l'utilisateur et redirigez en fonction
                 if ($user['role_id'] == 1) {  // Admin role
-                    header("Location: ../View/Admin/admin_dashboard.php");
+                    header("Location: ../View/Admin/admin_dashboard.html");
                     exit();
                 } elseif ($user['role_id'] == 2) {  // Patient role
-                    header("Location: ../View/Patient/patient_dashboard.php");
+                    header("Location: ../View/Patient/patient_dashboard.html");
                     exit();
                 }
             } else {
