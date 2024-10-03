@@ -14,10 +14,12 @@
             <input type="text" name="username" placeholder="Nom d'utilisateur" required>
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Mot de passe" required>
-            <select name="role_id">
-                <option value="1">Admin</option>
-                <option value="2">Patient</option>
-            </select>
+            <select name="role">
+    <option value="admin">Admin</option>
+    <option value="doctor">Médecin</option>
+    <option value="patient">Patient</option>
+</select>
+
             <button type="submit">S'inscrire</button>
         </form>
 
@@ -27,8 +29,6 @@
 
         <p class="login-link">Déjà inscrit? 
         <a href="../View/login.php">Connectez-vous ici.</a>
-
-
         </p>
     </div>
 </body>

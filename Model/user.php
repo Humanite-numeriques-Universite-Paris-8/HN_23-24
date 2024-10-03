@@ -6,31 +6,28 @@ class UserModel {
         $this->dbConnection = $dbConnection;
     }
 
-    public function register($username, $password, $email, $role_id) {
-        // Hacher le mot de passe avant de l'enregistrer
+    public function register($username, $password, $email, $role) {
+        // Hash the password before storing
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-        
-        // Préparer la requête d'insertion
-        $stmt = $this->dbConnection->prepare("INSERT INTO users (username, password, email, role_id) VALUES (:username, :password, :email, :role_id)");
-        
-        // Lier les paramètres à la requête
+    
+        // Prepare the insert query
+        $stmt = $this->dbConnection->prepare("INSERT INTO users (username, password, email, role) VALUES (:username, :password, :email, :role)");
+    
+        // Bind the parameters
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':password', $hashedPassword);
         $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':role_id', $role_id, PDO::PARAM_INT);
-        
-        // Exécuter la requête
+        $stmt->bindParam(':role', $role);  // Ensure this binds 'role' and not 'role_id'
+    
+        // Execute the query
         if ($stmt->execute()) {
             return true;
         } else {
-            // Gérer les erreurs potentielles
             print_r($stmt->errorInfo());
             return false;
         }
     }
     
-
-    // Add the getUserByUsername method here
     public function getUserByUsername($username) {
         $stmt = $this->dbConnection->prepare("SELECT * FROM users WHERE username = :username LIMIT 1");
         $stmt->bindParam(':username', $username);
@@ -52,3 +49,4 @@ class UserModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
+?>

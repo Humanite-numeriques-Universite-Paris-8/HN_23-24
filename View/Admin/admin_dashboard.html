@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Tableau de Bord Administrateur</title>
     <link rel="stylesheet" href="../../css/admin_dashboard.css">
-
-
-
 </head>
 <body>
 
     <!-- Navbar starts here -->
-    <div class="navbar">
+    <nav class="navbar">
         <div class="navbar-left">
             <h1>DoctoCabinet Admin</h1> <!-- Replace with your site name -->
         </div>
@@ -24,7 +21,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </nav>
     <!-- Navbar ends here -->
 
     <!-- Admin Dashboard Cards -->
@@ -36,12 +33,12 @@
             <div class="card">
                 <h2>Ajouter un Cabinet</h2>
                 <p>Ajoutez un nouveau cabinet avec les informations du docteur.</p>
-                <a href="Admin-forms/admin-forms.html" class="btn">Ajouter un Cabinet</a>
+                <a href="Admin-forms/admin-forms.php" class="btn">Ajouter un Cabinet</a>
             </div>
             <div class="card">
-                <h2>Voir la liste des Cabinets</h2>
+                <h2>Voir la Liste des Cabinets</h2>
                 <p>Consultez et gérez la liste des cabinets disponibles.</p>
-                <a href="admin-lists/admin-list.php" class="btn">Voir les Cabinets</a>
+                <a href="admin-lists/admin-list.php?action=list_cabinets" class="btn">Voir les Cabinets</a>
             </div>
             <div class="card">
                 <h2>Voir les Patients</h2>
@@ -50,6 +47,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Optionally include JavaScript files here -->
+    <script src="../../js/admin_dashboard.js"></script>
 
 </body>
 </html>

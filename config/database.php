@@ -6,9 +6,13 @@ function connectDB() {
     $pass = 'anashefied';
 
     try {
-        return new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+        // Connexion via PDO
+        $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+        // Définir le mode d'erreur PDO pour afficher les exceptions
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $conn;
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-        die();
+        echo "Connection failed: " . $e->getMessage();
+        return null;
     }
 }
