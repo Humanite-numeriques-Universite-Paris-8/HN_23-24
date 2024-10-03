@@ -9,18 +9,19 @@
 <body>
     <div class="login-container">
         <h2>Connexion</h2>
-        <form method="POST" action="../Php/index_app.php?action=login"> <!-- Vérifiez que cette action est correcte -->
+        <form method="POST" action="../../Controller/index_app.php?action=login"> <!-- Vérifiez que cette action est correcte -->
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Mot de passe" required>
             <button type="submit">Connexion</button>
         </form>
 
         <?php if (isset($_GET['error'])): ?>
-            <p class="error-message"><?php echo $_GET['error']; ?></p>
-        <?php endif; ?>
+    <p class="error-message"><?php echo $_GET['error']; ?></p>
+<?php endif; ?>
+
 
         <p class="register-link">Vous n'avez pas de compte? 
-        <a href="../Php/register.php">S'inscrire</a>
+        <a href="../Auth/register.php">S'inscrire</a>
         </p>
     </div>
 </body>

@@ -17,7 +17,7 @@ class AuthController {
             $user = $this->userModel->getUserByEmail($email);
             if (!$user) {
                 // Redirect to login page with error message
-                header("Location: ../View/login.php?error=Aucun compte trouvé pour cet email. Veuillez vous inscrire.");
+                header("Location: ../View/Auth/login.php?error=Aucun compte trouvé pour cet email. Veuillez vous inscrire.");
                 exit();
             }
 
@@ -29,19 +29,19 @@ class AuthController {
                 // Check user role and redirect accordingly
                 switch ($user['role']) {
                     case 'admin':
-                        header("Location: ../Php/admin_dashboard.html");
-
+                        header("Location: ../View/Admin/admin-dashboard.php");
                         break;
                     case 'doctor':
-                        header("Location: ../Php/Doctor/doctor_dashboard.html");
+                        header("Location: ../Doctor/doctor_dashboard.php");
                         break;
                     case 'patient':
-                        header("Location: ../Php/Patient/patient_dashboard.php");
+                        header("Location: ../Patient/patient_dashboard.php");
                         break;
                 }
+                
                 exit();
             } else {
-                header("Location: ../View/login.php?error=Mot de passe incorrect.");
+                header("Location: ../View/Auth/login.php?error=Mot de passe incorrect.");
                 exit();
             }
         }
@@ -50,28 +50,32 @@ class AuthController {
     public function register() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $_POST['username'];
-            $email = $_POST['email'];
             $password = $_POST['password'];
-            $role = $_POST['role']; // This should be 'role', not 'role_id'
-    
-            // Check if the user already exists
+            $email = $_POST['email'];
+            $role = $_POST['role'];
+            
+            // Vérification si le rôle admin est sélectionné mais l'email n'est pas celui autorisé
+            if ($role === 'admin' && $email !== 'a.hef2000@gmail.com') {
+                // Redirection avec un message d'erreur
+                header("Location: ../View/Auth/register.php?error=Vous ne pouvez pas créer un autre compte admin avec cet email.");
+                exit();
+            }
+            
+            // Vérifiez si l'email est déjà utilisé
             $existingUser = $this->userModel->getUserByEmail($email);
             if ($existingUser) {
-                // Redirect with error message if the email is already used
-                header("Location: ../View/register.php?error=Cet email est déjà enregistré. Veuillez vous connecter.");
+                // Redirection avec un message d'erreur
+                header("Location: ../View/Auth/register.php?error=Cet email est déjà enregistré. Veuillez vous connecter.");
                 exit();
             }
     
-            // Register the user with the role
-            if ($this->userModel->register($username, $password, $email, $role)) {
-                header("Location: ../View/login.php?success=Inscription réussie. Veuillez vous connecter.");
-                exit();
-            } else {
-                header("Location: ../View/register.php?error=Erreur lors de l'inscription. Veuillez réessayer.");
-                exit();
-            }
+            // Enregistrement de l'utilisateur
+            $this->userModel->register($username, $password, $email, $role);
+            header("Location: ../View/Auth/login.php");
+            exit();
         } else {
-            include "../View/register.php";
+            // Charger la vue d'enregistrement pour une requête GET
+            include "../View/Auth/register.php";
         }
     }
     
@@ -79,7 +83,7 @@ class AuthController {
     public function logout() {
         session_start();
         session_destroy();
-        header("Location: ../View/login.php"); // Ensure the path to login.php is correct
+        header("Location: ../View/Auth/login.php"); // Ensure the path to login.php is correct
         exit();
     }
 }

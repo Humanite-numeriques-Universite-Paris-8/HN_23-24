@@ -24,7 +24,7 @@ else {
     echo "Invalid action";
 }
        // Redirect after successful insertion
-       header("Location: /Projet1_Thyp_Ahef/View/Admin/admin-lists/admin-list.php?action=list_cabinets");
+     
        exit();
 
     
