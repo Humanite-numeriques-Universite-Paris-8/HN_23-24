@@ -28,7 +28,7 @@
         <?php endif; ?>
 
         <p class="login-link">Déjà inscrit? 
-        <a href="../View/login.php">Connectez-vous ici.</a>
+        <a href="../¨hp/login.php">Connectez-vous ici.</a>
         </p>
     </div>
 </body>

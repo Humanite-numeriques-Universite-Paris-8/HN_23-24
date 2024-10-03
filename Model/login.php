@@ -20,7 +20,7 @@
         <?php endif; ?>
 
         <p class="register-link">Vous n'avez pas de compte? 
-        <a href="../View/register.php">S'inscrire</a>
+        <a href="../Php/register.php">S'inscrire</a>
         </p>
     </div>
 </body>
