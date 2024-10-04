@@ -16,8 +16,13 @@
         </form>
 
         <?php if (isset($_GET['error'])): ?>
-    <p class="error-message"><?php echo $_GET['error']; ?></p>
+    <p class="error"><?php echo htmlspecialchars($_GET['error']); ?></p>
 <?php endif; ?>
+
+<?php if (isset($_GET['success'])): ?>
+    <p class="success"><?php echo htmlspecialchars($_GET['success']); ?></p>
+<?php endif; ?>
+
 
 
         <p class="register-link">Vous n'avez pas de compte? 

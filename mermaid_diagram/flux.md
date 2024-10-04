@@ -1,6 +1,9 @@
 classDiagram
+  
+
+
+  classDiagram
     class User {
-        <<Abstract>>
         +int userId
         +String username
         +String email
@@ -32,8 +35,7 @@ classDiagram
 
     class Appointment {
         +int appointmentId
-        +Date date
-        +String time
+        +Date appointmentDate
         +String status
         +Patient patient
         +Doctor doctor
@@ -73,4 +75,8 @@ classDiagram
 
 
 
+
+
 //sequenceDiagram
+
+

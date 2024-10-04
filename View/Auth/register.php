@@ -21,10 +21,14 @@
 
             <button type="submit">S'inscrire</button>
         </form>
-
         <?php if (isset($_GET['error'])): ?>
-            <p class="error-message"><?php echo $_GET['error']; ?></p>
-        <?php endif; ?>
+    <p class="error"><?php echo htmlspecialchars($_GET['error']); ?></p>
+<?php endif; ?>
+
+<?php if (isset($_GET['success'])): ?>
+    <p class="success"><?php echo htmlspecialchars($_GET['success']); ?></p>
+<?php endif; ?>
+
 
         <p class="login-link">Déjà inscrit? 
         <a href="../Auth/login.php">Connectez-vous ici.</a>

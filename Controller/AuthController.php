@@ -24,21 +24,23 @@ class AuthController {
             // Verify if the password is correct
             if (password_verify($password, $user['password'])) {
                 session_start();
-                $_SESSION['user'] = $user;
+                $_SESSION['user_id'] = $user['id'];  // Définit l'ID utilisateur dans la session
+                $_SESSION['username'] = $user['username']; // Stocke le nom d'utilisateur dans la session
+                $_SESSION['role'] = $user['role'];  // Stocke également le rôle pour rediriger
 
-                // Check user role and redirect accordingly
+                // Redirection en fonction du rôle de l'utilisateur
                 switch ($user['role']) {
                     case 'admin':
                         header("Location: ../View/Admin/admin-dashboard.php");
                         break;
                     case 'doctor':
-                        header("Location: ../Doctor/doctor_dashboard.php");
+                        header("Location: ../View/Medecin/medecin_dashboard.php");
                         break;
                     case 'patient':
-                        header("Location: ../Patient/patient_dashboard.php");
+                        header("Location: ../View/Patient/patient_dashboard.php");
                         break;
                 }
-                
+
                 exit();
             } else {
                 header("Location: ../View/Auth/login.php?error=Mot de passe incorrect.");
@@ -79,7 +81,6 @@ class AuthController {
         }
     }
     
-
     public function logout() {
         session_start();
         session_destroy();
@@ -87,4 +88,3 @@ class AuthController {
         exit();
     }
 }
-?>
