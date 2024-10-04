@@ -80,3 +80,22 @@ classDiagram
 //sequenceDiagram
 
 
+sequenceDiagram
+    participant Patient
+    participant Auth
+    participant Doctor
+    participant Appointment
+    participant Database
+
+    Patient->>Auth: Request to login
+    Auth-->>Patient: Authenticate
+    Patient->>Appointment: Book appointment
+    Appointment->>Database: Save appointment
+    Database-->>Appointment: Confirmation
+    
+    Doctor->>Appointment: View pending appointments
+    Appointment-->>Doctor: Display pending appointments
+    Doctor->>Appointment: Approve or reject
+    Appointment->>Database: Update status (approved/rejected)
+    Database-->>Appointment: Confirmation
+    Appointment-->>Doctor: Status updated
