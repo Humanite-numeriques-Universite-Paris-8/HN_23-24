@@ -1,73 +1,77 @@
 <?php
-require_once '../../config/database.php'; // Ensure this path is correct
+require_once '../../config/database.php'; // Assurez-vous que le chemin est correct
 
 $conn = connectDB();
 
-// Check if the ID is set in the URL
-if (isset($_GET['id'])) {
-    $cabinet_id = $_GET['id'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Récupérer les données du formulaire
+    $nom = $_POST['nom'];
+    $adresse = $_POST['adresse'];
+    $docteur_id = $_POST['docteur_id'];
+    $cabinet_id = $_POST['cabinet_id']; // ID du cabinet
 
-    // Fetch the cabinet details from the database
-    $query = "SELECT * FROM cabinets WHERE id = :id";
-    $stmt = $conn->prepare($query);
-    $stmt->bindParam(':id', $cabinet_id);
-    $stmt->execute();
-    $cabinet = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // If the cabinet is found, display its details in the form
-    if ($cabinet) {
-        $successMessage = '';  // Variable to store the success message
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Get the updated values from the form
-            $nom = $_POST['nom'];
-            $adresse = $_POST['adresse'];
-            $docteur_id = $_POST['docteur_id'];
-
-            // Update the cabinet in the database
-            $updateQuery = "UPDATE cabinets SET nom = :nom, adresse = :adresse, docteur_id = :docteur_id WHERE id = :id";
-            $updateStmt = $conn->prepare($updateQuery);
-            $updateStmt->bindParam(':nom', $nom);
-            $updateStmt->bindParam(':adresse', $adresse);
-            $updateStmt->bindParam(':docteur_id', $docteur_id);
-            $updateStmt->bindParam(':id', $cabinet_id);
-
-            if ($updateStmt->execute()) {
-                // Set the success message
-                $successMessage = "Le cabinet a été modifié avec succès.";
-            } else {
-                echo "Erreur lors de la modification du cabinet.";
-            }
-        }
+    // Valider que tous les champs sont remplis
+    if (empty($nom) || empty($adresse) || empty($docteur_id)) {
+        echo "Tous les champs doivent être remplis.";
     } else {
-        echo "Cabinet non trouvé.";
+        // Préparer la requête de mise à jour
+        $query = "UPDATE cabinets SET nom = :nom, adresse = :adresse, docteur_id = :docteur_id WHERE id = :cabinet_id";
+        $stmt = $conn->prepare($query);
+
+        // Liaison des paramètres
+        $stmt->bindParam(':nom', $nom);
+        $stmt->bindParam(':adresse', $adresse);
+        $stmt->bindParam(':docteur_id', $docteur_id);
+        $stmt->bindParam(':cabinet_id', $cabinet_id);
+
+        // Exécuter la requête
+        if ($stmt->execute()) {
+            // Rediriger vers la page de liste des cabinets avec un message de succès
+            header("Location: voir_cabinets.php?success=Le cabinet a été modifié avec succès.");
+            exit();
+        } else {
+            echo "Erreur lors de la modification du cabinet.";
+        }
     }
-} else {
-    echo "ID du cabinet manquant.";
 }
+
+// Récupération des données du cabinet à modifier
+$cabinet_id = $_GET['id'];
+$query = "SELECT * FROM cabinets WHERE id = :id";
+$stmt = $conn->prepare($query);
+$stmt->bindParam(':id', $cabinet_id);
+$stmt->execute();
+$cabinet = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 
-<!-- Formulaire pour modifier le cabinet -->
-<div class="container">
-    <?php if (!empty($successMessage)): ?>
-        <div class="alert success">
-            <?php echo htmlspecialchars($successMessage); ?>
-        </div>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier Cabinet</title>
+    <link rel="stylesheet" href="../css/modifier_cabinet.css"> <!-- Assurez-vous que ce chemin est correct -->
+
+</head>
+<body>
+    <h1>Modifier Cabinet</h1>
+    <?php if (isset($_GET['success'])): ?>
+        <p class="success"><?php echo htmlspecialchars($_GET['success']); ?></p>
     <?php endif; ?>
-    
-    <form action="modifier_cabinet.php?id=<?php echo htmlspecialchars($cabinet_id); ?>" method="POST">
+    <form action="modifier_cabinet.php" method="POST">
+        <input type="hidden" name="cabinet_id" value="<?php echo $cabinet['id']; ?>"> <!-- Champ caché pour l'ID du cabinet -->
         <label for="nom">Nom du Cabinet:</label>
         <input type="text" name="nom" id="nom" value="<?php echo htmlspecialchars($cabinet['nom']); ?>" required>
-
+        
         <label for="adresse">Adresse du Cabinet:</label>
         <input type="text" name="adresse" id="adresse" value="<?php echo htmlspecialchars($cabinet['adresse']); ?>" required>
-
+        
         <label for="docteur_id">Docteur (ID):</label>
         <select name="docteur_id" id="docteur_id">
             <?php
-            $stmt = $conn->query("SELECT id, username FROM users WHERE role = 2");  // 2 corresponds to the 'doctor' role
+            $stmt = $conn->query("SELECT id, username FROM users WHERE role = 2");
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $selected = ($row['id'] == $cabinet['docteur_id']) ? "selected" : "";
+                $selected = ($row['id'] == $cabinet['docteur_id']) ? 'selected' : '';
                 echo "<option value='" . $row['id'] . "' $selected>" . $row['username'] . " (ID: " . $row['id'] . ")</option>";
             }
             ?>
@@ -75,60 +79,5 @@ if (isset($_GET['id'])) {
 
         <button type="submit">Modifier le Cabinet</button>
     </form>
-</div>
-
-<!-- Add your CSS below -->
-<style>
-/* Container styling */
-.container {
-    max-width: 600px;
-    margin: 20px auto;
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-}
-
-/* Form styling */
-form label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 8px;
-}
-
-form input[type="text"],
-form select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-}
-
-form button[type="submit"] {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    width: 100%;
-}
-
-form button[type="submit"]:hover {
-    background-color: #218838;
-}
-
-/* Success alert styling */
-.alert.success {
-    background-color: #d4edda;
-    color: #155724;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #c3e6cb;
-    border-radius: 5px;
-    font-size: 16px;
-}
-</style>
+</body>
+</html>

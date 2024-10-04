@@ -24,14 +24,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Exécuter la requête
         if ($stmt->execute()) {
-            echo "Cabinet ajouté avec succès.";
+            // Redirection vers la page de liste des cabinets avec un message de succès
+            header("Location: voir_cabinets.php?success=Cabinet ajouté avec succès.");
+            exit(); // Toujours appeler exit() après une redirection
         } else {
             echo "Erreur lors de l'ajout du cabinet.";
             print_r($stmt->errorInfo()); // Afficher l'erreur pour le débogage
         }
     }
 }
-
 ?>
 
 <!DOCTYPE html>

@@ -9,7 +9,6 @@ $query = "SELECT cabinets.id, cabinets.nom AS cabinet_nom, cabinets.adresse, use
           JOIN users ON cabinets.docteur_id = users.id";
           
 $result = $conn->query($query);
-
 ?>
 
 <!DOCTYPE html>
@@ -23,6 +22,13 @@ $result = $conn->query($query);
 <body>
 
 <?php
+// Display success or error messages
+if (isset($_GET['success'])) {
+    echo "<p class='success'>" . htmlspecialchars($_GET['success']) . "</p>";
+} elseif (isset($_GET['error'])) {
+    echo "<p class='error'>" . htmlspecialchars($_GET['error']) . "</p>";
+}
+
 if ($result->rowCount() > 0) {
     echo "<table class='cabinet-table'>";
     echo "<tr><th>Nom du Cabinet</th><th>Adresse</th><th>Docteur</th><th>Actions</th></tr>";
@@ -35,7 +41,7 @@ if ($result->rowCount() > 0) {
         echo "<td>
               <a href='../Admin/modifier_cabinet.php?id=" . $row['id'] . "' class='action-link modify'>Modifier</a>
  | 
-                <a href='supprimer_cabinet.php?id=" . $row['id'] . "' class='action-link delete' onclick=\"return confirm('Êtes-vous sûr de vouloir supprimer ce cabinet?');\">Supprimer</a>
+              <a href='supprimer_cabinet.php?id=" . $row['id'] . "' class='action-link delete' onclick=\"return confirm('Êtes-vous sûr de vouloir supprimer ce cabinet?');\">Supprimer</a>
               </td>";
         echo "</tr>";
     }
