@@ -1,5 +1,5 @@
 <?php
-require_once '../../config/database.php'; // Assure-toi que le chemin est correct
+require_once '../../config/database.php'; // Assurez-vous que le chemin est correct
 
 $conn = connectDB();
 
@@ -27,9 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo "Cabinet ajouté avec succès.";
         } else {
             echo "Erreur lors de l'ajout du cabinet.";
+            print_r($stmt->errorInfo()); // Afficher l'erreur pour le débogage
         }
     }
 }
+
 ?>
 
 <!DOCTYPE html>

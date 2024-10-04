@@ -1,66 +1,40 @@
-/* General page styles */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-/* Form container */
+/* Add this CSS to your CSS file */
 form {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     max-width: 400px;
-    width: 100%;
-    text-align: center;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
 }
 
-/* Form title */
-h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-/* Labels */
 label {
     display: block;
-    text-align: left;
     font-weight: bold;
-    margin-bottom: 5px;
-    color: #555;
+    margin-bottom: 8px;
 }
 
-/* Input fields */
 input[type="text"],
 select {
     width: 100%;
     padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    box-sizing: border-box;
     font-size: 16px;
 }
 
-/* Button */
-button {
+button[type="submit"] {
     background-color: #28a745;
     color: white;
     border: none;
-    padding: 12px;
-    font-size: 16px;
+    padding: 10px 20px;
     border-radius: 4px;
+    font-size: 16px;
     cursor: pointer;
     width: 100%;
 }
 
-button:hover {
+button[type="submit"]:hover {
     background-color: #218838;
 }
