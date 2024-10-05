@@ -1,62 +1,78 @@
-/* Styles généraux pour la page */
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse; /* Use collapse for cleaner borders */
+}/* Styles généraux pour la page */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f9;
     margin: 0;
-    padding: 0;
+    padding: 50px;
 }
 
 /* Conteneur du tableau */
 .container {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 50px auto;
     background-color: #fff;
-    padding: 20px;
+    padding: 30px ;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     text-align: center;
 }
 
-/* Titre */
-h2 {
-    color: #333;
-    margin-bottom: 20px;
-}
 
-/* Table styles */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-table th, table td {
+th, td {
     border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
+    padding: 15px; /* Add padding inside cells */
+    text-align: left; /* Align text to the left */
+    vertical-align: middle; /* Align text in the middle vertically */
 }
 
-table th {
-    background-color: #f4f4f9;
-    font-weight: bold;
-}
-
-table tr:nth-child(even) {
+th {
     background-color: #f9f9f9;
+    font-weight: bold;
+    text-align: center; /* Center header text */
 }
 
-/* Bouton */
+td {
+    padding: 10px 15px; /* Adjust internal padding for table cells */
+}
+
+td.actions {
+    padding-bottom: 15px; /* Add padding to the bottom of the table cell */
+}
+
+.btn-deplacer, .btn-annuler {
+    padding: 10px 15px; /* Adjust padding for buttons */
+    text-decoration: none;
+    border-radius: 5px;
+    margin-right: 10px; /* Add space between the buttons */
+    display: inline-block;
+}
+
+.btn-deplacer {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-annuler {
+    background-color: #dc3545;
+    color: white;
+}
+
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+}
+
 .btn {
     background-color: #28a745;
     color: white;
+    padding: 10px 15px;
     text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    font-size: 16px;
-    display: inline-block;
-    margin-top: 10px;
-}
-
-.btn:hover {
-    background-color: #218838;
+    margin-top: 20px;
+    border-radius: 5px;
 }

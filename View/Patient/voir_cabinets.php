@@ -10,19 +10,35 @@ $query = "SELECT cabinets.nom AS cabinet_nom, cabinets.adresse, users.username A
           
 $result = $conn->query($query);
 
-if ($result->rowCount() > 0) {
-    echo "<table border='1' cellpadding='10'>";
-    echo "<tr><th>Nom du Cabinet</th><th>Adresse</th></tr>";
-    
-    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-        echo "<tr>";
-        echo "<td>" . $row['cabinet_nom'] . "</td>"; // Utilise l'alias cabinet_nom
-        echo "<td>" . $row['adresse'] . "</td>";
-        echo "</tr>";
-    }
-    
-    echo "</table>";
-} else {
-    echo "Aucun cabinet trouvé.";
-}
 ?>
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Cabinets</title>
+    <link rel="stylesheet" href="../css/patient-listercabinet.css"> <!-- Lien vers le fichier CSS -->
+</head>
+<body>
+    <h1>Liste des Cabinets</h1>
+
+    <?php
+    if ($result->rowCount() > 0) {
+        echo "<table>";
+        echo "<tr><th>Nom du Cabinet</th><th>Adresse</th></tr>";
+        
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            echo "<tr>";
+            echo "<td>" . htmlspecialchars($row['cabinet_nom']) . "</td>"; // Utilise l'alias cabinet_nom
+            echo "<td>" . htmlspecialchars($row['adresse']) . "</td>";
+            echo "</tr>";
+        }
+        
+        echo "</table>";
+    } else {
+        echo "<p>Aucun cabinet trouvé.</p>";
+    }
+    ?>
+</body>
+</html>

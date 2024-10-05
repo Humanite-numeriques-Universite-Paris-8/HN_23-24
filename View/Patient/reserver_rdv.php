@@ -8,13 +8,15 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-require_once '../../config/database.php'; // Assure-toi que le chemin est correct
+require_once '../../config/database.php'; // Assurez-vous que le chemin est correct
 
 $conn = connectDB();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cabinet_id = $_POST['cabinet_id'];
     $appointment_date = $_POST['appointment_date'];
+    $cin = $_POST['cin']; // Récupérer le champ CIN
+    $securite_sociale = $_POST['securite_sociale']; // Récupérer le champ Sécurité Sociale
     $patient_id = $_SESSION['user_id'];  // Récupère l'ID du patient depuis la session
 
     // Requête pour récupérer le docteur associé au cabinet
@@ -29,16 +31,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $docteur_id = $docteur['docteur_id'];
 
         // Insérer le rendez-vous dans la base de données
-        $insert_query = "INSERT INTO appointments (patient_id, cabinet_id, docteur_id, appointment_date, status)
-                         VALUES (:patient_id, :cabinet_id, :docteur_id, :appointment_date, 'pending')";
-        $stmt = $conn->prepare($insert_query);
+        $insert_query = "INSERT INTO appointments (patient_id, cabinet_id, docteur_id, appointment_date, cin, securite_sociale, status)
+        VALUES (:patient_id, :cabinet_id, :docteur_id, :appointment_date, :cin, :securite_sociale, 'pending')";
+$stmt = $conn->prepare($insert_query);
         $stmt->bindParam(':patient_id', $patient_id);
         $stmt->bindParam(':cabinet_id', $cabinet_id);
         $stmt->bindParam(':docteur_id', $docteur_id);
         $stmt->bindParam(':appointment_date', $appointment_date);
+        $stmt->bindParam(':cin', $cin); // Liaison du paramètre CIN
+        $stmt->bindParam(':securite_sociale', $securite_sociale); // Liaison du paramètre Sécurité Sociale
 
         if ($stmt->execute()) {
-            echo "<p class='success'>Rendez-vous réservé avec succès !</p>";
+            // Rediriger vers la page Lister_Rdv.php après succès avec le message de succès
+            header("Location: Lister_Rdv.php?success=1");
+            exit();
         } else {
             echo "<p class='error'>Erreur lors de la réservation du rendez-vous.</p>";
         }
@@ -74,6 +80,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <label for="date">Date de rendez-vous:</label>
         <input type="datetime-local" name="appointment_date" required>
+
+        <label for="cin">CIN:</label>
+        <input type="text" name="cin" required>
+
+        <label for="securite_sociale">Sécurité Sociale:</label>
+        <input type="text" name="securite_sociale" required>
         
         <button type="submit">Réserver</button>
     </form>

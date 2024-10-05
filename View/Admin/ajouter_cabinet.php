@@ -41,7 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ajouter un Cabinet</title>
-    <link rel="stylesheet" href="../css/ajouter_cabinet.css"> <!-- Assurez-vous que ce chemin est correct -->
+<link rel="stylesheet" href="../css/ajouter_cabinet.css?v=1.0">
+
+    <!-- Assurez-vous que ce chemin est correct -->
 </head>
 <body>
 

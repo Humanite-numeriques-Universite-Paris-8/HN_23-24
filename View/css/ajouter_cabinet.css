@@ -1,11 +1,22 @@
 /* Add this CSS to your CSS file */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 90vh;
+    margin: 0;
+    background-color: #f2f2f2; /* Optional: Adds a light background color to the body */
+}
+
 form {
     max-width: 400px;
-    margin: 0 auto;
+    width: 100%;
     background-color: #fff;
-    padding: 20px;
+    padding: 40px;
+    padding-right: 60px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
+    text-align: left; /* Keep text left-aligned inside the form */
 }
 
 label {

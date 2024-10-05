@@ -40,7 +40,7 @@ session_start(); // Assure que la session est démarrée pour obtenir les inform
             <div class="card">
                 <h2>Réserver un Rendez-vous</h2>
                 <p>Réservez un rendez-vous avec un docteur dans un cabinet disponible.</p>
-                <a href="reserver_rdv.php" class="btn btn-primary">Réserver un Rendez-vous</a>
+                <a href="reserver_rdv.php" class="btn btn-primary">Réserver un Rdv</a>
             </div>
             <div class="card">
                 <h2>Voir la liste des Cabinets</h2>
