@@ -23,7 +23,6 @@ JOIN users AS patients ON appointments.patient_id = patients.id
 WHERE appointments.patient_id = :patient_id
 ";
 
-
 $stmt = $conn->prepare($query);
 $stmt->bindParam(':patient_id', $_SESSION['user_id']);
 $stmt->execute();
@@ -49,8 +48,11 @@ $patient = $patient_stmt->fetch(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Rendez-vous</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>    
     <link rel="stylesheet" href="../css/patient_lister_rdv.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
 </head>
 <body>
 <div class="container">
@@ -78,8 +80,7 @@ $patient = $patient_stmt->fetch(PDO::FETCH_ASSOC);
                         <td><?php echo htmlspecialchars($appointment['docteur_nom']); ?></td>
                         <td><?php echo htmlspecialchars($appointment['patient_nom']); ?></td>
                         <td><?php echo !empty($appointment['cin']) ? htmlspecialchars($appointment['cin']) : 'Non renseigné'; ?></td>
-<td><?php echo !empty($appointment['securite_sociale']) ? htmlspecialchars($appointment['securite_sociale']) : 'Non renseigné'; ?></td>
-
+                        <td><?php echo !empty($appointment['securite_sociale']) ? htmlspecialchars($appointment['securite_sociale']) : 'Non renseigné'; ?></td>
                         <td><?php echo htmlspecialchars($appointment['appointment_date']); ?></td>
                         <td class="s" style="margin:0;display:flex;"> 
                             <a href="deplacer_rdv.php?id=<?php echo $appointment['id']; ?>" class="btn-deplacer">Déplacer</a> |    
