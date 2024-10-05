@@ -1,0 +1,13 @@
+.cancel-btn {
+    background-color: red;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    font-size: 16px;
+}
+
+.cancel-btn i {
+    margin-right: 5px;
+}
