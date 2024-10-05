@@ -1,26 +1,26 @@
 <?php
 session_start();
-require_once '../../config/database.php'; // Assurez-vous que le chemin est correct
+require_once '../../config/database.php'; // Ensure the path is correct
 
 $conn = connectDB();
 
-// Vérifiez si l'utilisateur est bien connecté
+// Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../../View/Auth/login.php");
     exit();
 }
 
-// Vérifier si un ID de rendez-vous est passé dans l'URL
+// Check if an appointment ID was provided
 if (isset($_GET['id'])) {
     $appointment_id = $_GET['id'];
 
-    // Supprimer le rendez-vous de la base de données
+    // Delete the appointment from the database
     $query = "DELETE FROM appointments WHERE id = :appointment_id";
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':appointment_id', $appointment_id);
 
     if ($stmt->execute()) {
-        // Redirection après succès
+        // Redirect after successful deletion
         header("Location: Lister_Rdv.php?success=Le rendez-vous a été annulé avec succès.");
         exit();
     } else {
@@ -29,4 +29,3 @@ if (isset($_GET['id'])) {
 } else {
     echo "Aucun ID de rendez-vous fourni.";
 }
-?>

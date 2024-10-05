@@ -1,210 +1,34 @@
 table {
     width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse; /* Use collapse for cleaner borders */
-}/* Styles généraux pour la page */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 50px;
+    border-collapse: collapse;
 }
-
-/* Conteneur du tableau */
-.container {
-    max-width: 1200px;
-    margin: 50px auto;
-    background-color: #fff;
-    padding: 30px ;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    text-align: center;
-}
-
 
 th, td {
     border: 1px solid #ddd;
-    padding: 15px; /* Add padding inside cells */
-    text-align: left; /* Align text to the left */
-    vertical-align: middle; /* Align text in the middle vertically */
+    padding: 8px;
+    text-align: left;
 }
 
 th {
-    background-color: #f9f9f9;
+    background-color: #f4f4f4;
     font-weight: bold;
-    text-align: center; /* Center header text */
 }
 
 td {
-    padding: 10px 15px; /* Adjust internal padding for table cells */
+    padding: 12px 15px;
 }
 
-td.actions {
-    padding-bottom: 15px; /* Add padding to the bottom of the table cell */
-}
-
-.btn-deplacer, .btn-annuler {
-    padding: 10px 15px; /* Adjust padding for buttons */
-    text-decoration: none;
-    border-radius: 5px;
-    margin-right: 10px; /* Add space between the buttons */
-    display: inline-block;
-}
-
-.btn-deplacer {
-    background-color: #007bff;
-    color: white;
-}
-
-.btn-annuler {
-    background-color: #dc3545;
-    color: white;
-}
-
-
-.container {
-    width: 80%;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.btn {
-    background-color: #28a745;
-    color: white;
-    padding: 10px 15px;
-    text-decoration: none;
-    margin-top: 20px;
-    border-radius: 5px;
-}
-/* Styles généraux pour la page */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #eef2f7;
-    margin: 0;
-    padding: 20px;
-}
-
-/* Conteneur principal */
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-}
-
-/* Titre */
-h2 {
-    font-size: 24px;
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
-    font-weight: bold;
-}
-
-/* Tableau des rendez-vous */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-table th, table td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-    font-size: 16px;
-}
-
-table th {
-    background-color: #f4f4f9;
-    color: #333;
-}
-
-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-table tr:hover {
-    background-color: #f1f1f1;
-}
-
-/* Lien d'action */
-a.action-link {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-a.action-link:hover {
-    color: #0056b3;
-    text-decoration: underline;
-}
-
-/* Boutons pour Approuver et Rejeter avec espacement */
-.action-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.approve-btn, .reject-btn {
-    display: inline-block;
-    padding: 6px 12px;
-    font-size: 14px;
-    font-weight: bold;
-    text-decoration: none;
-    border-radius: 5px;
-    color: white;
-    transition: background-color 0.3s ease;
-}
-
-.approve-btn {
-    background-color: #28a745; /* Vert */
-    border: 1px solid #28a745;
-}
-
-.approve-btn:hover {
-    background-color: #218838;
-}
-
-.reject-btn {
-    background-color: #dc3545; /* Rouge */
-    border: 1px solid #dc3545;
-}
-
-.reject-btn:hover {
-    background-color: #c82333;
-}
-
-/* Boutons */
-a.btn-back {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 16px;
-    transition: background-color 0.3s ease-in-out;
-}
-
-a.btn-back:hover {
-    background-color: #218838;
-}
-
-/* Messages de succès ou d'erreur */
-.success {
+.checkmark {
     color: green;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 20px;
+    font-size: 18px;
 }
 
-.error {
-    color: red;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 20px;
+.btn-back {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 20px;
+    display: inline-block;
 }

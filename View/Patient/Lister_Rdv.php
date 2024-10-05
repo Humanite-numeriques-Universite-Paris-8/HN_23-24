@@ -49,7 +49,7 @@ $patient = $patient_stmt->fetch(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Rendez-vous</title>
-    <link rel="stylesheet" href="../css/lister_rdv.css">
+    <link rel="stylesheet" href="../css/patient_lister_rdv.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
@@ -113,11 +113,8 @@ $patient = $patient_stmt->fetch(PDO::FETCH_ASSOC);
 
         // Ajout des informations du patient
         const patientName = "<?php echo htmlspecialchars($patient['username']); ?>";
-        const appointmentDate = "<?php echo htmlspecialchars($appointments[0]['appointment_date']); ?>";
-     
 
         doc.setFontSize(12);
-    
 
         // Position verticale réduite pour organiser les informations
         let yPos = 30;
@@ -127,7 +124,9 @@ $patient = $patient_stmt->fetch(PDO::FETCH_ASSOC);
             doc.text(`Cabinet: <?php echo htmlspecialchars($appointment['cabinet_nom']); ?>`, 10, yPos);
             doc.text(`Docteur: <?php echo htmlspecialchars($appointment['docteur_nom']); ?>`, 10, yPos + 5);
             doc.text(`Date du Rendez-vous: <?php echo htmlspecialchars($appointment['appointment_date']); ?>`, 10, yPos + 10);
-            yPos += 20; // Espacement vertical
+            doc.text(`CIN: <?php echo htmlspecialchars($appointment['cin']); ?>`, 10, yPos + 15);
+            doc.text(`Sécurité Sociale: <?php echo htmlspecialchars($appointment['securite_sociale']); ?>`, 10, yPos + 20);
+            yPos += 30; // Espacement vertical augmenté pour inclure toutes les infos
         <?php endforeach; ?>
 
         const fileName = `rendez-vous_de_${patientName}.pdf`;
@@ -135,6 +134,7 @@ $patient = $patient_stmt->fetch(PDO::FETCH_ASSOC);
         doc.save(fileName);
     });
 </script>
+
 
 </body>
 </html>

@@ -1,26 +1,26 @@
 <?php
 session_start();
-require_once '../../config/database.php'; // Assurez-vous que le chemin est correct
+require_once '../../config/database.php'; // Ensure the path is correct
 
 $conn = connectDB();
 
-// Vérifiez si l'utilisateur est bien connecté
+// Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../../View/Auth/login.php");
     exit();
 }
 
-// Vérifier si un ID de rendez-vous est passé dans l'URL
+// Check if an appointment ID was provided
 if (isset($_GET['id'])) {
     $appointment_id = $_GET['id'];
 
-    // Mettre à jour le rendez-vous pour le marquer comme validé
+    // Update the appointment status to validated
     $query = "UPDATE appointments SET is_validated = 1 WHERE id = :appointment_id";
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':appointment_id', $appointment_id);
 
     if ($stmt->execute()) {
-        // Redirection avec un message de succès
+        // Redirect after successful validation
         header("Location: Lister_Rdv.php?success=Le rendez-vous a été validé avec succès.");
         exit();
     } else {
@@ -29,4 +29,3 @@ if (isset($_GET['id'])) {
 } else {
     echo "Aucun ID de rendez-vous fourni.";
 }
-?>
