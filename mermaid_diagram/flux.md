@@ -1,76 +1,60 @@
-classDiagram
+//classDiagram
   
 
-
-  classDiagram
-    class User {
-        +int userId
-        +String username
+classDiagram
+    class Utilisateur {
+        +int id
+        +String nomUtilisateur
         +String email
-        +String password
-        +login()
-        +logout()
+        +String motDePasse
     }
 
     class Admin {
-        +manageUsers()
-        +viewAppointments()
-        +addCabinet()
-        +viewDoctors()
+        +ajouterCabinet()
+        +listerCabinets()
+        +obtenirListeMedecins()
+        +obtenirListePatients()
     }
 
-    class Doctor {
-        +String specialty
-        +viewAppointments()
-        +acceptAppointment()
-        +rejectAppointment()
+    class Medecin {
+        +String specialite
+        +listerRdv()
+        +validerRdv()
+        +supprimerRdv()
+        +telechargerPdfRdv()
     }
 
     class Patient {
-        +String fullName
-        +String phoneNumber
-        +bookAppointment()
-        +cancelAppointment()
+        +String username
+        +reserverRdv()
+        +listerCabinets()
+        +deplacerModifierRdv()
+        +annulerRdv()
+        +telechargerPdfRdv()
     }
 
-    class Appointment {
-        +int appointmentId
-        +Date appointmentDate
-        +String status
-        +Patient patient
-        +Doctor doctor
-        +confirm()
-        +cancel()
+    class RendezVous {
+        +int id
+        +Date dateRendezVous
+        +String statut
+        +confirmer()
+        +annuler()
     }
 
     class Cabinet {
-        +int cabinetId
-        +String cabinetName
-        +String address
-        +String city
-        +Doctor doctor
-        +viewDetails()
+        +int id
+        +String nom
+        +String adresse
+        +String ville
+        +voirDetails()
     }
 
-    class Auth {
-        +register(username: String, password: String, email: String)
-        +login(username: String, password: String)
-        +logout()
-    }
-
-    User <|-- Admin
-    User <|-- Doctor
-    User <|-- Patient
-    Doctor "1" --> "many" Appointment
-    Patient "1" --> "many" Appointment
-    Appointment "1" --> 1 Doctor
-    Appointment "1" --> 1 Patient
-    Cabinet "1" --> "many" Doctor
-
-    style User fill:#bfb,stroke:#6f6,stroke-width:2px,color:#000,stroke-dasharray: 5 5
-    style Appointment fill:#ffb,stroke:#663,stroke-width:2px,color:#000,stroke-dasharray: 5 5
-    style Cabinet fill:#9ff,stroke:#369,stroke-width:2px,color:#000,stroke-dasharray: 5 5
-    style Auth fill:#ffb,stroke:#663,stroke-width:2px,color:#000,stroke-dasharray: 5 5
+    Utilisateur <|-- Admin
+    Utilisateur <|-- Medecin
+    Utilisateur <|-- Patient
+    Medecin "1" --> "*" RendezVous : gère
+    Patient "1" --> "*" RendezVous : a réservé
+    Cabinet "1" --> "*" Medecin : contient
 
 
 
@@ -79,23 +63,50 @@ classDiagram
 
 //sequenceDiagram
 
-
 sequenceDiagram
+    participant Admin
     participant Patient
-    participant Auth
-    participant Doctor
-    participant Appointment
-    participant Database
+    participant Medecin
+    participant BaseDeDonnees as Base de Données
 
-    Patient->>Auth: Request to login
-    Auth-->>Patient: Authenticate
-    Patient->>Appointment: Book appointment
-    Appointment->>Database: Save appointment
-    Database-->>Appointment: Confirmation
-    
-    Doctor->>Appointment: View pending appointments
-    Appointment-->>Doctor: Display pending appointments
-    Doctor->>Appointment: Approve or reject
-    Appointment->>Database: Update status (approved/rejected)
-    Database-->>Appointment: Confirmation
-    Appointment-->>Doctor: Status updated
+    %% Interactions Admin
+    Admin->>+BaseDeDonnees: Ajouter Cabinet
+    BaseDeDonnees-->>-Admin: Confirmation
+
+    Admin->>+BaseDeDonnees: Lister Cabinets
+    BaseDeDonnees-->>-Admin: Liste des Cabinets
+
+    Admin->>+BaseDeDonnees: Lister Médecins
+    BaseDeDonnees-->>-Admin: Liste des Médecins
+
+    Admin->>+BaseDeDonnees: Lister Patients
+    BaseDeDonnees-->>-Admin: Liste des Patients
+
+    %% Interactions Patient
+    Patient->>+BaseDeDonnees: Réserver RDV
+    BaseDeDonnees-->>-Patient: Confirmation RDV
+
+    Patient->>+BaseDeDonnees: Lister Cabinets
+    BaseDeDonnees-->>-Patient: Liste des Cabinets
+
+    Patient->>+BaseDeDonnees: Modifier RDV
+    BaseDeDonnees-->>-Patient: Confirmation Modification
+
+    Patient->>+BaseDeDonnees: Annuler RDV
+    BaseDeDonnees-->>-Patient: Confirmation Annulation
+
+    Patient->>+BaseDeDonnees: Télécharger PDF de RDV
+    BaseDeDonnees-->>-Patient: Fichier PDF
+
+    %% Interactions Médecin
+    Medecin->>+BaseDeDonnees: Lister RDV
+    BaseDeDonnees-->>-Medecin: Liste des RDV
+
+    Medecin->>+BaseDeDonnees: Valider RDV
+    BaseDeDonnees-->>-Medecin: Confirmation Validation
+
+    Medecin->>+BaseDeDonnees: Supprimer RDV
+    BaseDeDonnees-->>-Medecin: Confirmation Suppression
+
+    Medecin->>+BaseDeDonnees: Télécharger PDF de RDV
+    BaseDeDonnees-->>-Medecin: Fichier PDF
