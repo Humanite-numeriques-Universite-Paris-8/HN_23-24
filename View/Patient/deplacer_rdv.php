@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Exécuter la requête et vérifier si la mise à jour a été réussie
             if ($stmt->execute()) {
                 // Rediriger avec un message de succès
-                header("Location: lister_rdv.php?success=Le rendez-vous a été déplacé avec succès.");
+                header("Location: patient_lister_rdv.php?success=1");
                 exit();
             } else {
                 $error_message = "Erreur lors de la mise à jour du rendez-vous.";
