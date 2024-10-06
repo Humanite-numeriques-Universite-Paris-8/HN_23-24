@@ -48,8 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error_message = "Erreur : Un rendez-vous est déjà pris pour cette date et cette heure.";
         } else {
             // Insérer le rendez-vous dans la base de données
-            $insert_query = "INSERT INTO appointments (patient_id, cabinet_id, docteur_id, appointment_date, cin, securite_sociale, status)
-                             VALUES (:patient_id, :cabinet_id, :docteur_id, :appointment_date, :cin, :securite_sociale, 'pending')";
+            $insert_query = "INSERT INTO appointments (patient_id, cabinet_id, docteur_id, appointment_date, cin, securite_sociale)
+                             VALUES (:patient_id, :cabinet_id, :docteur_id, :appointment_date, :cin, :securite_sociale)";
             $stmt = $conn->prepare($insert_query);
             $stmt->bindParam(':patient_id', $patient_id);
             $stmt->bindParam(':cabinet_id', $cabinet_id);
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($stmt->execute()) {
                 // Rediriger vers la page Lister_Rdv.php après succès avec le message de succès
-                header("Location: Lister_Rdv.php?success=1");
+                header("Location: patient_lister_rdv.php?success=1");
                 exit();
             } else {
                 echo "<p class='error'>Erreur lors de la réservation du rendez-vous.</p>";

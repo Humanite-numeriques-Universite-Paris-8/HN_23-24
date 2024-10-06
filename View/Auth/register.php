@@ -4,7 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription</title>
-    <link rel="stylesheet" href="../css/register.css"> <!-- Lien vers le fichier CSS -->
+
+<style>
+    /* register.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.register-container {
+    width: 100%; /* Ajustez à 100% de la largeur disponible */
+    max-width: 400px; /* Limitez la largeur maximale pour ne pas être trop large */
+    padding: 30px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+}
+
+.login-link {
+    text-align: center;
+}
+
+.login-link a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+</style>
 </head>
 <body>
     <div class="register-container">

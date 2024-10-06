@@ -3,7 +3,8 @@ require_once '../../config/database.php'; // Assure-toi que le chemin est correc
 
 $conn = connectDB();
 
-$query = "SELECT cabinets.nom AS cabinet_nom, cabinets.adresse, users.username AS docteur_nom
+// Requête modifiée pour récupérer le nom du cabinet, l'adresse, le nom du docteur et la spécialité
+$query = "SELECT cabinets.nom AS cabinet_nom, cabinets.adresse, users.username AS docteur_nom, cabinets.specialite
           FROM cabinets
           JOIN users ON cabinets.docteur_id = users.id
           WHERE users.role = 2";  // 2 étant le rôle médecin
@@ -26,12 +27,14 @@ $result = $conn->query($query);
     <?php
     if ($result->rowCount() > 0) {
         echo "<table>";
-        echo "<tr><th>Nom du Cabinet</th><th>Adresse</th></tr>";
+        echo "<tr><th>Nom du Cabinet</th><th>Adresse</th><th>Docteur</th><th>Spécialité</th></tr>"; // Ajout des colonnes Docteur et Spécialité
         
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             echo "<tr>";
-            echo "<td>" . htmlspecialchars($row['cabinet_nom']) . "</td>"; // Utilise l'alias cabinet_nom
-            echo "<td>" . htmlspecialchars($row['adresse']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['cabinet_nom']) . "</td>"; // Nom du cabinet
+            echo "<td>" . htmlspecialchars($row['adresse']) . "</td>";     // Adresse du cabinet
+            echo "<td>" . htmlspecialchars($row['docteur_nom']) . "</td>"; // Nom du docteur
+            echo "<td>" . htmlspecialchars($row['specialite']) . "</td>";  // Spécialité du cabinet
             echo "</tr>";
         }
         

@@ -55,12 +55,12 @@ if (isset($_SESSION['username'])) {
             <div class="card">
                 <h2>Voir les médecins</h2>
                 <p>Consultez la liste des médecins.</p>
-                <a href="voir_medecins.php" class="btn btn-primary">Voir les Médecins</a>
+                <a href="getMedecin.php" class="btn btn-primary">Voir les Médecins</a>
             </div>
             <div class="card">
                 <h2>Voir les Patients</h2>
                 <p>Consultez la liste des patients ayant réservé des rendez-vous.</p>
-                <a href="voir_patients.php" class="btn btn-primary">Voir les Patients</a>
+                <a href="getPatient.php" class="btn btn-primary">Voir les Patients</a>
             </div>
         </div>
     </div>
