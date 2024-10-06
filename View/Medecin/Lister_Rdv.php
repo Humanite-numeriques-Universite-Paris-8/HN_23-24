@@ -36,7 +36,7 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des Rendez-vous</title>
-    <link rel="stylesheet" href="../css/lister_rdv.css"> <!-- Assurez-vous que ce fichier existe -->
+    <link rel="stylesheet" href="../Medecin/css/lister_rdv.css"> <!-- Assurez-vous que ce fichier existe -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>

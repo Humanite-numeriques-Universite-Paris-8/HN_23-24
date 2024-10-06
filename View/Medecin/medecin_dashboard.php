@@ -18,7 +18,7 @@ $username = $_SESSION['username'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tableau de Bord Médecin</title>
-    <link rel="stylesheet" href="../css/admin_dashboard.css"> <!-- Assurez-vous que ce chemin est correct -->
+    <link rel="stylesheet" href="../Admin/css/admin_dashboard.css"> <!-- Assurez-vous que ce chemin est correct -->
 </head>
 <body>
 

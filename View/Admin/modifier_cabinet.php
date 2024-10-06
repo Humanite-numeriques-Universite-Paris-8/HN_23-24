@@ -50,7 +50,7 @@ $cabinet = $stmt->fetch(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier Cabinet</title>
-    <link rel="stylesheet" href="../css/modifier_cabinet.css"> <!-- Assurez-vous que ce chemin est correct -->
+    <link rel="stylesheet" href="../Admin/css/modifier_cabinet.css"> <!-- Assurez-vous que ce chemin est correct -->
 
 </head>
 <body>

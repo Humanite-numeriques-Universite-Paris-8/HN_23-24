@@ -8,7 +8,7 @@ session_start(); // Assure que la session est démarrée pour obtenir les inform
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tableau de Bord Patient</title>
-    <link rel="stylesheet" href="../css/admin_dashboard.css"> <!-- Assurez-vous que ce chemin est correct -->
+    <link rel="stylesheet" href="../Admin/css/admin_dashboard.css"> <!-- Assurez-vous que ce chemin est correct -->
 </head>
 <body>
 
@@ -50,7 +50,7 @@ session_start(); // Assure que la session est démarrée pour obtenir les inform
             <div class="card">
                 <h2>Voir mes Rendez-vous</h2>
                 <p>Consultez la liste de vos rendez-vous.</p>
-                <a href="Lister_Rdv.php" class="btn btn-primary">Voir mes Rendez-vous</a>
+                <a href="patient_lister_rdv.php" class="btn btn-primary">Voir mes Rendez-vous</a>
             </div>
         </div>
     </div>

@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Déplacer votre rendez-vous</title>
-    <link rel="stylesheet" href="../css/deplacer.css"> <!-- Lien vers le fichier CSS -->
+    <link rel="stylesheet" href="../Patient/css/deplacer.css"> <!-- Lien vers le fichier CSS -->
     <style>
         body {
             font-family: Arial, sans-serif;

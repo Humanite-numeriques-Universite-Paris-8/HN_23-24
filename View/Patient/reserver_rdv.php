@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Réserver un Rendez-vous</title>
-    <link rel="stylesheet" href="../css/reserver_rdv.css"> <!-- Assurez-vous que ce chemin est correct -->
+    <link rel="stylesheet" href="../Patient/css/reserver_rdv.css"> <!-- Assurez-vous que ce chemin est correct -->
     <style>
         body {
             font-family: Arial, sans-serif;
