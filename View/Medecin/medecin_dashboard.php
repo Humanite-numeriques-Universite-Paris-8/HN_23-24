@@ -55,7 +55,7 @@ $username = $_SESSION['username'];
             <div class="card">
     <h2>Consulter les questionnaires depuis google forms</h2>
     <p>Consultez la liste des questionnaires remplis par les patients depuis Google Forms.</p>
-    <a href="data.html" class="btn btn-primary">Voir les questionnaires</a>
+    <a href="/data.html" class="btn btn-primary">Voir les questionnaires</a>
 </div>
 
 
