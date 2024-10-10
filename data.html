@@ -4,15 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Google Form Data Display</title>
-    <link rel="stylesheet" href="css/data.css" /> <!-- Ensure this path is correct -->
-    <script src="js/data-Questionnaire.js"></script> <!-- Ensure this path is correct -->
+    <link rel="stylesheet" href="css/data.css" />
+    <script src="js/data-Questionnaire.js"></script>
+    <style>
+    
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f4f4f9; 
+      }
+
+      table {
+        width: 100%; 
+        margin-bottom: 20px;
+      }
+
+      a.questionnaire-link {
+        display: inline-block;
+        text-decoration: none;
+        color: white; 
+        background-color: #007BFF; 
+        padding: 10px 20px; 
+        border-radius: 5px; 
+        transition: background-color 0.3s, transform 0.3s; 
+      }
+
+      a.questionnaire-link:hover, a.questionnaire-link:focus {
+        background-color: #0056b3; 
+        transform: scale(1.05); 
+      }
+    </style>
   </head>
   <body>
     <h1>Responses from Google Form</h1>
     <table border="1">
       <thead>
         <tr>
-          
           <th>Time submit</th>
           <th>Quel est votre sexe?</th>
           <th>Quel âge avez vous ?</th>
@@ -26,5 +53,6 @@
         <!-- Data will be dynamically inserted here by JavaScript -->
       </tbody>
     </table>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLScAyvTcCYkgsl9wE7qn8zPrgPHWa_T0RlJ_0_GNr25O6bkn8w/viewform?usp=sf_link" class="questionnaire-link" target="_blank">Click here to join the questionnaire</a>
   </body>
 </html>
