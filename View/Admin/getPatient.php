@@ -4,9 +4,9 @@ require_once '../../config/database.php'; // Assurez-vous que le chemin est corr
 // Connexion à la base de données
 $conn = connectDB();
 
-// Requête SQL pour récupérer la liste des patients avec leurs informations, docteur associé, et cabinet
+// Requête SQL pour récupérer la liste des patients avec leurs informations, docteur associé, cabinet, et numéro de téléphone
 $query = "SELECT patients.id AS patient_id, patients.username AS patient_name, patients.email AS patient_email, 
-                 appointments.cin, appointments.securite_sociale, 
+                 patients.phone AS patient_phone, appointments.cin, appointments.securite_sociale, 
                  docteur.username AS docteur_name, cabinets.nom AS cabinet_name
           FROM users AS patients
           LEFT JOIN appointments ON appointments.patient_id = patients.id
@@ -94,23 +94,23 @@ $patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php if (count($patients) > 0): ?>
         <table>
             <tr>
-                <th>ID du Patient</th>
                 <th>Nom du Patient</th>
                 <th>Email</th>
                 <th>CIN</th>
                 <th>Numéro Sécurité Sociale</th>
                 <th>Nom du Docteur</th>
                 <th>Cabinet</th>
+                <th>Numéro de Téléphone</th>
             </tr>
             <?php foreach ($patients as $patient): ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($patient['patient_id']); ?></td>
                     <td><?php echo htmlspecialchars($patient['patient_name']); ?></td>
                     <td><?php echo htmlspecialchars($patient['patient_email']); ?></td>
                     <td><?php echo htmlspecialchars($patient['cin'] ?? 'Non défini'); ?></td>
                     <td><?php echo htmlspecialchars($patient['securite_sociale'] ?? 'Non défini'); ?></td>
                     <td><?php echo htmlspecialchars($patient['docteur_name'] ?? 'Non défini'); ?></td>
                     <td><?php echo htmlspecialchars($patient['cabinet_name'] ?? 'Non défini'); ?></td>
+                    <td><?php echo htmlspecialchars($patient['patient_phone'] ?? 'Non renseigné'); ?></td>
                 </tr>
             <?php endforeach; ?>
         </table>

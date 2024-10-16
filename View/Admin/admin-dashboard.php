@@ -62,6 +62,8 @@ if (isset($_SESSION['username'])) {
                 <p>Consultez la liste des patients ayant réservé des rendez-vous.</p>
                 <a href="getPatient.php" class="btn btn-primary">Voir les Patients</a>
             </div>
+
+            
         </div>
     </div>
 
