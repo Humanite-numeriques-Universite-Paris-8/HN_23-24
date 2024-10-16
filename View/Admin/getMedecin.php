@@ -9,7 +9,7 @@ $query = "
     SELECT m.id AS medecin_id, m.username AS medecin_name, m.email AS medecin_email, m.phone AS medecin_phone, c.specialite, c.nom AS cabinet_name
     FROM users m
     LEFT JOIN cabinets c ON m.id = c.docteur_id
-    WHERE m.role = 2"; // Le rôle 2 est généralement attribué aux médecins
+    WHERE m.role =  'medecin'"; // Le rôle 2 est attribué aux médecins
 
 $stmt = $conn->prepare($query);
 $stmt->execute();
@@ -68,7 +68,7 @@ $medecins = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo htmlspecialchars($medecin['medecin_email']); ?></td>
                     <td><?php echo htmlspecialchars($medecin['medecin_phone'] ?? 'Non renseigné'); ?></td>
                     <td><?php echo htmlspecialchars($medecin['specialite'] ?? 'Non définie'); ?></td>
-                    <td><?php echo htmlspecialchars($medecin['cabinet_name']); ?></td>
+                    <td><?php echo htmlspecialchars($medecin['cabinet_name'] ?? 'Aucun cabinet associé'); ?></td>
                 </tr>
             <?php endforeach; ?>
         </table>

@@ -158,14 +158,14 @@ button[type="submit"]:hover {
 
             <label for="docteur_id">Docteur (ID):</label>
             <select name="docteur_id" id="docteur_id" required>
-                <?php
-                $stmt = $conn->query("SELECT id, username FROM users WHERE role = 2");
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $selected = ($row['id'] == $docteur_id) ? 'selected' : '';
-                    echo "<option value='" . $row['id'] . "' $selected>" . htmlspecialchars($row['username']) . " (ID: " . $row['id'] . ")</option>";
-                }
-                ?>
-            </select>
+    <?php
+    $stmt = $conn->query("SELECT id, username FROM users WHERE role = 'medecin'");
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo "<option value='" . $row['id'] . "'>" . htmlspecialchars($row['username']) . "</option>";
+    }
+    ?>
+</select>
+
 
             <label for="specialite">Spécialité:</label>
             <select name="specialite" id="specialite" required>

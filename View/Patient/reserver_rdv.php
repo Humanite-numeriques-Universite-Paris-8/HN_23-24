@@ -92,7 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <form action="reserver_rdv.php" method="POST">
         <label for="cabinet">Cabinet:</label>
-        <select name="cabinet_id" id="cabinet">
+        <select name="cabinet_id" id="cabinet" required>
+            <option value="">Sélectionner un cabinet</option>
             <?php
             $stmt = $conn->query("SELECT id, nom FROM cabinets");
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

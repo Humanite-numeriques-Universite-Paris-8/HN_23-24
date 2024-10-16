@@ -10,7 +10,7 @@ $query = "
            d.username AS docteur_nom, d.email AS docteur_email, d.phone AS docteur_phone
     FROM cabinets c
     LEFT JOIN users d ON c.docteur_id = d.id
-    WHERE d.role = 2"; // Le rôle 2 est généralement attribué aux médecins
+    WHERE d.role = 'medecin'"; // Le rôle 2 est généralement attribué aux médecins
 
 // Préparation et exécution de la requête
 $stmt = $conn->prepare($query);
