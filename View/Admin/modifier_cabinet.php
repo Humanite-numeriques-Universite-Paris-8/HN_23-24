@@ -193,7 +193,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <select name="docteur_id" id="docteur_id" required>
             <?php
             // Récupérer tous les médecins
-            $stmt_docteurs = $conn->query("SELECT id, username FROM users WHERE role = 2");
+            $stmt_docteurs = $conn->query("SELECT id, username FROM users WHERE role = 'medecin'");
+
             while ($row = $stmt_docteurs->fetch(PDO::FETCH_ASSOC)) {
                 $selected = ($row['id'] == $cabinet['docteur_id']) ? 'selected' : '';
                 echo "<option value='" . $row['id'] . "' $selected>" . htmlspecialchars($row['username']) . " (ID: " . $row['id'] . ")</option>";

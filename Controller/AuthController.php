@@ -1,5 +1,5 @@
 <?php
-require_once "../Model/user.php"; // Ensure this path is correct
+require_once "../Model/user.php"; 
 
 class AuthController {
     private $userModel;
@@ -24,16 +24,16 @@ class AuthController {
             // Verify if the password is correct
             if (password_verify($password, $user['password'])) {
                 session_start();
-                $_SESSION['user_id'] = $user['id'];  // Définit l'ID utilisateur dans la session
-                $_SESSION['username'] = $user['username']; // Stocke le nom d'utilisateur dans la session
-                $_SESSION['role'] = $user['role'];  // Stocke également le rôle pour rediriger
+                $_SESSION['user_id'] = $user['id'];  
+                $_SESSION['username'] = $user['username']; 
+                $_SESSION['role'] = $user['role'];  
 
                 // Redirection en fonction du rôle de l'utilisateur
                 switch ($user['role']) {
                     case 'admin':
                         header("Location: ../View/Admin/admin-dashboard.php");
                         break;
-                    case 'doctor':
+                    case 'medecin':
                         header("Location: ../View/Medecin/medecin_dashboard.php");
                         break;
                     case 'patient':
@@ -55,14 +55,14 @@ class AuthController {
             $password = $_POST['password'];
             $email = $_POST['email'];
             $role = $_POST['role'];
-            
+    
             // Vérification si le rôle admin est sélectionné mais l'email n'est pas celui autorisé
             if ($role === 'admin' && $email !== 'a.hef2000@gmail.com') {
                 // Redirection avec un message d'erreur
                 header("Location: ../View/Auth/register.php?error=Vous ne pouvez pas créer un autre compte admin avec cet email.");
                 exit();
             }
-            
+    
             // Vérifiez si l'email est déjà utilisé
             $existingUser = $this->userModel->getUserByEmail($email);
             if ($existingUser) {
@@ -71,9 +71,18 @@ class AuthController {
                 exit();
             }
     
+            // Vérifiez que tous les champs sont remplis
+            if (empty($username) || empty($password) || empty($email) || empty($role)) {
+                header("Location: ../View/Auth/register.php?error=Tous les champs doivent être remplis.");
+                exit();
+            }
+    
             // Enregistrement de l'utilisateur
-            $this->userModel->register($username, $password, $email, $role);
-            header("Location: ../View/Auth/login.php");
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT); // Hasher le mot de passe
+            $this->userModel->register($username, $hashedPassword, $email, $role);
+    
+            // Redirection vers la page de connexion après enregistrement
+            header("Location: ../View/Auth/login.php?success=Inscription réussie, veuillez vous connecter.");
             exit();
         } else {
             // Charger la vue d'enregistrement pour une requête GET
@@ -84,7 +93,7 @@ class AuthController {
     public function logout() {
         session_start();
         session_destroy();
-        header("Location: ../View/Auth/login.php"); // Ensure the path to login.php is correct
+        header("Location: ../View/Auth/login.php");
         exit();
     }
 }

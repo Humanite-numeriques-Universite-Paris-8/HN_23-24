@@ -46,40 +46,37 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h2>Mes Rendez-vous</h2>
     <?php if (!empty($appointments)): ?>
     <table>
-    <thead>
-    <tr>
-        <th>Cabinet</th>
-        <th>Nom du Docteur</th>
-        <th>Email du Docteur</th> <!-- Nouvelle colonne pour l'email du Docteur -->
-        <th>Mon Nom</th>
-        <th>Mon Email</th> <!-- Nouvelle colonne pour l'email du patient -->
-        <th>Ma CIN</th>
-        <th>Ma Sécurité Sociale</th>
-        <th>La date du Rendez-vous</th>
-        <th>Mon Numéro de Téléphone</th>
-        <th>Actions</th>
-    </tr>
-</thead>
-<tbody>
-    <?php foreach ($appointments as $appointment): ?>
-    <tr>
-        <td><?php echo htmlspecialchars($appointment['cabinet_nom']); ?></td>
-        <td><?php echo htmlspecialchars($appointment['docteur_nom']); ?></td>
-        <td><?php echo htmlspecialchars($appointment['docteur_email']); ?></td> <!-- Affiche l'email du Docteur -->
-        <td><?php echo htmlspecialchars($appointment['patient_nom']); ?></td>
-        <td><?php echo htmlspecialchars($appointment['patient_email']); ?></td> <!-- Affiche l'email du patient -->
-        <td><?php echo htmlspecialchars($appointment['cin']); ?></td>
-        <td><?php echo htmlspecialchars($appointment['securite_sociale']); ?></td>
-        <td><?php echo htmlspecialchars($appointment['appointment_date']); ?></td>
-        <td><?php echo htmlspecialchars($appointment['patient_phone']); ?></td>
-        <td>
-            <a href="deplacer_rdv.php?id=<?php echo $appointment['id']; ?>" class="btn-deplacer">Déplacer</a> |
-            <a href="annuler_rdv.php?id=<?php echo $appointment['id']; ?>" class="btn-annuler">Annuler</a>
-        </td>
-    </tr>
-    <?php endforeach; ?>
-</tbody>
+        <thead>
+            <tr>
+                <th>Cabinet</th>
+                <th>Nom du Docteur</th>
+                <th>Mon Nom</th>
+                <th>Ma CIN</th>
+                <th>Ma Sécurité Sociale</th>
+                <th>La date du Rendez-vous</th>
+                <th>Mon Numéro de Téléphone</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($appointments as $appointment): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($appointment['cabinet_nom']); ?></td>
+                <td><?php echo htmlspecialchars($appointment['docteur_nom']); ?></td>
+<td><?php echo htmlspecialchars($appointment['patient_nom']); ?></td>
 
+                <td><?php echo htmlspecialchars($appointment['cin']); ?></td>
+                <td><?php echo htmlspecialchars($appointment['securite_sociale']); ?></td>
+                <td><?php echo htmlspecialchars($appointment['appointment_date']); ?></td>
+                <td><?php echo htmlspecialchars($appointment['patient_phone']); ?></td>
+
+                <td>
+                    <a href="deplacer_rdv.php?id=<?php echo $appointment['id']; ?>" class="btn-deplacer">Déplacer</a> |
+                    <a href="annuler_rdv.php?id=<?php echo $appointment['id']; ?>" class="btn-annuler">Annuler</a>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
     </table>
     <?php else: ?>
         <p>Aucun rendez-vous trouvé.</p>
@@ -101,14 +98,12 @@ document.getElementById('download-pdf').addEventListener('click', function () {
     doc.setFontSize(14);
     doc.text(`Nom du Patient: ${patientName}`, 10, 20);
 
-    // Construction des données pour le tableau PDF
     const tableData = [];
     <?php foreach ($appointments as $appointment): ?>
         tableData.push([
             "<?php echo htmlspecialchars($appointment['cabinet_nom']); ?>",
             "<?php echo htmlspecialchars($appointment['docteur_nom']); ?>",
             "<?php echo htmlspecialchars($appointment['patient_nom']); ?>",
-            "<?php echo htmlspecialchars($appointment['patient_email']); ?>",
             "<?php echo htmlspecialchars($appointment['cin']); ?>",
             "<?php echo htmlspecialchars($appointment['securite_sociale']); ?>",
             "<?php echo htmlspecialchars($appointment['appointment_date']); ?>",
@@ -116,43 +111,25 @@ document.getElementById('download-pdf').addEventListener('click', function () {
         ]);
     <?php endforeach; ?>
 
-    if (tableData.length > 0) {
-        doc.autoTable({
-            head: [['Cabinet', 'Docteur', 'Patient', 'Email Patient', 'CIN', 'Sécurité Sociale', 'Date du Rendez-vous', 'Numéro de Téléphone']],
-            body: tableData,
-            startY: 32,  // Position du tableau
-            margin: { left: 1, right: 1},  // Réduction des marges gauche et droite
-            theme: 'striped',
-            columnStyles: {
-                0: {cellWidth: 25},  // Cabinet
-                1: {cellWidth: 25},  // Docteur
-                2: {cellWidth: 25},  // Patient
-                3: {cellWidth: 35},  // Email Patient
-                4: {cellWidth: 20},  // CIN
-                5: {cellWidth: 25},  // Sécurité Sociale
-                6: {cellWidth: 30},  // Date du Rendez-vous
-                7: {cellWidth: 25}   // Numéro de Téléphone
-            },
-            headStyles: {
-                fillColor: [22, 160, 133],
-                textColor: [255, 255, 255],
-                fontSize: 9,
-            },
-            styles: {
-                fontSize: 9,
-                cellPadding: 1,  // Ajuster les espacements internes
-                overflow: 'linebreak',  // Gérer les débordements de texte
-            },
-            tableWidth: 'auto',  // Utiliser tout l'espace disponible
-        });
+    doc.autoTable({
+        head: [['Cabinet', 'Docteur', 'Patient', 'CIN', 'Sécurité Sociale', 'Date du Rendez-vous', 'Numéro de Téléphone']],
+        body: tableData,
+        startY: 30,
+        theme: 'striped',
+        headStyles: {
+            fillColor: [22, 160, 133],
+            textColor: [255, 255, 255],
+            fontSize: 8
+        },
+        styles: {
+            fontSize: 10,
+            cellPadding: 5
+        }
+    });
 
-        doc.save(`Rendez-vous_de_${patientName}.pdf`);
-    } else {
-        alert('Aucune donnée à afficher');
-    }
+    doc.save(`Rendez-vous_de_${patientName}.pdf`);
 });
 </script>
-
 
 </body>
 </html>
