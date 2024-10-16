@@ -95,17 +95,11 @@ $username = $_SESSION['username'];
             </div>
    
             <div class="card">
-                <h2>Profil</h2>
-                <p>Consultez la liste des rendez-vous à venir.</p>
-                <a href="../Medecin/update_profile.php">Mettre à Jour Mon Profil</a>
+                <h2>mon contact</h2>
+                <p>mise à jour en cas de changement de mon num de tel</p>
+                <a class="btn btn-primary" href="../Medecin/update_profile.php">Mise à jour Mon Num de Tél</a>
             </div>
    
-            <div class="card">
-                <h2>Contact patient</h2>
-                <p>Consultez la liste des contacts des patients</p>
-                <a  class="btn btn-primary">voir contacts des patients</a>
-            </div>
-           
 
         
             <div class="card">
