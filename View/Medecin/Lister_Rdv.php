@@ -13,15 +13,15 @@ if (!isset($_SESSION['user_id'])) {
 // Récupère l'ID du docteur connecté
 $docteur_id = $_SESSION['user_id'];
 
-// Récupérer les rendez-vous associés au docteur
+// Récupérer les rendez-vous associés au docteur avec les bonnes informations du patient
 $query = "SELECT appointments.id, appointments.appointment_date, appointments.cin, appointments.securite_sociale, 
-                 patients.username AS patient_name, cabinets.nom AS cabinet_name, appointments.is_validated
+                 patients.phone AS patient_phone, patients.username AS patient_name, 
+                 patients.email AS patient_email, cabinets.nom AS cabinet_name, appointments.is_validated
           FROM appointments
           JOIN users AS patients ON appointments.patient_id = patients.id
           JOIN cabinets ON appointments.cabinet_id = cabinets.id
           WHERE appointments.docteur_id = :docteur_id
           ORDER BY appointments.appointment_date DESC";
-
 
 $stmt = $conn->prepare($query);
 $stmt->bindParam(':docteur_id', $docteur_id);
@@ -95,6 +95,8 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <th>Date du Rendez-vous</th>
             <th>CIN</th>
             <th>Sécurité Sociale</th>
+            <th>Téléphone</th>
+            <th>Email</th>
             <th>Action</th>
         </tr>
     </thead>
@@ -106,6 +108,8 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <td><?php echo htmlspecialchars($appointment['appointment_date']); ?></td>
                 <td><?php echo htmlspecialchars($appointment['cin']); ?></td>
                 <td><?php echo htmlspecialchars($appointment['securite_sociale']); ?></td>
+                <td><?php echo htmlspecialchars($appointment['patient_phone']); ?></td> <!-- Numéro de téléphone -->
+                <td><?php echo htmlspecialchars($appointment['patient_email']); ?></td> <!-- Email du patient -->
                 <td class="action-buttons">
                     <a href="valider_rdv.php?id=<?php echo $appointment['id']; ?>" class="validate-btn">Valider</a>
                     <a href="cancel.php?id=<?php echo $appointment['id']; ?>" class="cancel-btn"><i class="fas fa-times-circle"></i></a>
@@ -141,13 +145,15 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 "<?php echo htmlspecialchars($appointment['cabinet_name']); ?>",
                 "<?php echo htmlspecialchars($appointment['appointment_date']); ?>",
                 "<?php echo htmlspecialchars($appointment['cin']); ?>",
-                "<?php echo htmlspecialchars($appointment['securite_sociale']); ?>"
+                "<?php echo htmlspecialchars($appointment['securite_sociale']); ?>",
+                "<?php echo htmlspecialchars($appointment['patient_phone']); ?>",  // Numéro de téléphone
+                "<?php echo htmlspecialchars($appointment['patient_email']); ?>"  // Email du patient
             ]);
         <?php endforeach; ?>
 
         // Générer le tableau
         doc.autoTable({
-            head: [['Patient', 'Cabinet', 'Date du Rendez-vous', 'CIN', 'Sécurité Sociale']],
+            head: [['Patient', 'Cabinet', 'Date du Rendez-vous', 'CIN', 'Sécurité Sociale', 'Téléphone', 'Email']],
             body: tableData,
             startY: 20, // Positionner le tableau un peu plus bas
         });
