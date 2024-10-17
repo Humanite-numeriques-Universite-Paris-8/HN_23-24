@@ -95,11 +95,11 @@ session_start(); // Assure que la session est démarrée pour obtenir les inform
                 <a href="patient_lister_rdv.php" class="btn btn-primary">Voir mes Rendez-vous</a>
             </div>
 
-            <div class="card">
+            <!-- <div class="card">
                 <h2>Mon contact</h2>
                 <p>mise à jour en cas de changement de mon num de tel</p>
                 <a class="btn btn-primary" href="../Patient/update_profile.php">Mise à jour Mon Num de Tél</a>
-            </div>
+            </div> -->
 
 
         </div>

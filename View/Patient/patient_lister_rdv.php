@@ -14,7 +14,7 @@ $conn = connectDB();
 // Requête pour récupérer les informations du patient et des rendez-vous
 $query = "
 SELECT appointments.id, cabinets.nom AS cabinet_nom, docteurs.username AS docteur_nom, docteurs.email AS docteur_email,
-appointments.appointment_date, appointments.cin, appointments.securite_sociale, 
+appointments.appointment_date,  appointments.securite_sociale, 
 patients.username AS patient_nom, patients.phone AS patient_phone, patients.email AS patient_email
 FROM appointments
 JOIN cabinets ON appointments.cabinet_id = cabinets.id
@@ -51,7 +51,6 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <th>Cabinet</th>
                 <th>Nom du Docteur</th>
                 <th>Mon Nom</th>
-                <th>Ma CIN</th>
                 <th>Ma Sécurité Sociale</th>
                 <th>La date du Rendez-vous</th>
                 <th>Mon Numéro de Téléphone</th>
@@ -65,7 +64,6 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <td><?php echo htmlspecialchars($appointment['docteur_nom']); ?></td>
 <td><?php echo htmlspecialchars($appointment['patient_nom']); ?></td>
 
-                <td><?php echo htmlspecialchars($appointment['cin']); ?></td>
                 <td><?php echo htmlspecialchars($appointment['securite_sociale']); ?></td>
                 <td><?php echo htmlspecialchars($appointment['appointment_date']); ?></td>
                 <td><?php echo htmlspecialchars($appointment['patient_phone']); ?></td>
@@ -104,7 +102,7 @@ document.getElementById('download-pdf').addEventListener('click', function () {
             "<?php echo htmlspecialchars($appointment['cabinet_nom']); ?>",
             "<?php echo htmlspecialchars($appointment['docteur_nom']); ?>",
             "<?php echo htmlspecialchars($appointment['patient_nom']); ?>",
-            "<?php echo htmlspecialchars($appointment['cin']); ?>",
+           
             "<?php echo htmlspecialchars($appointment['securite_sociale']); ?>",
             "<?php echo htmlspecialchars($appointment['appointment_date']); ?>",
             "<?php echo htmlspecialchars($appointment['patient_phone']); ?>"
@@ -112,7 +110,7 @@ document.getElementById('download-pdf').addEventListener('click', function () {
     <?php endforeach; ?>
 
     doc.autoTable({
-        head: [['Cabinet', 'Docteur', 'Patient', 'CIN', 'Sécurité Sociale', 'Date du Rendez-vous', 'Numéro de Téléphone']],
+        head: [['Cabinet', 'Docteur', 'Patient', 'Sécurité Sociale', 'Date du Rendez-vous', 'Numéro de Téléphone']],
         body: tableData,
         startY: 30,
         theme: 'striped',

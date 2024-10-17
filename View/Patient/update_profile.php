@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 session_start();
 require_once '../../config/database.php';
 
@@ -18,28 +18,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $conn->beginTransaction();
 
-        // Mettre à jour le téléphone dans la table `users`
+
         $query_users = "UPDATE users SET phone = :phone WHERE id = :user_id";
         $stmt_users = $conn->prepare($query_users);
         $stmt_users->bindParam(':phone', $phone);
         $stmt_users->bindParam(':user_id', $user_id);
         $stmt_users->execute();
 
-        // Vérification de l'exécution de la mise à jour
+    
         if ($stmt_users->rowCount() > 0) {
             $success_message = "Votre profil a été mis à jour avec succès.";
         } else {
             $error_message = "Erreur lors de la mise à jour du profil : aucun changement détecté.";
         }
 
-        // Mettre à jour le téléphone dans la table `appointments`
+
         $query_appointments = "UPDATE appointments SET phone = :phone WHERE patient_id = :user_id";
         $stmt_appointments = $conn->prepare($query_appointments);
         $stmt_appointments->bindParam(':phone', $phone);
         $stmt_appointments->bindParam(':user_id', $user_id);
         $stmt_appointments->execute();
 
-        // Vérification de l'exécution de la mise à jour
+ 
         if ($stmt_appointments->rowCount() > 0) {
             $success_message .= " Le numéro de téléphone a également été mis à jour dans vos rendez-vous.";
         } else {
@@ -193,4 +193,4 @@ $doctor = $stmt->fetch(PDO::FETCH_ASSOC);
         <a href="patient_dashboard.php" class="btn">Retour au Tableau de Bord</a>
     </div>
 </body>
-</html>
+</html> -->
