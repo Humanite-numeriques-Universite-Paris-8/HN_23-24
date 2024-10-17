@@ -4,15 +4,15 @@ require_once '../../config/database.php'; // Assurez-vous que le chemin est corr
 // Connexion à la base de données
 $conn = connectDB();
 
-// Requête SQL pour récupérer la liste des patients
+// Requête SQL pour récupérer la liste des patients avec la spécialité du docteur
 $query = "SELECT patients.id AS patient_id, 
                  patients.username AS patient_name, 
                  patients.email AS patient_email, 
                  patients.phone AS patient_phone, 
-                 appointments.cin, 
                  appointments.securite_sociale, 
                  docteur.username AS docteur_name, 
-                 cabinets.nom AS cabinet_name
+                 cabinets.nom AS cabinet_name,
+                 cabinets.specialite AS specialite
           FROM users AS patients
           LEFT JOIN appointments ON appointments.patient_id = patients.id
           LEFT JOIN users AS docteur ON appointments.docteur_id = docteur.id
@@ -92,34 +92,34 @@ $patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-size: 16px;
             color: #ff0000;
         }
+
         .btn-modifier {
-    display: inline-block;
-    padding: 8px 12px;
-    background-color: #28a745; /* Green background for Modifier */
-    color: white;
-    text-decoration: none;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
+            display: inline-block;
+            padding: 8px 12px;
+            background-color: #28a745; /* Green background for Modifier */
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
 
-.btn-modifier:hover {
-    background-color: #218838; /* Darker green on hover */
-}
+        .btn-modifier:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
 
-.btn-supprimer {
-    display: inline-block;
-    padding: 8px 12px;
-    background-color: #dc3545; /* Red background for Supprimer */
-    color: white;
-    text-decoration: none;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
+        .btn-supprimer {
+            display: inline-block;
+            padding: 8px 12px;
+            background-color: #dc3545; /* Red background for Supprimer */
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
 
-.btn-supprimer:hover {
-    background-color: #c82333; /* Darker red on hover */
-}
-
+        .btn-supprimer:hover {
+            background-color: #c82333; /* Darker red on hover */
+        }
     </style>
 </head>
 <body>
@@ -129,9 +129,9 @@ $patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <tr>
                 <th>Nom du Patient</th>
                 <th>Email</th>
-                <th>CIN</th>
                 <th>Numéro Sécurité Sociale</th>
                 <th>Nom du Docteur</th>
+                <th>Spécialité du Docteur</th>
                 <th>Cabinet</th>
                 <th>Numéro de Téléphone</th>
                 <th>Actions</th>
@@ -140,16 +140,15 @@ $patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <tr>
                     <td><?php echo htmlspecialchars($patient['patient_name']); ?></td>
                     <td><?php echo htmlspecialchars($patient['patient_email']); ?></td>
-                    <td><?php echo htmlspecialchars($patient['cin'] ?? 'Non défini'); ?></td>
                     <td><?php echo htmlspecialchars($patient['securite_sociale'] ?? 'Non défini'); ?></td>
                     <td><?php echo htmlspecialchars($patient['docteur_name'] ?? 'Non défini'); ?></td>
+                    <td><?php echo htmlspecialchars($patient['specialite'] ?? 'Non défini'); ?></td>
                     <td><?php echo htmlspecialchars($patient['cabinet_name'] ?? 'Non défini'); ?></td>
                     <td><?php echo htmlspecialchars($patient['patient_phone'] ?? 'Non renseigné'); ?></td>
                     <td>
-    <a href="modifier_patient.php?id=<?php echo $patient['patient_id']; ?>" class="btn-modifier">Modifier</a>
-    <a href="supprimer_patient.php?id=<?php echo $patient['patient_id']; ?>" class="btn-supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce patient ?');">Supprimer</a>
-</td>
-
+                        <a href="modifier_patient.php?id=<?php echo $patient['patient_id']; ?>" class="btn-modifier">Modifier</a>
+                        <a href="supprimer_patient.php?id=<?php echo $patient['patient_id']; ?>" class="btn-supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce patient ?');">Supprimer</a>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </table>

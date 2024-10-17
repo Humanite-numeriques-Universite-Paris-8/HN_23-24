@@ -5,13 +5,19 @@ require_once '../../config/database.php'; // Assurez-vous que le chemin est corr
 $conn = connectDB();
 
 // Initialize variables
-$patient_id = $patient_name = $patient_email = $patient_phone = "";
+$patient_id = $patient_name = $patient_email = $patient_phone = $cabinet_id = $specialite = "";
 
 // Retrieve the list of patients
 $query = "SELECT id, username, email, phone FROM users WHERE role = 'patient'";
 $stmt = $conn->prepare($query);
 $stmt->execute();
 $patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Retrieve the list of cabinets
+$query_cabinets = "SELECT id, nom, specialite FROM cabinets";
+$stmt_cabinets = $conn->prepare($query_cabinets);
+$stmt_cabinets->execute();
+$cabinets = $stmt_cabinets->fetchAll(PDO::FETCH_ASSOC);
 
 // Check if the patient ID is passed as a parameter
 if (isset($_GET['id'])) {
@@ -37,17 +43,24 @@ if (isset($_GET['id'])) {
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $patient_id = $_POST['patient_id']; // ID of the selected patient
-    $patient_name = $_POST['patient_name'];
-    $patient_email = $_POST['patient_email'];
+    $cabinet_id = $_POST['cabinet_id']; // ID du cabinet sélectionné
+    $specialite = $_POST['specialite']; // Spécialité du cabinet sélectionné
+    $patient_phone = $_POST['patient_phone']; // Récupérer le téléphone du formulaire
 
-    // Update patient information without modifying the phone
-    $update_query = "UPDATE users SET username = :patient_name, email = :patient_email WHERE id = :patient_id AND role = 'patient'";
+    // Mettre à jour les informations du patient
+    $update_query = "UPDATE users SET phone = :patient_phone WHERE id = :patient_id AND role = 'patient'";
     $update_stmt = $conn->prepare($update_query);
-    $update_stmt->bindParam(':patient_name', $patient_name);
-    $update_stmt->bindParam(':patient_email', $patient_email);
+    $update_stmt->bindParam(':patient_phone', $patient_phone);
     $update_stmt->bindParam(':patient_id', $patient_id);
 
-    if ($update_stmt->execute()) {
+    // Mettre à jour les informations du cabinet dans les rendez-vous
+    $update_cabinet_query = "UPDATE appointments SET cabinet_id = :cabinet_id WHERE patient_id = :patient_id";
+    $update_cabinet_stmt = $conn->prepare($update_cabinet_query);
+    $update_cabinet_stmt->bindParam(':cabinet_id', $cabinet_id);
+    $update_cabinet_stmt->bindParam(':patient_id', $patient_id);
+
+    // Exécution des deux requêtes
+    if ($update_stmt->execute() && $update_cabinet_stmt->execute()) {
         header("Location: getPatient.php?success=1");
         exit();
     } else {
@@ -141,8 +154,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         a:hover {
             text-decoration: underline;
         }
-
-        
     </style>
 </head>
 <body>
@@ -164,9 +175,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endforeach; ?>
             </select>
 
-
             <label for="patient_phone">Numéro de Téléphone:</label>
-            <input type="text" id="patient_phone" name="patient_phone" disabled value="<?php echo htmlspecialchars($patient_phone); ?>">
+            <input type="text" id="patient_phone" name="patient_phone"  value="<?php echo htmlspecialchars($patient_phone); ?>">
+
+            <label for="cabinet_id">Cabinet:</label>
+            <select name="cabinet_id" id="cabinet_id" required>
+                <option value="">Sélectionner un cabinet</option>
+                <?php foreach ($cabinets as $cabinet): ?>
+                    <option value="<?php echo htmlspecialchars($cabinet['id']); ?>" <?php echo $cabinet['id'] == $cabinet_id ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($cabinet['nom']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+
+            <label for="specialite">Spécialité du Cabinet:</label>
+            <select name="specialite" id="specialite" required>
+                <?php foreach ($cabinets as $cabinet): ?>
+                    <option value="<?php echo htmlspecialchars($cabinet['specialite']); ?>" <?php echo $cabinet['id'] == $cabinet_id ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($cabinet['specialite']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
 
             <button type="submit">Mettre à Jour</button>
         </form>

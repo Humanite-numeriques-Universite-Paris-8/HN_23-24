@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 $docteur_id = $_SESSION['user_id'];
 
 // Récupérer les rendez-vous associés au docteur avec les bonnes informations du patient
-$query = "SELECT appointments.id, appointments.appointment_date, appointments.cin, appointments.securite_sociale, 
+$query = "SELECT appointments.id, appointments.appointment_date, appointments.securite_sociale, 
                  patients.phone AS patient_phone, patients.username AS patient_name, 
                  patients.email AS patient_email, cabinets.nom AS cabinet_name, appointments.is_validated
           FROM appointments
@@ -93,7 +93,7 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <th>Patient</th>
             <th>Cabinet</th>
             <th>Date du Rendez-vous</th>
-            <th>CIN</th>
+       
             <th>Sécurité Sociale</th>
             <th>Téléphone</th>
             <th>Email</th>
@@ -106,7 +106,7 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <td><?php echo htmlspecialchars($appointment['patient_name']); ?></td>
                 <td><?php echo htmlspecialchars($appointment['cabinet_name']); ?></td>
                 <td><?php echo htmlspecialchars($appointment['appointment_date']); ?></td>
-                <td><?php echo htmlspecialchars($appointment['cin']); ?></td>
+             
                 <td><?php echo htmlspecialchars($appointment['securite_sociale']); ?></td>
                 <td><?php echo htmlspecialchars($appointment['patient_phone']); ?></td> <!-- Numéro de téléphone -->
                 <td><?php echo htmlspecialchars($appointment['patient_email']); ?></td> <!-- Email du patient -->
@@ -144,7 +144,7 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 "<?php echo htmlspecialchars($appointment['patient_name']); ?>",
                 "<?php echo htmlspecialchars($appointment['cabinet_name']); ?>",
                 "<?php echo htmlspecialchars($appointment['appointment_date']); ?>",
-                "<?php echo htmlspecialchars($appointment['cin']); ?>",
+              
                 "<?php echo htmlspecialchars($appointment['securite_sociale']); ?>",
                 "<?php echo htmlspecialchars($appointment['patient_phone']); ?>",  // Numéro de téléphone
                 "<?php echo htmlspecialchars($appointment['patient_email']); ?>"  // Email du patient
@@ -153,7 +153,7 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Générer le tableau
         doc.autoTable({
-            head: [['Patient', 'Cabinet', 'Date du Rendez-vous', 'CIN', 'Sécurité Sociale', 'Téléphone', 'Email']],
+            head: [['Patient', 'Cabinet', 'Date du Rendez-vous', 'Sécurité Sociale', 'Téléphone', 'Email']],
             body: tableData,
             startY: 20, // Positionner le tableau un peu plus bas
         });

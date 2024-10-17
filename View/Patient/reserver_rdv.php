@@ -16,7 +16,8 @@ $conn = connectDB();
 $cabinet_id = $appointment_date = $securite_sociale = $phone = "";
 $error_message = "";
 
-// Récupérer les informations actuelles de l'utilisateur connecté (pour afficher le téléphone)
+// Récupérer les informations actuelles de l'utilisateur connecté (pour afficher le téléphone) 
+//lorsque le patient annule le rendez vous 
 $user_id = $_SESSION['user_id'];
 $query_user = "SELECT phone FROM users WHERE id = :user_id";
 $stmt_user = $conn->prepare($query_user);
