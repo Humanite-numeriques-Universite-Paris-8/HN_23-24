@@ -76,7 +76,7 @@ button:hover {
             <input type="password" name="password" placeholder="Mot de passe" required>
             <select name="role">
                 <option value="admin">Admin</option>
-                <option value="doctor">Médecin</option>
+                <option value="medecin">Médecin</option>
                 <option value="patient">Patient</option>
             </select>
 

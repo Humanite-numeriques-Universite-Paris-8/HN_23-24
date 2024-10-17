@@ -17,7 +17,7 @@ $authController = new AuthController($conn); // Ensure AuthController is correct
 // Handle the different actions
 switch ($action) {
     case 'register':
-        $authController->register();
+        $authController->register(); 
         break;
     case 'login':
         $authController->login();

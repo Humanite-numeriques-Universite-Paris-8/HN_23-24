@@ -5,21 +5,21 @@ class UserModel {
     public function __construct($dbConnection) {
         $this->dbConnection = $dbConnection;
     }
-
     public function register($username, $password, $email, $role) {
-        // Hash the password before storing
-        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+     
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT); 
     
-        // Prepare the insert query
+  
         $stmt = $this->dbConnection->prepare("INSERT INTO users (username, password, email, role) VALUES (:username, :password, :email, :role)");
     
-        // Bind the parameters
+    
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':password', $hashedPassword);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':role', $role);  // Ensure this binds 'role' and not 'role_id'
     
         // Execute the query
+        #hena exedcuter la requete
         if ($stmt->execute()) {
             return true;
         } else {
