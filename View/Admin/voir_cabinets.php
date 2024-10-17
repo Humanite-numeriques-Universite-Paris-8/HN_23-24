@@ -1,12 +1,30 @@
 <?php
-require_once '../../config/database.php'; // Assurez-vous que ce chemin est correct
+require_once '../../config/database.php'; // Ensure the path is correct
 
 $conn = connectDB();
 
-// Requête pour récupérer tous les cabinets avec les informations des docteurs et des spécialités
+// Handle cabinet deletion requests
+if (isset($_GET['delete_id'])) {
+    $delete_id = $_GET['delete_id'];
+    
+    // Delete the cabinet only (without affecting doctors)
+    $delete_query = "DELETE FROM cabinets WHERE id = :cabinet_id";
+    $delete_stmt = $conn->prepare($delete_query);
+    $delete_stmt->bindParam(':cabinet_id', $delete_id);
+
+    if ($delete_stmt->execute()) {
+        header("Location: voir_cabinets.php?success=Cabinet supprimé avec succès.");
+        exit();
+    } else {
+        header("Location: voir_cabinets.php?error=Erreur lors de la suppression du cabinet.");
+        exit();
+    }
+}
+
+// Query to get all cabinets with their associated doctor info
 $query = "SELECT cabinets.id, cabinets.nom AS cabinet_nom, cabinets.adresse, cabinets.specialite, users.username AS docteur_nom
           FROM cabinets
-          JOIN users ON cabinets.docteur_id = users.id";
+          LEFT JOIN users ON cabinets.docteur_id = users.id"; // LEFT JOIN ensures no issues when a doctor is missing
 
 $result = $conn->query($query);
 ?>
@@ -17,12 +35,12 @@ $result = $conn->query($query);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des Cabinets</title>
-    <link rel="stylesheet" href="../Admin/css/lister_cabinet.css"> <!-- Lien vers votre fichier CSS -->
+    <link rel="stylesheet" href="../Admin/css/lister_cabinet.css"> <!-- Link to your CSS file -->
 </head>
 <body>
 
 <?php
-// Affichage des messages de succès ou d'erreur
+// Display success or error messages
 if (isset($_GET['success'])) {
     echo "<p class='success'>" . htmlspecialchars($_GET['success']) . "</p>";
 } elseif (isset($_GET['error'])) {
@@ -37,12 +55,12 @@ if ($result->rowCount() > 0) {
         echo "<tr>";
         echo "<td>" . htmlspecialchars($row['cabinet_nom']) . "</td>";
         echo "<td>" . htmlspecialchars($row['adresse']) . "</td>";
-        echo "<td>" . (!is_null($row['specialite']) ? htmlspecialchars($row['specialite']) : 'Non spécifié') . "</td>"; // Correction ici pour éviter l'erreur
-        echo "<td>" . htmlspecialchars($row['docteur_nom']) . "</td>"; // Assurez-vous d'afficher le nom du docteur ici
+        echo "<td>" . (!is_null($row['specialite']) ? htmlspecialchars($row['specialite']) : 'Non spécifié') . "</td>";
+        echo "<td>" . htmlspecialchars($row['docteur_nom'] ?? 'Non défini') . "</td>";
         echo "<td>
               <a href='../Admin/modifier_cabinet.php?id=" . $row['id'] . "' class='action-link modify'>Modifier</a>
               |
-              <a href='supprimer_cabinet.php?id=" . $row['id'] . "' class='action-link delete' onclick=\"return confirm('Êtes-vous sûr de vouloir supprimer ce cabinet?');\">Supprimer</a>
+              <a href='?delete_id=" . $row['id'] . "' class='action-link delete' onclick=\"return confirm('Êtes-vous sûr de vouloir supprimer ce cabinet?');\">Supprimer</a>
               </td>";
         echo "</tr>";
     }
