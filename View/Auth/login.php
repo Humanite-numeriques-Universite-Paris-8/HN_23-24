@@ -32,7 +32,7 @@
             <p class="success"><?php echo htmlspecialchars($_GET['success']); ?></p>
         <?php endif; ?>
 
-        <form method="POST" action="../../Controller/index_app.php?action=login">
+        <form method="POST" action="../../Controller-Auth/index_app.php?action=login">
             <!-- Vérifiez que cette action est correcte -->
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Mot de passe" required>

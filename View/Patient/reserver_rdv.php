@@ -25,48 +25,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $securite_sociale = $_POST['securite_sociale'];
     $patient_id = $_SESSION['user_id'];  // Récupérer l'ID du patient depuis la session
 
-    // Requête pour récupérer le docteur associé au cabinet
-    $query = "SELECT docteur_id FROM cabinets WHERE id = :cabinet_id";
-    $stmt = $conn->prepare($query);
-    $stmt->bindParam(':cabinet_id', $cabinet_id);
-    $stmt->execute();
-    $docteur = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Validation du CIN
+    if (!preg_match('/^CD\d{6}$/', $cin)) {
+        $error_message = "Le CIN doit commencer par 'CD' suivi de 6 chiffres.";
+    } else {
+        // Vérifier si le CIN existe déjà dans les rendez-vous
+        $check_cin_query = "SELECT COUNT(*) FROM appointments WHERE cin = :cin";
+        $check_cin_stmt = $conn->prepare($check_cin_query);
+        $check_cin_stmt->bindParam(':cin', $cin);
+        $check_cin_stmt->execute();
+        $cin_exists = $check_cin_stmt->fetchColumn();
 
-    // Vérifier si un docteur est associé au cabinet
-    if ($docteur && isset($docteur['docteur_id'])) {
-        $docteur_id = $docteur['docteur_id'];
-
-        // Vérifier si un rendez-vous existe déjà pour cette date et cette heure
-        $check_query = "SELECT COUNT(*) FROM appointments WHERE cabinet_id = :cabinet_id AND appointment_date = :appointment_date";
-        $check_stmt = $conn->prepare($check_query);
-        $check_stmt->bindParam(':cabinet_id', $cabinet_id);
-        $check_stmt->bindParam(':appointment_date', $appointment_date);
-        $check_stmt->execute();
-        $appointment_exists = $check_stmt->fetchColumn();
-
-        if ($appointment_exists > 0) {
-            $error_message = "Erreur : Un rendez-vous est déjà pris pour cette date et cette heure.";
+        if ($cin_exists > 0) {
+            $error_message = "Erreur : Ce CIN n'est pas le vôtre.";
         } else {
-            // Insérer le rendez-vous dans la base de données
-            $insert_query = "INSERT INTO appointments (patient_id, cabinet_id, docteur_id, appointment_date, cin, securite_sociale)
-                             VALUES (:patient_id, :cabinet_id, :docteur_id, :appointment_date, :cin, :securite_sociale)";
-            $stmt = $conn->prepare($insert_query);
-            $stmt->bindParam(':patient_id', $patient_id);
+            // Requête pour récupérer le docteur associé au cabinet
+            $query = "SELECT docteur_id FROM cabinets WHERE id = :cabinet_id";
+            $stmt = $conn->prepare($query);
             $stmt->bindParam(':cabinet_id', $cabinet_id);
-            $stmt->bindParam(':docteur_id', $docteur_id);
-            $stmt->bindParam(':appointment_date', $appointment_date);
-            $stmt->bindParam(':cin', $cin);
-            $stmt->bindParam(':securite_sociale', $securite_sociale);
+            $stmt->execute();
+            $docteur = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($stmt->execute()) {
-                header("Location: patient_lister_rdv.php?success=1");
-                exit();
+            // Vérifier si un docteur est associé au cabinet
+            if ($docteur && isset($docteur['docteur_id'])) {
+                $docteur_id = $docteur['docteur_id'];
+
+                // Vérifier si un rendez-vous existe déjà pour cette date et cette heure
+                $check_query = "SELECT COUNT(*) FROM appointments WHERE cabinet_id = :cabinet_id AND appointment_date = :appointment_date";
+                $check_stmt = $conn->prepare($check_query);
+                $check_stmt->bindParam(':cabinet_id', $cabinet_id);
+                $check_stmt->bindParam(':appointment_date', $appointment_date);
+                $check_stmt->execute();
+                $appointment_exists = $check_stmt->fetchColumn();
+
+                if ($appointment_exists > 0) {
+                    $error_message = "Erreur : Un rendez-vous est déjà pris pour cette date et cette heure.";
+                } else {
+                    // Insérer le rendez-vous dans la base de données
+                    $insert_query = "INSERT INTO appointments (patient_id, cabinet_id, docteur_id, appointment_date, cin, securite_sociale)
+                                     VALUES (:patient_id, :cabinet_id, :docteur_id, :appointment_date, :cin, :securite_sociale)";
+                    $stmt = $conn->prepare($insert_query);
+                    $stmt->bindParam(':patient_id', $patient_id);
+                    $stmt->bindParam(':cabinet_id', $cabinet_id);
+                    $stmt->bindParam(':docteur_id', $docteur_id);
+                    $stmt->bindParam(':appointment_date', $appointment_date);
+                    $stmt->bindParam(':cin', $cin);
+                    $stmt->bindParam(':securite_sociale', $securite_sociale);
+
+                    if ($stmt->execute()) {
+                        header("Location: patient_lister_rdv.php?success=1");
+                        exit();
+                    } else {
+                        $error_message = "Erreur lors de la réservation du rendez-vous.";
+                    }
+                }
             } else {
-                $error_message = "Erreur lors de la réservation du rendez-vous.";
+                $error_message = "Erreur : aucun docteur trouvé pour ce cabinet.";
             }
         }
-    } else {
-        $error_message = "Erreur : aucun docteur trouvé pour ce cabinet.";
     }
 }
 ?>
@@ -107,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="datetime-local" id="appointment_date" name="appointment_date" value="<?php echo htmlspecialchars($appointment_date); ?>" required>
 
         <label for="cin">CIN:</label>
-        <input type="text" id="cin" name="cin" value="<?php echo htmlspecialchars($cin); ?>" required>
+        <input type="text" id="cin" name="cin" pattern="^CD\d{6}$" required value="<?php echo htmlspecialchars($cin); ?>">
 
         <label for="securite_sociale">Sécurité Sociale:</label>
         <input type="text" id="securite_sociale" name="securite_sociale" value="<?php echo htmlspecialchars($securite_sociale); ?>" required>

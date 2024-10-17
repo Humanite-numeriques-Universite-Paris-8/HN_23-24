@@ -75,7 +75,7 @@ $username = $_SESSION['username'];
             <div class="dropdown">
                 <button class="dropbtn"><?php echo htmlspecialchars($username); ?> ▼</button> <!-- Affiche le nom de l'utilisateur -->
                 <div class="dropdown-content">
-                    <a href="../../Controller/index_app.php?action=logout">Déconnexion</a>
+                    <a href="../../Controller-Auth/index_app.php?action=logout">Déconnexion</a>
                 </div>
             </div>
         </div>

@@ -4,7 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once "../config/database.php";
-require_once "../Controller/AuthController.php"; // Ensure this path is correct
+require_once "../Controller-Auth/AuthController.php"; // Ensure this path is correct
 
 // Connect to the database
 $conn = connectDB();

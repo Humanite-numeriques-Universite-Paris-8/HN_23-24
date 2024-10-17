@@ -1,8 +1,7 @@
 <?php
 session_start();
-require_once '../../config/database.php'; // Ensure the correct path
+require_once '../../config/database.php';
 
-// Check if the doctor is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../../View/Auth/login.php");
     exit();
@@ -13,30 +12,54 @@ $user_id = $_SESSION['user_id'];
 $error_message = "";
 $success_message = "";
 
-// If the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = $_POST['phone'];
 
-    // Update the doctor's phone number
-    $query = "UPDATE users SET phone = :phone WHERE id = :user_id";
-    $stmt = $conn->prepare($query);
-    $stmt->bindParam(':phone', $phone);
-    $stmt->bindParam(':user_id', $user_id);
+    try {
+        $conn->beginTransaction();
 
-    if ($stmt->execute()) {
-        $success_message = "Votre profil a été mis à jour avec succès.";
-    } else {
-        $error_message = "Erreur lors de la mise à jour du profil.";
+        // Mettre à jour le téléphone dans la table `users`
+        $query_users = "UPDATE users SET phone = :phone WHERE id = :user_id";
+        $stmt_users = $conn->prepare($query_users);
+        $stmt_users->bindParam(':phone', $phone);
+        $stmt_users->bindParam(':user_id', $user_id);
+        $stmt_users->execute();
+
+        // Vérification de l'exécution de la mise à jour
+        if ($stmt_users->rowCount() > 0) {
+            $success_message = "Votre profil a été mis à jour avec succès.";
+        } else {
+            $error_message = "Erreur lors de la mise à jour du profil : aucun changement détecté.";
+        }
+
+        // Mettre à jour le téléphone dans la table `appointments`
+        $query_appointments = "UPDATE appointments SET phone = :phone WHERE patient_id = :user_id";
+        $stmt_appointments = $conn->prepare($query_appointments);
+        $stmt_appointments->bindParam(':phone', $phone);
+        $stmt_appointments->bindParam(':user_id', $user_id);
+        $stmt_appointments->execute();
+
+        // Vérification de l'exécution de la mise à jour
+        if ($stmt_appointments->rowCount() > 0) {
+            $success_message .= " Le numéro de téléphone a également été mis à jour dans vos rendez-vous.";
+        } else {
+            $error_message .= " Erreur : Le numéro de téléphone n'a pas pu être mis à jour dans les rendez-vous.";
+        }
+
+        $conn->commit();
+    } catch (Exception $e) {
+        $conn->rollBack();
+        $error_message = "Erreur lors de la mise à jour du profil : " . $e->getMessage();
     }
 }
 
-// Retrieve the doctor's current profile information
 $query = "SELECT username, email, phone FROM users WHERE id = :user_id";
 $stmt = $conn->prepare($query);
 $stmt->bindParam(':user_id', $user_id);
 $stmt->execute();
 $doctor = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">

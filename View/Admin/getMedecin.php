@@ -49,6 +49,18 @@ $medecins = $stmt->fetchAll(PDO::FETCH_ASSOC);
             text-align: center;
             margin-bottom: 20px;
         }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
     </style>
 </head>
 <body>
@@ -61,6 +73,7 @@ $medecins = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <th>Numéro de Téléphone</th>
                 <th>Spécialité</th>
                 <th>Cabinet Associé</th>
+                <th>Actions</th>
             </tr>
             <?php foreach ($medecins as $medecin): ?>
                 <tr>
@@ -69,6 +82,13 @@ $medecins = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo htmlspecialchars($medecin['medecin_phone'] ?? 'Non renseigné'); ?></td>
                     <td><?php echo htmlspecialchars($medecin['specialite'] ?? 'Non définie'); ?></td>
                     <td><?php echo htmlspecialchars($medecin['cabinet_name'] ?? 'Aucun cabinet associé'); ?></td>
+                    <td>
+                        <a href="modifier_medecin.php?id=<?php echo $medecin['medecin_id']; ?>" class="btn">Modifier</a>
+                        <form action="supprimer_medecin.php" method="POST" style="display:inline;">
+                            <input type="hidden" name="medecin_id" value="<?php echo $medecin['medecin_id']; ?>">
+                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        </form>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </table>

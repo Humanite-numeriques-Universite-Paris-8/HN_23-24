@@ -65,7 +65,7 @@ session_start(); // Assure que la session est démarrée pour obtenir les inform
                     <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'Utilisateur'; ?> ▼
                 </button> <!-- Nom de l'utilisateur connecté -->
                 <div class="dropdown-content">
-                    <a href="../../Controller/index_app.php?action=logout">Déconnexion</a>
+                    <a href="../../Controller-Auth/index_app.php?action=logout">Déconnexion</a>
                 </div>
             </div>
         </div>

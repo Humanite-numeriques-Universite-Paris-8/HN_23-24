@@ -70,7 +70,7 @@ button:hover {
 <body>
     <div class="register-container">
         <h2>Inscription</h2>
-        <form method="POST" action="../../Controller/index_app.php?action=register">
+        <form method="POST" action="../../Controller-Auth/index_app.php?action=register">
             <input type="text" name="username" placeholder="Nom d'utilisateur" required>
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Mot de passe" required>
