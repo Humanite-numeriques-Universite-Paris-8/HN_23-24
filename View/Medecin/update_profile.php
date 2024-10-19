@@ -13,22 +13,43 @@ $user_id = $_SESSION['user_id'];
 $error_message = "";
 $success_message = "";
 
-// If the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = $_POST['phone'];
 
-    // Update the doctor's phone number
-    $query = "UPDATE users SET phone = :phone WHERE id = :user_id";
-    $stmt = $conn->prepare($query);
-    $stmt->bindParam(':phone', $phone);
-    $stmt->bindParam(':user_id', $user_id);
+    try {
+        $conn->beginTransaction();
 
-    if ($stmt->execute()) {
-        $success_message = "Votre profil a été mis à jour avec succès.";
-    } else {
-        $error_message = "Erreur lors de la mise à jour du profil.";
+        // Vérification de l'unicité du numéro de téléphone uniquement via PHP
+        $query_check_phone = "SELECT id FROM users WHERE phone = :phone AND id != :user_id";
+        $stmt_check_phone = $conn->prepare($query_check_phone);
+        $stmt_check_phone->bindParam(':phone', $phone);
+        $stmt_check_phone->bindParam(':user_id', $user_id);  // S'assurer de ne pas vérifier pour l'utilisateur lui-même
+        $stmt_check_phone->execute();
+
+        if ($stmt_check_phone->rowCount() > 0) {
+            $error_message = "Erreur : Le numéro de téléphone est déjà utilisé par un autre médecin.";
+        } else {
+            // Mettre à jour le numéro de téléphone du médecin si unique
+            $query_users = "UPDATE users SET phone = :phone WHERE id = :user_id";
+            $stmt_users = $conn->prepare($query_users);
+            $stmt_users->bindParam(':phone', $phone);
+            $stmt_users->bindParam(':user_id', $user_id);
+            $stmt_users->execute();
+
+            if ($stmt_users->rowCount() > 0) {
+                $success_message = "Votre profil a été mis à jour avec succès.";
+            } else {
+                $error_message = "Erreur lors de la mise à jour du profil : aucun changement détecté.";
+            }
+        }
+
+        $conn->commit();
+    } catch (Exception $e) {
+        $conn->rollBack();
+        $error_message = "Erreur lors de la mise à jour du profil : " . $e->getMessage();
     }
 }
+
 
 // Retrieve the doctor's current profile information
 $query = "SELECT username, email, phone FROM users WHERE id = :user_id";

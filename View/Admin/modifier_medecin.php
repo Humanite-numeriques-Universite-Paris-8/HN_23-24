@@ -12,19 +12,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 $conn = connectDB();
 
 // Initialiser les variables
-$medecin_id = $medecin_name = $medecin_email = $medecin_phone = $specialite = $cabinet_id = "";
-
-// Récupérer la liste des médecins
-$query_medecins = "SELECT id, username, email, phone FROM users WHERE role = 'medecin'";
-$stmt_medecins = $conn->prepare($query_medecins);
-$stmt_medecins->execute();
-$medecins = $stmt_medecins->fetchAll(PDO::FETCH_ASSOC);
-
-// Récupérer la liste des cabinets
-$query_cabinets = "SELECT id, nom, specialite FROM cabinets";
-$stmt_cabinets = $conn->prepare($query_cabinets);
-$stmt_cabinets->execute();
-$cabinets = $stmt_cabinets->fetchAll(PDO::FETCH_ASSOC);
+$medecin_id = $medecin_name = $medecin_email = $medecin_phone = "";
+$error_message = "";
 
 // Vérifier si l'ID du médecin est passé en paramètre
 if (isset($_GET['id'])) {
@@ -50,30 +39,56 @@ if (isset($_GET['id'])) {
 // Si le formulaire est soumis
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $medecin_id = $_POST['medecin_id']; // ID du médecin sélectionné
-    $medecin_phone = $_POST['medecin_phone'];
-    $cabinet_id = $_POST['cabinet_id'];
-    $specialite = $_POST['specialite']; // Spécialité mise à jour
+    $medecin_name = $_POST['medecin_name']; // Nom du médecin
+    $medecin_email = $_POST['medecin_email']; // Email du médecin
+    $medecin_phone = $_POST['medecin_phone']; // Téléphone du médecin
 
-    // Mettre à jour la spécialité du cabinet sélectionné
-    $update_specialite_query = "UPDATE cabinets SET specialite = :specialite WHERE id = :cabinet_id";
-    $update_specialite_stmt = $conn->prepare($update_specialite_query);
-    $update_specialite_stmt->bindParam(':specialite', $specialite);
-    $update_specialite_stmt->bindParam(':cabinet_id', $cabinet_id);
-    $update_specialite_stmt->execute();
+    // Vérification de l'unicité du numéro de téléphone
+    $query_check_phone = "SELECT id FROM users WHERE phone = :medecin_phone AND id != :medecin_id";
+    $stmt_check_phone = $conn->prepare($query_check_phone);
+    $stmt_check_phone->bindParam(':medecin_phone', $medecin_phone);
+    $stmt_check_phone->bindParam(':medecin_id', $medecin_id);
+    $stmt_check_phone->execute();
 
-    // Mettre à jour les informations du médecin
-    $update_query = "UPDATE users SET username = :medecin_name, email = :medecin_email, phone = :medecin_phone WHERE id = :medecin_id AND role = 'medecin'";
-    $update_stmt = $conn->prepare($update_query);
-    $update_stmt->bindParam(':medecin_name', $medecin_name);
-    $update_stmt->bindParam(':medecin_email', $medecin_email);
-    $update_stmt->bindParam(':medecin_phone', $medecin_phone);
-    $update_stmt->bindParam(':medecin_id', $medecin_id);
-
-    if ($update_stmt->execute()) {
-        header("Location: getMedecin.php?success=1");
-        exit();
+    if ($stmt_check_phone->rowCount() > 0) {
+        $error_message = "Erreur : Ce numéro de téléphone est déjà utilisé par un autre médecin.";
     } else {
-        $error_message = "Erreur lors de la mise à jour des informations.";
+        // Vérification de l'unicité de l'email
+        $query_check_email = "SELECT id FROM users WHERE email = :medecin_email AND id != :medecin_id";
+        $stmt_check_email = $conn->prepare($query_check_email);
+        $stmt_check_email->bindParam(':medecin_email', $medecin_email);
+        $stmt_check_email->bindParam(':medecin_id', $medecin_id);
+        $stmt_check_email->execute();
+
+        if ($stmt_check_email->rowCount() > 0) {
+            $error_message = "Erreur : Cet email est déjà utilisé par un autre médecin.";
+        } else {
+            // Vérification de l'unicité du nom d'utilisateur
+            $query_check_username = "SELECT id FROM users WHERE username = :medecin_name AND id != :medecin_id";
+            $stmt_check_username = $conn->prepare($query_check_username);
+            $stmt_check_username->bindParam(':medecin_name', $medecin_name);
+            $stmt_check_username->bindParam(':medecin_id', $medecin_id);
+            $stmt_check_username->execute();
+
+            if ($stmt_check_username->rowCount() > 0) {
+                $error_message = "Erreur : Ce nom d'utilisateur est déjà utilisé par un autre médecin.";
+            } else {
+                // Si tout est bon, mise à jour des informations du médecin
+                $update_query = "UPDATE users SET username = :medecin_name, email = :medecin_email, phone = :medecin_phone WHERE id = :medecin_id AND role = 'medecin'";
+                $update_stmt = $conn->prepare($update_query);
+                $update_stmt->bindParam(':medecin_name', $medecin_name);
+                $update_stmt->bindParam(':medecin_email', $medecin_email);
+                $update_stmt->bindParam(':medecin_phone', $medecin_phone);
+                $update_stmt->bindParam(':medecin_id', $medecin_id);
+
+                if ($update_stmt->execute()) {
+                    header("Location: getMedecin.php?success=1");
+                    exit();
+                } else {
+                    $error_message = "Erreur lors de la mise à jour des informations.";
+                }
+            }
+        }
     }
 }
 ?>
@@ -89,56 +104,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
-            padding: 0;
+            padding: 20px;
         }
 
         .container {
             max-width: 600px;
-            margin: 50px auto;
+            margin: auto;
             padding: 20px;
-            background-color: #fff;
+            background-color: white;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         h2 {
-            font-size: 24px;
+            text-align: center;
             color: #007bff;
             margin-bottom: 20px;
         }
 
         label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             font-weight: bold;
             color: #333;
-            text-align: left;
         }
 
-        input, select {
+        input[type="text"],
+        input[type="email"] {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-size: 16px;
             box-sizing: border-box;
         }
 
-        button.btn {
+        button {
+            width: 100%;
+            padding: 10px;
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 12px 20px;
+            border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-            width: 100%;
+            transition: background-color 0.3s;
         }
 
-        button.btn:hover {
+        button:hover {
             background-color: #0056b3;
         }
 
@@ -151,20 +165,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 4px;
         }
 
-        a.btn {
+        a {
             display: inline-block;
-            background-color: #28a745;
-            color: white;
-            padding: 12px 20px;
+            margin-top: 20px;
+            text-align: center;
+            color: #007bff;
             text-decoration: none;
             font-size: 16px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-            margin-top: 20px;
         }
 
-        a.btn:hover {
-            background-color: #218838;
+        a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -177,27 +188,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form action="modifier_medecin.php?id=<?php echo $medecin_id; ?>" method="POST">
-            <label for="medecin_id">Sélectionnez le Médecin:</label>
-            <select name="medecin_id" id="medecin_id" required>
-                <option value="">Sélectionner un médecin</option>
-                <?php foreach ($medecins as $medecin): ?>
-                    <option value="<?php echo htmlspecialchars($medecin['id']); ?>" <?php echo $medecin['id'] == $medecin_id ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($medecin['username']); ?> (<?php echo htmlspecialchars($medecin['email']); ?>)
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <input type="hidden" name="medecin_id" value="<?php echo $medecin_id; ?>">
+
+            <label for="medecin_name">Nom du Médecin:</label>
+            <input type="text" id="medecin_name" name="medecin_name" value="<?php echo htmlspecialchars($medecin_name); ?>" required>
+
+            <label for="medecin_email">Email:</label>
+            <input type="email" id="medecin_email" name="medecin_email" value="<?php echo htmlspecialchars($medecin_email); ?>" required>
 
             <label for="medecin_phone">Numéro de Téléphone:</label>
-            <input type="text" id="medecin_phone" name="medecin_phone" required value="<?php echo htmlspecialchars($medecin_phone); ?>">
+            <input type="text" id="medecin_phone" name="medecin_phone" value="<?php echo htmlspecialchars($medecin_phone); ?>" required>
 
-            <!-- Afficher la spécialité du cabinet sélectionné -->
-         
-            </select>
-
-            <button type="submit" class="btn">Mettre à Jour</button>
+            <button type="submit">Mettre à Jour</button>
         </form>
 
-        <a href="getMedecin.php" class="btn">Retour à la Liste des Médecins</a>
+        <a href="getMedecin.php">Retour à la Liste des Médecins</a>
     </div>
 </body>
 </html>
