@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 $conn = connectDB();
 
 // Initialiser les variables
-$medecin_id = $medecin_name = $medecin_email = $medecin_phone = $cabinet_id = "";
+$medecin_id = $medecin_name = $medecin_email = $medecin_phone = $specialite = $cabinet_id = "";
 
 // Récupérer la liste des médecins
 $query_medecins = "SELECT id, username, email, phone FROM users WHERE role = 'medecin'";
@@ -21,7 +21,7 @@ $stmt_medecins->execute();
 $medecins = $stmt_medecins->fetchAll(PDO::FETCH_ASSOC);
 
 // Récupérer la liste des cabinets
-$query_cabinets = "SELECT id, nom FROM cabinets";
+$query_cabinets = "SELECT id, nom, specialite FROM cabinets";
 $stmt_cabinets = $conn->prepare($query_cabinets);
 $stmt_cabinets->execute();
 $cabinets = $stmt_cabinets->fetchAll(PDO::FETCH_ASSOC);
@@ -52,6 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $medecin_id = $_POST['medecin_id']; // ID du médecin sélectionné
     $medecin_phone = $_POST['medecin_phone'];
     $cabinet_id = $_POST['cabinet_id'];
+    $specialite = $_POST['specialite']; // Spécialité mise à jour
+
+    // Mettre à jour la spécialité du cabinet sélectionné
+    $update_specialite_query = "UPDATE cabinets SET specialite = :specialite WHERE id = :cabinet_id";
+    $update_specialite_stmt = $conn->prepare($update_specialite_query);
+    $update_specialite_stmt->bindParam(':specialite', $specialite);
+    $update_specialite_stmt->bindParam(':cabinet_id', $cabinet_id);
+    $update_specialite_stmt->execute();
 
     // Mettre à jour les informations du médecin
     $update_query = "UPDATE users SET username = :medecin_name, email = :medecin_email, phone = :medecin_phone WHERE id = :medecin_id AND role = 'medecin'";
@@ -179,18 +187,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endforeach; ?>
             </select>
 
-            <label for="cabinet_id">Cabinet Associé:</label>
-            <select name="cabinet_id" id="cabinet_id" required>
-                <option value="">Sélectionner un cabinet</option>
-                <?php foreach ($cabinets as $cabinet): ?>
-                    <option value="<?php echo htmlspecialchars($cabinet['id']); ?>" <?php echo $cabinet['id'] == $cabinet_id ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($cabinet['nom']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-
             <label for="medecin_phone">Numéro de Téléphone:</label>
             <input type="text" id="medecin_phone" name="medecin_phone" required value="<?php echo htmlspecialchars($medecin_phone); ?>">
+
+            <!-- Afficher la spécialité du cabinet sélectionné -->
+         
+            </select>
 
             <button type="submit" class="btn">Mettre à Jour</button>
         </form>

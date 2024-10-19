@@ -71,8 +71,8 @@ $medecins = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <th>Nom du Médecin</th>
                 <th>Email du Médecin</th>
                 <th>Numéro de Téléphone</th>
-                <th>Spécialité</th>
-                <th>Cabinet Associé</th>
+             
+         
                 <th>Actions</th>
             </tr>
             <?php foreach ($medecins as $medecin): ?>
@@ -80,8 +80,7 @@ $medecins = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo htmlspecialchars($medecin['medecin_name']); ?></td>
                     <td><?php echo htmlspecialchars($medecin['medecin_email']); ?></td>
                     <td><?php echo htmlspecialchars($medecin['medecin_phone'] ?? 'Non renseigné'); ?></td>
-                    <td><?php echo htmlspecialchars($medecin['specialite'] ?? 'Non définie'); ?></td>
-                    <td><?php echo htmlspecialchars($medecin['cabinet_name'] ?? 'Aucun cabinet associé'); ?></td>
+                  
                     <td>
                         <a href="modifier_medecin.php?id=<?php echo $medecin['medecin_id']; ?>" class="btn">Modifier</a>
                         <form action="supprimer_medecin.php" method="POST" style="display:inline;">
