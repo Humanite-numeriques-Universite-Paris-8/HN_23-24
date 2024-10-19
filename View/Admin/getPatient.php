@@ -1,24 +1,30 @@
 <?php
 require_once '../../config/database.php'; // Assurez-vous que le chemin est correct
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 // Connexion à la base de données
 $conn = connectDB();
 
 // Requête SQL pour récupérer la liste des patients avec la spécialité du docteur
-$query = "SELECT patients.id AS patient_id, 
-                 patients.username AS patient_name, 
-                 patients.email AS patient_email, 
-                 patients.phone AS patient_phone, 
-                 appointments.securite_sociale, 
-                 docteur.username AS docteur_name, 
-                 cabinets.nom AS cabinet_name,
-                 cabinets.specialite AS specialite
-          FROM users AS patients
-          LEFT JOIN appointments ON appointments.patient_id = patients.id
-          LEFT JOIN users AS docteur ON appointments.docteur_id = docteur.id
-          LEFT JOIN cabinets ON appointments.cabinet_id = cabinets.id
-          WHERE patients.role = 'patient'
-          ORDER BY patients.id ASC";
+$query = "
+SELECT patients.id AS patient_id, 
+       patients.username AS patient_name, 
+       patients.email AS patient_email, 
+       patients.phone AS patient_phone, 
+       appointments.securite_sociale, 
+       docteur.username AS docteur_name, 
+       cabinets.nom AS cabinet_name,
+       cabinets.specialite AS specialite
+FROM users AS patients
+LEFT JOIN appointments ON appointments.patient_id = patients.id
+LEFT JOIN users AS docteur ON appointments.docteur_id = docteur.id
+LEFT JOIN cabinets ON appointments.cabinet_id = cabinets.id
+WHERE patients.role = 'patient'
+ORDER BY patients.id ASC
+";
+
 
 // Préparation de la requête
 $stmt = $conn->prepare($query);
@@ -130,9 +136,7 @@ $patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <th>Nom du Patient</th>
                 <th>Email</th>
                 <th>Numéro Sécurité Sociale</th>
-                <th>Nom du Docteur</th>
-                <th>Spécialité du Docteur</th>
-                <th>Cabinet</th>
+           
                 <th>Numéro de Téléphone</th>
                 <th>Actions</th>
             </tr>
@@ -141,9 +145,6 @@ $patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo htmlspecialchars($patient['patient_name']); ?></td>
                     <td><?php echo htmlspecialchars($patient['patient_email']); ?></td>
                     <td><?php echo htmlspecialchars($patient['securite_sociale'] ?? 'Non défini'); ?></td>
-                    <td><?php echo htmlspecialchars($patient['docteur_name'] ?? 'Non défini'); ?></td>
-                    <td><?php echo htmlspecialchars($patient['specialite'] ?? 'Non défini'); ?></td>
-                    <td><?php echo htmlspecialchars($patient['cabinet_name'] ?? 'Non défini'); ?></td>
                     <td><?php echo htmlspecialchars($patient['patient_phone'] ?? 'Non renseigné'); ?></td>
                     <td>
                         <a href="modifier_patient.php?id=<?php echo $patient['patient_id']; ?>" class="btn-modifier">Modifier</a>

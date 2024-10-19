@@ -1,6 +1,8 @@
 <?php
-// Démarrer la session
-session_start(); 
+session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 // Vérifie si l'utilisateur est bien connecté, sinon rediriger vers la page de connexion
 if (!isset($_SESSION['user_id'])) {
@@ -8,16 +10,14 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-require_once '../../config/database.php'; // Assurez-vous que le chemin est correct
-
+require_once '../../config/database.php'; // Connexion à la base de données
 $conn = connectDB();
 
 // Initialisation des variables
-$cabinet_id = $appointment_date = $securite_sociale = $phone = "";
+$cabinet_id = $appointment_date = $phone = $securite_sociale = "";
 $error_message = "";
 
-// Récupérer les informations actuelles de l'utilisateur connecté (pour afficher le téléphone) 
-//lorsque le patient annule le rendez vous 
+// Récupérer les informations actuelles de l'utilisateur connecté (pour afficher le téléphone)
 $user_id = $_SESSION['user_id'];
 $query_user = "SELECT phone FROM users WHERE id = :user_id";
 $stmt_user = $conn->prepare($query_user);
@@ -25,70 +25,107 @@ $stmt_user->bindParam(':user_id', $user_id);
 $stmt_user->execute();
 $user = $stmt_user->fetch(PDO::FETCH_ASSOC);
 
+// Vérifier si le patient a déjà un numéro de sécurité sociale dans les précédents rendez-vous
+$query_ss = "SELECT securite_sociale FROM appointments WHERE patient_id = :user_id LIMIT 1";
+$stmt_ss = $conn->prepare($query_ss);
+$stmt_ss->bindParam(':user_id', $user_id);
+$stmt_ss->execute();
+$existing_ss = $stmt_ss->fetch(PDO::FETCH_ASSOC);
+
+// Si la méthode de requête est POST, traiter la soumission du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cabinet_id = $_POST['cabinet_id'];
     $appointment_date = $_POST['appointment_date'];
-    $securite_sociale = $_POST['securite_sociale'];
     $phone = $_POST['phone'];
-    $patient_id = $_SESSION['user_id'];  // Récupérer l'ID du patient depuis la session
+    $input_securite_sociale = $_POST['securite_sociale']; 
+    $patient_id = $_SESSION['user_id'];
 
-    try {
-        $conn->beginTransaction();
+    // Vérifier si le numéro de téléphone est utilisé par un autre patient
+    $check_phone_query = "SELECT id FROM users WHERE phone = :phone AND id != :user_id";
+    $check_phone_stmt = $conn->prepare($check_phone_query);
+    $check_phone_stmt->bindParam(':phone', $phone);
+    $check_phone_stmt->bindParam(':user_id', $user_id);
+    $check_phone_stmt->execute();
+    $phone_exists = $check_phone_stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Vérifier si un rendez-vous existe déjà pour cette date et cette heure
-        $check_query = "SELECT COUNT(*) FROM appointments WHERE cabinet_id = :cabinet_id AND appointment_date = :appointment_date";
-        $check_stmt = $conn->prepare($check_query);
-        $check_stmt->bindParam(':cabinet_id', $cabinet_id);
-        $check_stmt->bindParam(':appointment_date', $appointment_date);
-        $check_stmt->execute();
-        $appointment_exists = $check_stmt->fetchColumn();
-
-        if ($appointment_exists > 0) {
-            $error_message = "Erreur : Un rendez-vous est déjà pris pour cette date et cette heure.";
+    if ($phone_exists) {
+        $error_message = "Erreur : Ce numéro de téléphone est déjà utilisé par un autre patient.";
+    } else {
+        // Si la sécurité sociale est déjà enregistrée pour ce patient, vérifier si elle correspond à la saisie
+        if ($existing_ss && $existing_ss['securite_sociale'] !== $input_securite_sociale) {
+            $error_message = "Erreur : Ce n'est pas votre numéro de sécurité sociale.";
         } else {
-            // Mettre à jour le téléphone dans la table `users`
-            $update_phone_query = "UPDATE users SET phone = :phone WHERE id = :user_id";
-            $update_phone_stmt = $conn->prepare($update_phone_query);
-            $update_phone_stmt->bindParam(':phone', $phone);
-            $update_phone_stmt->bindParam(':user_id', $user_id);
-            $update_phone_stmt->execute();
+            // Vérifier si un autre patient utilise déjà ce numéro de sécurité sociale
+            $check_ss_query = "SELECT id FROM appointments WHERE securite_sociale = :securite_sociale AND patient_id != :user_id";
+            $check_ss_stmt = $conn->prepare($check_ss_query);
+            $check_ss_stmt->bindParam(':securite_sociale', $input_securite_sociale);
+            $check_ss_stmt->bindParam(':user_id', $user_id);
+            $check_ss_stmt->execute();
+            $ss_exists = $check_ss_stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Requête pour récupérer le docteur associé au cabinet
-            $query = "SELECT docteur_id FROM cabinets WHERE id = :cabinet_id";
-            $stmt = $conn->prepare($query);
-            $stmt->bindParam(':cabinet_id', $cabinet_id);
-            $stmt->execute();
-            $docteur = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($docteur && isset($docteur['docteur_id'])) {
-                $docteur_id = $docteur['docteur_id'];
-
-                // Insérer le rendez-vous dans la base de données
-                $insert_query = "INSERT INTO appointments (patient_id, cabinet_id, docteur_id, appointment_date, securite_sociale, phone)
-                                 VALUES (:patient_id, :cabinet_id, :docteur_id, :appointment_date, :securite_sociale, :phone)";
-                $stmt = $conn->prepare($insert_query);
-                $stmt->bindParam(':patient_id', $patient_id);
-                $stmt->bindParam(':cabinet_id', $cabinet_id);
-                $stmt->bindParam(':docteur_id', $docteur_id);
-                $stmt->bindParam(':appointment_date', $appointment_date);
-                $stmt->bindParam(':securite_sociale', $securite_sociale);
-                $stmt->bindParam(':phone', $phone);
-
-                if ($stmt->execute()) {
-                    $conn->commit();
-                    header("Location: patient_lister_rdv.php?success=1");
-                    exit();
-                } else {
-                    $conn->rollBack();
-                    $error_message = "Erreur lors de la réservation du rendez-vous.";
-                }
+            if ($ss_exists) {
+                $error_message = "Erreur : Ce numéro de sécurité sociale est déjà utilisé.";
             } else {
-                $error_message = "Erreur : aucun docteur trouvé pour ce cabinet.";
+                try {
+                    $conn->beginTransaction();
+
+                    // Vérifier si un rendez-vous existe déjà pour cette date et heure
+                    $check_query = "SELECT COUNT(*) FROM appointments WHERE cabinet_id = :cabinet_id AND appointment_date = :appointment_date";
+                    $check_stmt = $conn->prepare($check_query);
+                    $check_stmt->bindParam(':cabinet_id', $cabinet_id);
+                    $check_stmt->bindParam(':appointment_date', $appointment_date);
+                    $check_stmt->execute();
+                    $appointment_exists = $check_stmt->fetchColumn();
+
+                    if ($appointment_exists > 0) {
+                        $error_message = "Erreur : Un rendez-vous est déjà pris pour cette date et cette heure.";
+                    } else {
+                        // Mettre à jour le téléphone dans la table `users`
+                        $update_phone_query = "UPDATE users SET phone = :phone WHERE id = :user_id";
+                        $update_phone_stmt = $conn->prepare($update_phone_query);
+                        $update_phone_stmt->bindParam(':phone', $phone);
+                        $update_phone_stmt->bindParam(':user_id', $user_id);
+                        $update_phone_stmt->execute();
+
+                        // Récupérer le docteur associé au cabinet
+                        $query = "SELECT docteur_id FROM cabinets WHERE id = :cabinet_id";
+                        $stmt = $conn->prepare($query);
+                        $stmt->bindParam(':cabinet_id', $cabinet_id);
+                        $stmt->execute();
+                        $docteur = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                        if ($docteur && isset($docteur['docteur_id'])) {
+                            $docteur_id = $docteur['docteur_id'];
+
+                            // Insérer le rendez-vous dans la base de données
+                            $insert_query = "INSERT INTO appointments (patient_id, cabinet_id, docteur_id, appointment_date, securite_sociale, phone)
+                                             VALUES (:patient_id, :cabinet_id, :docteur_id, :appointment_date, :securite_sociale, :phone)";
+                            $stmt = $conn->prepare($insert_query);
+                            $stmt->bindParam(':patient_id', $patient_id);
+                            $stmt->bindParam(':cabinet_id', $cabinet_id);
+                            $stmt->bindParam(':docteur_id', $docteur_id);
+                            $stmt->bindParam(':appointment_date', $appointment_date);
+                            $stmt->bindParam(':securite_sociale', $input_securite_sociale);
+                            $stmt->bindParam(':phone', $phone);
+
+                            if ($stmt->execute()) {
+                                $conn->commit();
+                                header("Location: patient_lister_rdv.php?success=1");
+                                exit();
+                            } else {
+                                $conn->rollBack();
+                                $error_message = "Erreur lors de la réservation du rendez-vous.";
+                            }
+                        } else {
+                            $error_message = "Erreur : Aucun docteur trouvé pour ce cabinet.";
+                        }
+                    }
+                } catch (Exception $e) {
+                    $conn->rollBack();
+                    $error_message = "Erreur lors de la réservation : " . $e->getMessage();
+                }
             }
         }
-    } catch (Exception $e) {
-        $conn->rollBack();
-        $error_message = "Erreur lors de la réservation : " . $e->getMessage();
     }
 }
 ?>
@@ -100,12 +137,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Réserver un Rendez-vous</title>
     <style>
-        /* General Body and Container Settings */
         body {
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -119,96 +153,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
-            box-sizing: border-box;
         }
 
         h2 {
             text-align: center;
             color: #28a745;
-            margin-bottom: 20px;
-            font-size: 1.8rem;
         }
 
-        /* Form Label Styling */
         label {
             display: block;
             font-weight: bold;
             margin-bottom: 10px;
-            color: #333;
         }
 
-        /* Input fields and select boxes */
-        input[type="text"],
-        input[type="tel"],
-        input[type="datetime-local"],
-        select {
+        input, select {
             width: 100%;
             padding: 12px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1rem;
         }
 
-        /* Button Styling */
         button.btn {
             background-color: #28a745;
             color: #fff;
             border: none;
             padding: 15px;
             border-radius: 8px;
-            font-size: 1rem;
-            width: 100%;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
         button.btn:hover {
             background-color: #218838;
         }
 
-        /* Styling for error or success messages */
         .error {
             background-color: #f8d7da;
             color: #721c24;
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #f5c6cb;
-            border-radius: 8px;
-        }
-
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #c3e6cb;
-            border-radius: 8px;
-        }
-
-        /* Responsive styling for mobile view */
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px;
-            }
-
-            h2 {
-                font-size: 1.5rem;
-            }
-
-            button.btn {
-                font-size: 0.9rem;
-                padding: 12px;
-            }
-
-            input[type="text"],
-            input[type="tel"],
-            input[type="datetime-local"],
-            select {
-                font-size: 0.9rem;
-                padding: 10px;
-            }
         }
     </style>
 </head>
@@ -230,8 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php
             $stmt = $conn->query("SELECT id, nom FROM cabinets");
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $selected = ($row['id'] == $cabinet_id) ? 'selected' : '';
-                echo "<option value='" . $row['id'] . "' $selected>" . htmlspecialchars($row['nom']) . "</option>";
+                echo "<option value='" . $row['id'] . "'>" . htmlspecialchars($row['nom']) . "</option>";
             }
             ?>
         </select>
@@ -240,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="datetime-local" id="appointment_date" name="appointment_date" value="<?php echo htmlspecialchars($appointment_date); ?>" required>
 
         <label for="securite_sociale">Sécurité Sociale:</label>
-        <input type="text" id="securite_sociale" name="securite_sociale" value="<?php echo htmlspecialchars($securite_sociale); ?>" required>
+        <input type="text" id="securite_sociale" name="securite_sociale" maxlength="21" pattern="^(\d{1}\s\d{2}\s\d{2}\s\d{2}\s\d{3}\s\d{3}\s\d{2})$" value="<?php echo htmlspecialchars($securite_sociale); ?>" required>
 
         <label for="phone">Numéro de Téléphone:</label>
         <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required value="<?php echo htmlspecialchars($user['phone']); ?>">
@@ -249,5 +232,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
 </div>
 
+<script>
+    document.getElementById('securite_sociale').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, ''); // Supprime tout sauf les chiffres
+        let formattedValue = '';
+
+        // Ajoute des espaces après les groupes spécifiques
+        if (value.length > 0) { formattedValue += value.substring(0, 1) + ' '; }
+        if (value.length > 1) { formattedValue += value.substring(1, 3) + ' '; }
+        if (value.length > 3) { formattedValue += value.substring(3, 5) + ' '; }
+        if (value.length > 5) { formattedValue += value.substring(5, 7) + ' '; }
+        if (value.length > 7) { formattedValue += value.substring(7, 10) + ' '; }
+        if (value.length > 10) { formattedValue += value.substring(10, 13)+ ' '; }
+        if (value.length > 13) { formattedValue += value.substring(13, 15) }
+
+        e.target.value = formattedValue.trim(); // Met à jour l'input avec le format appliqué
+    });
+</script>
 </body>
 </html>
