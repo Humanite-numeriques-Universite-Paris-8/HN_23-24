@@ -63,6 +63,12 @@ if (isset($_SESSION['username'])) {
                 <a href="getPatient.php" class="btn btn-primary">Voir les Patients</a>
             </div>
 
+            <div class="card">
+                <h2>mon contact</h2>
+                <p>mise à jour en cas de changement de mon num de tel</p>
+                <a class="btn btn-primary" href="../Admin/update_profile.php">Mise à jour Mon Num de Tél</a>
+            </div>
+   
             
         </div>
     </div>
