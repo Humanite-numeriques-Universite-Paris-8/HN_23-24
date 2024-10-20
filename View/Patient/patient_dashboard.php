@@ -15,12 +15,10 @@ $admin_phone = $admin ? $admin['phone'] : 'Non disponible';
 
 // Vérifie si l'utilisateur est connecté
 if (!isset($_SESSION['user_id'])) {
-    // Si l'utilisateur n'est pas connecté, rediriger vers la page de connexion
     header("Location: ../Auth/login.php");
     exit();
 }
 
-// Récupère les informations de l'utilisateur connecté
 $username = $_SESSION['username'];
 ?>
 
@@ -34,9 +32,99 @@ $username = $_SESSION['username'];
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
+        /* Navbar Styling */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #007bff;
+            padding: 10px;
+            color: white;
+        }
+
+        .navbar-left h1 {
+            margin: 0;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.search-container input[type="text"] {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.search-container button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: white;
+    color: #007bff;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+#suggestions-box {
+    position: absolute;
+    background-color: #f9f9f9; /* Couleur de fond claire */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;  /* Adapter à la largeur du champ de recherche */
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);  /* Ajout d'une ombre douce */
+    visibility: hidden;
+}
+
+#suggestions-box div {
+    padding: 12px 15px;  /* Plus d'espace autour du texte */
+    font-size: 16px;  /* Taille de texte légèrement plus grande */
+    color: #333;  /* Texte en gris foncé pour une meilleure lisibilité */
+    background-color: #fff;  /* Fond blanc */
+    transition: background-color 0.3s ease;
+}
+
+#suggestions-box div:hover {
+    background-color: #007bff;  /* Fond bleu au survol */
+    color: #fff;  /* Texte blanc au survol */
+    cursor: pointer;
+}
+
+#search_term {
+    border: 1px solid #007bff;  /* Bordure bleue du champ de recherche */
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+    width: 300px;
+}
+
+#search_term:focus {
+    outline: none;
+    box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5); /* Effet de surbrillance au focus */
+}
+
+.search-container input:focus + #suggestions-box {
+    visibility: visible; /* Rend visible quand le champ de recherche est focus */
+}
+
         /* Footer Styling */
         .footer {
-            background-color:#007bff;
+            background-color: #007bff;
             color: white;
             text-align: center;
             padding: 20px 0;
@@ -73,6 +161,7 @@ $username = $_SESSION['username'];
         .footer .footer-contact div i {
             font-size: 18px;
         }
+
     </style>
 </head>
 <body>
@@ -82,6 +171,16 @@ $username = $_SESSION['username'];
         <div class="navbar-left">
             <h1>DoctoCabinet Patient</h1>
         </div>
+
+        <!-- Search container centered -->
+        <div class="search-container">
+            <form action="recherche_cabinets.php" method="GET" id="search-form">
+                <input type="text" id="search_term" name="search_term" placeholder="Rechercher par spécialité ou nom de docteur..." onkeyup="showSuggestions(this.value)" autocomplete="off" required>
+                <button type="submit">Rechercher</button>
+                <div id="suggestions-box"></div> <!-- Boîte pour afficher les suggestions -->
+            </form>
+        </div>
+
         <div class="navbar-right">
             <div class="dropdown">
                 <button class="dropbtn"><?php echo htmlspecialchars($username); ?> ▼</button>
@@ -97,7 +196,7 @@ $username = $_SESSION['username'];
     <div class="dashboard-container">
         <h1>Bienvenue sur le Tableau de Bord Patient</h1>
         <p class="welcome-msg">Vous êtes connecté avec succès !</p>
-        
+
         <div class="card-container">
             <div class="card">
                 <h2>Réserver un Rendez-vous</h2>
@@ -125,9 +224,47 @@ $username = $_SESSION['username'];
         <div class="footer-contact">
             <div><i class="fas fa-map-marker-alt"></i> 10, Allée Gagarie, Ivry-sur-Seine, France</div>
             <div><i class="fas fa-envelope"></i> anas.hefied@gmail.com</div>
-            <div><i class="fas fa-phone"></i> <?php echo htmlspecialchars($admin_phone); ?></div> <!-- Le numéro de téléphone de l'admin -->
+            <div><i class="fas fa-phone"></i> <?php echo htmlspecialchars($admin_phone); ?></div>
         </div>
     </div>
+
+
+<script>
+function showSuggestions(searchTerm) {
+    const suggestionsBox = document.getElementById("suggestions-box");
+    
+    if (searchTerm.length === 0) {
+        suggestionsBox.innerHTML = "";
+        suggestionsBox.style.visibility = "hidden";
+        return;
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            const responseText = this.responseText.trim();
+            if (responseText !== "") {
+                suggestionsBox.innerHTML = responseText;
+                suggestionsBox.style.visibility = "visible"; // Rend visible les suggestions uniquement si des résultats sont trouvés
+            } else {
+                suggestionsBox.style.visibility = "hidden"; // Cache la boîte si aucune suggestion n'est trouvée
+            }
+        }
+    };
+
+    xhr.open("GET", "suggestions_cabinets.php?search_term=" + encodeURIComponent(searchTerm), true);
+    xhr.send();
+}
+
+function selectSuggestion(value) {
+    document.getElementById("search_term").value = value;
+    document.getElementById("suggestions-box").innerHTML = ""; // Efface les suggestions
+    document.getElementById("suggestions-box").style.visibility = "hidden"; // Cache la boîte après sélection
+    document.getElementById("search-form").submit(); // Soumettre après sélection
+}
+
+</script>
+
 
 </body>
 </html>

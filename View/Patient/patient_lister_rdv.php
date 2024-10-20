@@ -29,7 +29,6 @@ $stmt->bindParam(':patient_id', $_SESSION['user_id']);
 $stmt->execute();
 $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -83,6 +82,14 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
             background-color: #218838;
         }
 
+        .btn-fermer {
+            background-color: #ffc107;
+            color: white;
+        }
+
+        .btn-fermer:hover {
+            background-color: #e0a800;
+        }
     </style>
 </head>
 <body>
@@ -90,86 +97,63 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h2>Mes Rendez-vous</h2>
 
     <?php if (!empty($appointments)): ?>
-        <table>
-    <thead>
-        <tr>
-            <th>Cabinet</th>
-            <th>Nom du Docteur</th>
-            <th>Mon Nom</th>
-            <th>Ma Sécurité Sociale</th>
-            <th>Date du Rendez-vous</th>
-            <th>Mon Numéro de Téléphone</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($appointments as $appointment): ?>
+        <table id="appointmentsTable">
+            <thead>
             <tr>
-                <td><?php echo htmlspecialchars($appointment['cabinet_nom']); ?></td>
-                <td><?php echo htmlspecialchars($appointment['docteur_nom']); ?></td>
-                <td><?php echo htmlspecialchars($appointment['patient_nom']); ?></td>
-                <td><?php echo htmlspecialchars($appointment['securite_sociale']); ?></td>
-                <td><?php echo htmlspecialchars($appointment['appointment_date']); ?></td>
-                <td><?php echo htmlspecialchars($appointment['patient_phone']); ?></td>
-                <td>
-                    <a href="deplacer_rdv.php?id=<?php echo $appointment['id']; ?>" class="btn">Déplacer</a>
-                    <a href="annuler_rdv.php?id=<?php echo $appointment['id']; ?>" class="btn">Annuler</a>
-                </td>
+                <th>Cabinet</th>
+                <th>Nom du Docteur</th>
+                <th>Mon Nom</th>
+                <th>Ma Sécurité Sociale</th>
+                <th>Date du Rendez-vous</th>
+                <th>Mon Numéro de Téléphone</th>
+                <th>Actions</th>
             </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
-
+            </thead>
+            <tbody>
+            <?php foreach ($appointments as $appointment): ?>
+                <tr id="appointment-<?php echo $appointment['id']; ?>">
+                    <td><?php echo htmlspecialchars($appointment['cabinet_nom']); ?></td>
+                    <td><?php echo htmlspecialchars($appointment['docteur_nom']); ?></td>
+                    <td><?php echo htmlspecialchars($appointment['patient_nom']); ?></td>
+                    <td><?php echo htmlspecialchars($appointment['securite_sociale']); ?></td>
+                    <td><?php echo htmlspecialchars($appointment['appointment_date']); ?></td>
+                    <td><?php echo htmlspecialchars($appointment['patient_phone']); ?></td>
+                    <td>
+                        <a href="deplacer_rdv.php?id=<?php echo $appointment['id']; ?>" class="btn">Déplacer</a>
+                        <a href="annuler_rdv.php?id=<?php echo $appointment['id']; ?>" class="btn">Annuler</a>
+                        <button class="btn btn-fermer" onclick="closeAppointment(<?php echo $appointment['id']; ?>)">Fermer</button>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
     <?php else: ?>
         <p>Aucun rendez-vous trouvé.</p>
     <?php endif; ?>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
-
 <script>
-document.getElementById('download-pdf').addEventListener('click', function () {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    // Function to close the appointment and hide it from the table
+    function closeAppointment(appointmentId) {
+        // Store the closed appointment ID in localStorage
+        let closedAppointments = JSON.parse(localStorage.getItem('closedAppointments')) || [];
+        closedAppointments.push(appointmentId);
+        localStorage.setItem('closedAppointments', JSON.stringify(closedAppointments));
 
-    doc.setFontSize(18);
-    doc.text("Récapitulatif de Rendez-vous", 10, 10);
+        // Hide the appointment row
+        document.getElementById('appointment-' + appointmentId).style.display = 'none';
+    }
 
-    const patientName = "<?php echo htmlspecialchars($_SESSION['username'] ?? 'Inconnu'); ?>";
-    doc.setFontSize(14);
-    doc.text(`Nom du Patient: ${patientName}`, 10, 20);
-
-    const tableData = [];
-    <?php foreach ($appointments as $appointment): ?>
-        tableData.push([
-            "<?php echo htmlspecialchars($appointment['cabinet_nom']); ?>",
-            "<?php echo htmlspecialchars($appointment['docteur_nom']); ?>",
-            "<?php echo htmlspecialchars($appointment['patient_nom']); ?>",
-            "<?php echo htmlspecialchars($appointment['securite_sociale']); ?>",
-            "<?php echo htmlspecialchars($appointment['appointment_date']); ?>",
-            "<?php echo htmlspecialchars($appointment['patient_phone']); ?>"
-        ]);
-    <?php endforeach; ?>
-
-    doc.autoTable({
-        head: [['Cabinet', 'Docteur', 'Patient', 'Sécurité Sociale', 'Date du Rendez-vous', 'Numéro de Téléphone']],
-        body: tableData,
-        startY: 30,
-        theme: 'striped',
-        headStyles: {
-            fillColor: [22, 160, 133],
-            textColor: [255, 255, 255],
-            fontSize: 8
-        },
-        styles: {
-            fontSize: 10,
-            cellPadding: 5
-        }
+    // On page load, check if any appointments were closed and hide them
+    document.addEventListener('DOMContentLoaded', function () {
+        let closedAppointments = JSON.parse(localStorage.getItem('closedAppointments')) || [];
+        closedAppointments.forEach(function (appointmentId) {
+            let appointmentRow = document.getElementById('appointment-' + appointmentId);
+            if (appointmentRow) {
+                appointmentRow.style.display = 'none';
+            }
+        });
     });
-
-    doc.save(`Rendez-vous_de_${patientName}.pdf`);
-});
 </script>
 </body>
 </html>
