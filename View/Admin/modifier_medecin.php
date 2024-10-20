@@ -1,71 +1,97 @@
 <?php
-require_once '../../config/database.php'; // Ensure the path is correct
+require_once '../../config/database.php'; // Assurez-vous que le chemin est correct
 
+// Vérifiez si l'utilisateur est connecté et est un admin
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../../View/Auth/login.php");
+    exit();
+}
+
+// Connexion à la base de données
 $conn = connectDB();
 
-// Initialize variables for error messages and form fields
-$error_message = '';
-$medecin_id = '';
-$medecin_name = '';
-$medecin_email = '';
-$medecin_phone = '';
+// Initialiser les variables
+$medecin_id = $medecin_name = $medecin_email = $medecin_phone = "";
+$error_message = "";
 
-// Check if the ID of the doctor is passed in the URL
+// Vérifier si l'ID du médecin est passé en paramètre
 if (isset($_GET['id'])) {
     $medecin_id = $_GET['id'];
 
-    // Retrieve the doctor's information from the database
-    $query = "SELECT * FROM users WHERE id = :id AND role = 'medecin'";
+    // Récupérer les informations du médecin à modifier
+    $query = "SELECT username, email, phone FROM users WHERE id = :medecin_id AND role = 'medecin'";
     $stmt = $conn->prepare($query);
-    $stmt->bindParam(':id', $medecin_id);
+    $stmt->bindParam(':medecin_id', $medecin_id);
     $stmt->execute();
-    
     $medecin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // If the doctor is not found
-    if (!$medecin) {
-        $error_message = "Médecin non trouvé.";
-    } else {
-        // Pre-fill the form with the doctor's information
+    if ($medecin) {
         $medecin_name = $medecin['username'];
         $medecin_email = $medecin['email'];
         $medecin_phone = $medecin['phone'];
+    } else {
+        echo "Médecin introuvable.";
+        exit();
     }
-} else {
-    $error_message = "ID du médecin non fourni.";
 }
 
-// If the form is submitted
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Retrieve the data from the form
-    $medecin_id = $_POST['medecin_id'];
-    $medecin_name = $_POST['medecin_name'];
-    $medecin_email = $_POST['medecin_email'];
-    $medecin_phone = $_POST['medecin_phone'];
+// Si le formulaire est soumis
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $medecin_id = $_POST['medecin_id']; // ID du médecin sélectionné
+    $medecin_name = $_POST['medecin_name']; // Nom du médecin
+    $medecin_email = $_POST['medecin_email']; // Email du médecin
+    $medecin_phone = $_POST['medecin_phone']; // Téléphone du médecin
 
-    // Basic validation (checking if fields are empty)
-    if (empty($medecin_name) || empty($medecin_email) || empty($medecin_phone)) {
-        $error_message = "Tous les champs doivent être remplis.";
+    // Vérification de l'unicité du numéro de téléphone
+    $query_check_phone = "SELECT id FROM users WHERE phone = :medecin_phone AND id != :medecin_id";
+    $stmt_check_phone = $conn->prepare($query_check_phone);
+    $stmt_check_phone->bindParam(':medecin_phone', $medecin_phone);
+    $stmt_check_phone->bindParam(':medecin_id', $medecin_id);
+    $stmt_check_phone->execute();
+
+    if ($stmt_check_phone->rowCount() > 0) {
+        $error_message = "Erreur : Ce numéro de téléphone est déjà utilisé par un autre médecin.";
     } else {
-        // Update the doctor's information
-        $query = "UPDATE users SET username = :medecin_name, email = :medecin_email, phone = :medecin_phone WHERE id = :medecin_id AND role = 'medecin'";
-        $stmt = $conn->prepare($query);
-        $stmt->bindParam(':medecin_name', $medecin_name);
-        $stmt->bindParam(':medecin_email', $medecin_email);
-        $stmt->bindParam(':medecin_phone', $medecin_phone);
-        $stmt->bindParam(':medecin_id', $medecin_id);
-        
-        // Execute the query and redirect if successful
-        if ($stmt->execute()) {
-            header("Location: getMedecin.php?success=Le médecin a été modifié avec succès.");
-            exit();
+        // Vérification de l'unicité de l'email
+        $query_check_email = "SELECT id FROM users WHERE email = :medecin_email AND id != :medecin_id";
+        $stmt_check_email = $conn->prepare($query_check_email);
+        $stmt_check_email->bindParam(':medecin_email', $medecin_email);
+        $stmt_check_email->bindParam(':medecin_id', $medecin_id);
+        $stmt_check_email->execute();
+
+        if ($stmt_check_email->rowCount() > 0) {
+            $error_message = "Erreur : Cet email est déjà utilisé par un autre médecin.";
         } else {
-            $error_message = "Erreur lors de la modification du médecin.";
+            // Vérification de l'unicité du nom d'utilisateur
+            $query_check_username = "SELECT id FROM users WHERE username = :medecin_name AND id != :medecin_id";
+            $stmt_check_username = $conn->prepare($query_check_username);
+            $stmt_check_username->bindParam(':medecin_name', $medecin_name);
+            $stmt_check_username->bindParam(':medecin_id', $medecin_id);
+            $stmt_check_username->execute();
+
+            if ($stmt_check_username->rowCount() > 0) {
+                $error_message = "Erreur : Ce nom d'utilisateur est déjà utilisé par un autre médecin.";
+            } else {
+                // Si tout est bon, mise à jour des informations du médecin
+                $update_query = "UPDATE users SET username = :medecin_name, email = :medecin_email, phone = :medecin_phone WHERE id = :medecin_id AND role = 'medecin'";
+                $update_stmt = $conn->prepare($update_query);
+                $update_stmt->bindParam(':medecin_name', $medecin_name);
+                $update_stmt->bindParam(':medecin_email', $medecin_email);
+                $update_stmt->bindParam(':medecin_phone', $medecin_phone);
+                $update_stmt->bindParam(':medecin_id', $medecin_id);
+
+                if ($update_stmt->execute()) {
+                    header("Location: getMedecin.php?success=1");
+                    exit();
+                } else {
+                    $error_message = "Erreur lors de la mise à jour des informations.";
+                }
+            }
         }
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
