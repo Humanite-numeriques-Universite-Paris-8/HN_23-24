@@ -34,45 +34,186 @@ $username = $_SESSION['username'];
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
-        /* Footer Styling */
-        .footer {
-            background-color:#007bff;
-            color: white;
-            text-align: center;
-            padding: 20px 0;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            font-size: 14px;
-        }
+/* Global Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: url('../../images/medecin-GPS-Sante.jpg') no-repeat center center;
+    background-size: cover;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        .footer a {
-            color: #ffc107;
-            text-decoration: none;
-        }
+/* Navbar Styling */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #007bff;
+    padding: 15px 30px;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-        .footer a:hover {
-            color: #fff;
-            text-decoration: underline;
-        }
+.navbar-left h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+}
 
-        .footer .footer-contact {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 10px;
-            gap: 30px;
-        }
+.navbar-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        .footer .footer-contact div {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+.navbar-right .dropbtn {
+    background-color: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
 
-        .footer .footer-contact div i {
-            font-size: 18px;
-        }
+.navbar-right .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.navbar-right .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.navbar-right .dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.navbar-right .dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+/* Dashboard Container */
+.dashboard-container {
+    text-align: center;
+    margin: 40px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    margin: 40px auto;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-container h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: #007bff;
+}
+
+.dashboard-container p.welcome-msg {
+    font-size: 18px;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.card-container {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.card {
+    background-color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 20px;
+    width: 240px;
+    margin: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.card h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #007bff;
+}
+
+.card p {
+    font-size: 14px;
+    margin-bottom: 20px;
+    color: #555;
+}
+
+.btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 30px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Footer Styling */
+.footer {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    font-size: 14px;
+}
+
+.footer a {
+    color: #ffc107;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.footer .footer-contact {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    gap: 30px;
+}
+
+.footer .footer-contact div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer .footer-contact div i {
+    font-size: 18px;
+}
+
     </style>
 </head>
 <body>

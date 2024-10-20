@@ -32,135 +32,258 @@ $username = $_SESSION['username'];
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
-        /* Navbar Styling */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #007bff;
-            padding: 10px;
-            color: white;
-        }
-
-        .navbar-left h1 {
-            margin: 0;
-        }
-
-        .navbar-right {
-            display: flex;
-            align-items: center;
-        }
-
-        .search-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-}
-
-.search-container input[type="text"] {
-    width: 300px;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+/* Global Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: url('../../images/medecin-GPS-Sante.jpg') no-repeat center center;
+    background-size: cover;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
-.search-container button {
-    padding: 10px;
-    font-size: 16px;
-    background-color: white;
-    color: #007bff;
-    border: 1px solid #007bff;
-    border-radius: 5px;
-    margin-left: 10px;
-    cursor: pointer;
+/* Navbar Styling */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #007bff;
+    padding: 15px 30px;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.navbar-left h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.navbar-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.navbar-right .dropbtn {
+    background-color: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.navbar-right .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.navbar-right .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.navbar-right .dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.navbar-right .dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Search Bar Styling */
+.search-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-right: 20px;
+    border: 1px solid #fff;
+    border-radius: 30px;
+    padding: 5px 15px;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.search-container input[type="text"] {
+    border: none;
+    padding: 8px 35px 8px 15px;
+    font-size: 14px;
+    outline: none;
+    border-radius: 30px;
+    width: 300px;
+    color: #333;
+    background-image: url('search-icon.png'); /* Replace with your search icon */
+    background-position: 10px center;
+    background-repeat: no-repeat;
+    background-size: 18px;
+}
+
+.search-container button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 30px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.search-container button:hover {
+    background-color: #0056b3;
+}
+
+/* Suggestions Box */
 #suggestions-box {
     position: absolute;
-    background-color: #f9f9f9; /* Couleur de fond claire */
+    background-color: #f9f9f9;
     border: 1px solid #ccc;
     border-radius: 5px;
-    width: 100%;  /* Adapter à la largeur du champ de recherche */
+    width: 100%;
     max-height: 200px;
     overflow-y: auto;
     z-index: 1000;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);  /* Ajout d'une ombre douce */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     visibility: hidden;
 }
 
 #suggestions-box div {
-    padding: 12px 15px;  /* Plus d'espace autour du texte */
-    font-size: 16px;  /* Taille de texte légèrement plus grande */
-    color: #333;  /* Texte en gris foncé pour une meilleure lisibilité */
-    background-color: #fff;  /* Fond blanc */
+    padding: 12px 15px;
+    font-size: 16px;
+    color: #333;
+    background-color: #fff;
     transition: background-color 0.3s ease;
 }
 
 #suggestions-box div:hover {
-    background-color: #007bff;  /* Fond bleu au survol */
-    color: #fff;  /* Texte blanc au survol */
+    background-color: #007bff;
+    color: #fff;
     cursor: pointer;
 }
 
-#search_term {
-    border: 1px solid #007bff;  /* Bordure bleue du champ de recherche */
-    border-radius: 5px;
-    padding: 10px;
-    font-size: 16px;
-    width: 300px;
+#search_term:focus + #suggestions-box {
+    visibility: visible;
 }
 
-#search_term:focus {
-    outline: none;
-    box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5); /* Effet de surbrillance au focus */
+/* Dashboard Container */
+.dashboard-container {
+    text-align: center;
+    margin: 40px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    margin: 40px auto;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
-.search-container input:focus + #suggestions-box {
-    visibility: visible; /* Rend visible quand le champ de recherche est focus */
+.dashboard-container h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: #007bff;
 }
 
-        /* Footer Styling */
-        .footer {
-            background-color: #007bff;
-            color: white;
-            text-align: center;
-            padding: 20px 0;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            font-size: 14px;
-        }
+.dashboard-container p.welcome-msg {
+    font-size: 18px;
+    margin-bottom: 30px;
+    color: #333;
+}
 
-        .footer a {
-            color: #ffc107;
-            text-decoration: none;
-        }
+.card-container {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
 
-        .footer a:hover {
-            color: #fff;
-            text-decoration: underline;
-        }
+.card {
+    background-color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 20px;
+    width: 240px;
+    margin: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-        .footer .footer-contact {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 10px;
-            gap: 30px;
-        }
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
 
-        .footer .footer-contact div {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+.card h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #007bff;
+}
 
-        .footer .footer-contact div i {
-            font-size: 18px;
-        }
+.card p {
+    font-size: 14px;
+    margin-bottom: 20px;
+    color: #555;
+}
+
+.btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 30px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Footer Styling */
+.footer {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    font-size: 14px;
+}
+
+.footer a {
+    color: #ffc107;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.footer .footer-contact {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    gap: 30px;
+}
+
+.footer .footer-contact div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer .footer-contact div i {
+    font-size: 18px;
+}
 
     </style>
 </head>

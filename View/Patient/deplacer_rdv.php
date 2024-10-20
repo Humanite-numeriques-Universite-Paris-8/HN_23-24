@@ -72,31 +72,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Déplacer votre rendez-vous</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background-image: url('../../images/images1.jpg'); /* Replace with the correct path to your image */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Dark overlay for better readability */
+            z-index: -1;
         }
 
         .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+            padding: 30px;
+            border-radius: 12px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            z-index: 1; /* Make sure it's above the overlay */
         }
 
         h1 {
-            text-align: center;
+            font-size: 28px;
+            color: #333;
             margin-bottom: 20px;
         }
 
         label {
             display: block;
-            margin-bottom: 10px;
             font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
         }
 
         input[type="text"] {
@@ -130,9 +154,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-bottom: 15px;
             text-align: center;
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 24px;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <div class="overlay"></div> <!-- Dark overlay for readability -->
+
     <div class="container">
         <h1>Déplacer votre rendez-vous</h1>
         
@@ -143,7 +177,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?php endif; ?>
 
         <form action="deplacer_rdv.php?id=<?php echo $rdv_id; ?>" method="POST">
-
             <label for="appointment_date">Nouvelle date et heure:</label>
             <input type="text" id="appointment_date" name="appointment_date" 
                    value="<?php echo isset($appointment['appointment_date']) ? date('Y-m-d\TH:i', strtotime($appointment['appointment_date'])) : ''; ?>" 

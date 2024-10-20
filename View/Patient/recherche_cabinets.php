@@ -34,53 +34,101 @@ if (!empty($search_term)) {
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Résultats de recherche</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-image: url('../../images/cabinet3.avif'); /* Replace with your background image path */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align content at the top */
+            min-height: 100vh;
         }
+
         .container {
-            width: 80%;
-            margin: auto;
-            background-color: white;
+            width: 90%;
+            max-width: 1200px;
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
         }
+
         h2 {
             text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 20px;
         }
+
         th, td {
             padding: 12px;
             border: 1px solid #ddd;
             text-align: left;
         }
+
         th {
             background-color: #007bff;
             color: white;
+            font-weight: bold;
         }
+
         tr:hover {
             background-color: #f1f1f1;
         }
+
         .btn-reserver {
             background-color: #28a745;
             color: white;
             padding: 8px 12px;
             border-radius: 5px;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: background-color 0.3s ease;
         }
+
         .btn-reserver:hover {
             background-color: #218838;
+        }
+
+        .btn-reserver i {
+            margin-right: 8px;
+        }
+
+        /* Icons styling */
+        .fas {
+            margin-right: 6px;
+            font-size: 16px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            th, td {
+                font-size: 12px;
+            }
+            .btn-reserver {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -96,7 +144,7 @@ if (!empty($search_term)) {
                     <th>Nom du Cabinet</th>
                     <th>Spécialité</th>
                     <th>Docteur</th>
-                    <th>Action</th> <!-- New Action column -->
+                    <th>Action</th> <!-- Action column -->
                 </tr>
             </thead>
             <tbody>
@@ -106,8 +154,10 @@ if (!empty($search_term)) {
                         <td><?php echo htmlspecialchars($result['specialite']); ?></td>
                         <td><?php echo htmlspecialchars($result['docteur_name']); ?></td>
                         <td>
-                            <!-- Button to redirect to reserver_rdv.php -->
-                            <a href="reserver_rdv.php" class="btn-reserver">Réserver</a>
+                            <!-- Button to reserve with an icon -->
+                            <a href="reserver_rdv.php" class="btn-reserver">
+                                <i class="fas fa-calendar-alt"></i> Réserver
+                            </a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

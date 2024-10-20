@@ -97,7 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -105,31 +104,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier Patient</title>
     <style>
+        /* Global styles */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Arial', sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            background: url('../../images/images1.jpg') no-repeat center center fixed; /* Use your desired background image */
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
         .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.9); /* Light transparent background */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
         }
 
         h2 {
-            text-align: center;
             color: #007bff;
+            font-size: 26px;
             margin-bottom: 20px;
+            font-weight: bold;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
+            text-align: left;
+            margin-bottom: 10px;
             font-weight: bold;
             color: #333;
         }
@@ -137,28 +145,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         input[type="text"],
         input[type="email"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-bottom: 15px;
+            border-radius: 6px;
             font-size: 16px;
             box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.25);
         }
 
         button {
             width: 100%;
-            padding: 10px;
-            background-color: #007bff;
+            padding: 12px;
+            background-color: #28a745;
             color: white;
             border: none;
-            border-radius: 4px;
-            font-size: 16px;
+            border-radius: 6px;
+            font-size: 18px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
 
         .error {
@@ -167,24 +183,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #f5c6cb;
-            border-radius: 4px;
+            border-radius: 6px;
         }
 
         a {
-            display: inline-block;
-            margin-top: 20px;
-            text-align: center;
             color: #007bff;
             text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
             font-size: 16px;
         }
 
         a:hover {
             text-decoration: underline;
         }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            h2 {
+                font-size: 22px;
+            }
+            input[type="text"], input[type="email"] {
+                font-size: 14px;
+                padding: 10px;
+            }
+            button {
+                padding: 10px;
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
         <h2>Modifier Patient</h2>
 

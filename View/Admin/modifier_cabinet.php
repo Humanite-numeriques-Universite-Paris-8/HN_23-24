@@ -90,107 +90,122 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier Cabinet</title>
     <style>
-        form {
-            max-width: 400px;
-            margin: 0 auto;
-            background-color: #fff;
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('../../images/images1.jpg'); /* Ensure the correct path */
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .form-container {
+            max-width: 500px;margin-bottom: 60px; 
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            border: 2px solid #F9FCFFFF;
+            border-radius: 10px;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
         }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
         label {
-            display: block;
             font-weight: bold;
-            margin-bottom: 8px;
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
         }
+
         input[type="text"], select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 15px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 5px;
             font-size: 16px;
             box-sizing: border-box;
         }
+
         button[type="submit"] {
+            width: 100%;
+            padding: 12px;
             background-color: #28a745;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
-            width: 100%;
-            box-sizing: border-box;
         }
+
         button[type="submit"]:hover {
             background-color: #218838;
         }
+
         .error-message {
             color: red;
-            font-weight: bold;
             text-align: center;
-            margin-bottom: 20px;
-        }
-        .form-container {
-            width: 50%;
-            margin: 0 auto;
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
-    <h1>Modifier Cabinet</h1>
 
-    <!-- Affichage des messages d'erreur s'ils existent -->
-    <?php if (!empty($error_message)): ?>
-        <p class="error-message"><?php echo htmlspecialchars($error_message); ?></p>
-    <?php endif; ?>
+    <div class="form-container">
+        <h1>Modifier Cabinet</h1>
 
-    <?php if (isset($cabinet)): ?>
-    <!-- Formulaire de modification du cabinet -->
-    <form action="modifier_cabinet.php?id=<?php echo $cabinet_id; ?>" method="POST">
-        <input type="hidden" name="cabinet_id" value="<?php echo $cabinet['id']; ?>"> <!-- Champ caché pour l'ID du cabinet -->
-        
-        <!-- <label for="nom">Nom du Cabinet:</label>
-        <input type="text" name="nom" id="nom" value="<?php echo htmlspecialchars($cabinet['nom']); ?>" required> -->
-        
-        <label for="adresse">Adresse du Cabinet:</label>
-        <input type="text" name="adresse" id="adresse" value="<?php echo htmlspecialchars($cabinet['adresse']); ?>" required>
-        
-        <!-- <label for="specialite">Spécialité:</label>
-        <select name="specialite" id="specialite" required>
-            <option value="Cardiologie" <?php echo isset($cabinet['specialite']) && $cabinet['specialite'] == 'Cardiologie' ? 'selected' : ''; ?>>Cardiologie</option>
-            <option value="Dermatologie" <?php echo isset($cabinet['specialite']) && $cabinet['specialite'] == 'Dermatologie' ? 'selected' : ''; ?>>Dermatologie</option>
-            <option value="Gynécologie" <?php echo isset($cabinet['specialite']) && $cabinet['specialite'] == 'Gynécologie' ? 'selected' : ''; ?>>Gynécologie</option>
-            <option value="ORL" <?php echo isset($cabinet['specialite']) && $cabinet['specialite'] == 'ORL' ? 'selected' : ''; ?>>ORL</option>
-            <option value="Pédiatrie" <?php echo isset($cabinet['specialite']) && $cabinet['specialite'] == 'Pédiatrie' ? 'selected' : ''; ?>>Pédiatrie</option>
-            <option value="chirurgien" <?php echo isset($specialite) && $specialite == 'chirurgien' ? 'selected' : ''; ?>>chirurgien</option>
-        </select> -->
-        
-        <!-- <label for="docteur_id">Docteur (ID):</label>
-        <select name="docteur_id" id="docteur_id" required>
-            <?php
-            // Récupérer tous les médecins
-            $stmt_docteurs = $conn->query("SELECT id, username FROM users WHERE role = 'medecin'");
+        <!-- Affichage des messages d'erreur s'ils existent -->
+        <?php if (!empty($error_message)): ?>
+            <p class="error-message"><?php echo htmlspecialchars($error_message); ?></p>
+        <?php endif; ?>
 
-            while ($row = $stmt_docteurs->fetch(PDO::FETCH_ASSOC)) {
-                $selected = ($row['id'] == $cabinet['docteur_id']) ? 'selected' : '';
-                echo "<option value='" . $row['id'] . "' $selected>" . htmlspecialchars($row['username']) . " (ID: " . $row['id'] . ")</option>";
-            }
-            ?>
-        </select> -->
+        <?php if (isset($cabinet)): ?>
+        <!-- Formulaire de modification du cabinet -->
+        <form action="modifier_cabinet.php?id=<?php echo $cabinet_id; ?>" method="POST">
+            <input type="hidden" name="cabinet_id" value="<?php echo $cabinet['id']; ?>"> <!-- Champ caché pour l'ID du cabinet -->
+            
+            <label for="nom">Nom du Cabinet:</label>
+            <input type="text" name="nom" id="nom" value="<?php echo htmlspecialchars($cabinet['nom']); ?>" required>
+            
+            <label for="adresse">Adresse du Cabinet:</label>
+            <input type="text" name="adresse" id="adresse" value="<?php echo htmlspecialchars($cabinet['adresse']); ?>" required>
+            
+            <label for="specialite">Spécialité:</label>
+            <select name="specialite" id="specialite" required>
+                <option value="Cardiologie" <?php echo isset($cabinet['specialite']) && $cabinet['specialite'] == 'Cardiologie' ? 'selected' : ''; ?>>Cardiologie</option>
+                <option value="Dermatologie" <?php echo isset($cabinet['specialite']) && $cabinet['specialite'] == 'Dermatologie' ? 'selected' : ''; ?>>Dermatologie</option>
+                <option value="Gynécologie" <?php echo isset($cabinet['specialite']) && $cabinet['specialite'] == 'Gynécologie' ? 'selected' : ''; ?>>Gynécologie</option>
+                <option value="ORL" <?php echo isset($cabinet['specialite']) && $cabinet['specialite'] == 'ORL' ? 'selected' : ''; ?>>ORL</option>
+                <option value="Pédiatrie" <?php echo isset($cabinet['specialite']) && $cabinet['specialite'] == 'Pédiatrie' ? 'selected' : ''; ?>>Pédiatrie</option>
+                <option value="chirurgien" <?php echo isset($specialite) && $specialite == 'chirurgien' ? 'selected' : ''; ?>>Chirurgien</option>
+            </select>
+            
+            <label for="docteur_id">Docteur (ID):</label>
+            <select name="docteur_id" id="docteur_id" required>
+                <?php
+                // Récupérer tous les médecins
+                $stmt_docteurs = $conn->query("SELECT id, username FROM users WHERE role = 'medecin'");
 
-        <button type="submit">Modifier le Cabinet</button>
-    </form>
-    <?php endif; ?>
+                while ($row = $stmt_docteurs->fetch(PDO::FETCH_ASSOC)) {
+                    $selected = ($row['id'] == $cabinet['docteur_id']) ? 'selected' : '';
+                    echo "<option value='" . $row['id'] . "' $selected>" . htmlspecialchars($row['username']) . " (ID: " . $row['id'] . ")</option>";
+                }
+                ?>
+            </select>
+
+            <button type="submit">Modifier le Cabinet</button>
+        </form>
+        <?php endif; ?>
+    </div>
+
 </body>
 </html>

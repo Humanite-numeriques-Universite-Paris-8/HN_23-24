@@ -150,63 +150,115 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Réserver un Rendez-vous</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+body {
+    font-family: 'Poppins', sans-serif;
+    background-image: url('../../images/cabinet.jpg'); /* Remplacez par le chemin de votre image */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
 
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-        }
+.container {
+    background-color: rgba(255, 255, 255, 0.85); /* Fond blanc avec opacité */
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+}
 
-        h2 {
-            text-align: center;
-            color: #28a745;
-        }
+h2 {
+    color: #28a745;
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
 
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+    text-align: left;
+}
 
-        input, select {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
 
-        button.btn {
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            padding: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+input:focus, select:focus {
+    border-color: #28a745;
+    outline: none;
+    box-shadow: 0px 0px 5px rgba(40, 167, 69, 0.5);
+}
 
-        button.btn:hover {
-            background-color: #218838;
-        }
+button.btn {
+    width: 100%;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
 
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #f5c6cb;
-        }
+button.btn:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+button.btn:active {
+    background-color: #1e7e34;
+    transform: translateY(0);
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    text-align: center;
+}
+
+::placeholder {
+    color: #888;
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 30px;
+        width: 90%;
+    }
+
+    h2 {
+        font-size: 22px;
+    }
+
+    button.btn {
+        font-size: 14px;
+        padding: 12px;
+    }
+}
+
     </style>
 </head>
 <body>

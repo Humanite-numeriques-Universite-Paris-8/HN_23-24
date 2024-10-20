@@ -1,93 +1,66 @@
 <?php
-require_once '../../config/database.php'; // Assurez-vous que le chemin est correct
+require_once '../../config/database.php'; // Ensure the path is correct
 
-// Vérifiez si l'utilisateur est connecté et est un admin
-session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../../View/Auth/login.php");
-    exit();
-}
-
-// Connexion à la base de données
 $conn = connectDB();
 
-// Initialiser les variables
-$medecin_id = $medecin_name = $medecin_email = $medecin_phone = "";
-$error_message = "";
+// Initialize variables for error messages and form fields
+$error_message = '';
+$medecin_id = '';
+$medecin_name = '';
+$medecin_email = '';
+$medecin_phone = '';
 
-// Vérifier si l'ID du médecin est passé en paramètre
+// Check if the ID of the doctor is passed in the URL
 if (isset($_GET['id'])) {
     $medecin_id = $_GET['id'];
 
-    // Récupérer les informations du médecin à modifier
-    $query = "SELECT username, email, phone FROM users WHERE id = :medecin_id AND role = 'medecin'";
+    // Retrieve the doctor's information from the database
+    $query = "SELECT * FROM users WHERE id = :id AND role = 'medecin'";
     $stmt = $conn->prepare($query);
-    $stmt->bindParam(':medecin_id', $medecin_id);
+    $stmt->bindParam(':id', $medecin_id);
     $stmt->execute();
+    
     $medecin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($medecin) {
+    // If the doctor is not found
+    if (!$medecin) {
+        $error_message = "Médecin non trouvé.";
+    } else {
+        // Pre-fill the form with the doctor's information
         $medecin_name = $medecin['username'];
         $medecin_email = $medecin['email'];
         $medecin_phone = $medecin['phone'];
-    } else {
-        echo "Médecin introuvable.";
-        exit();
     }
+} else {
+    $error_message = "ID du médecin non fourni.";
 }
 
-// Si le formulaire est soumis
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $medecin_id = $_POST['medecin_id']; // ID du médecin sélectionné
-    $medecin_name = $_POST['medecin_name']; // Nom du médecin
-    $medecin_email = $_POST['medecin_email']; // Email du médecin
-    $medecin_phone = $_POST['medecin_phone']; // Téléphone du médecin
+// If the form is submitted
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Retrieve the data from the form
+    $medecin_id = $_POST['medecin_id'];
+    $medecin_name = $_POST['medecin_name'];
+    $medecin_email = $_POST['medecin_email'];
+    $medecin_phone = $_POST['medecin_phone'];
 
-    // Vérification de l'unicité du numéro de téléphone
-    $query_check_phone = "SELECT id FROM users WHERE phone = :medecin_phone AND id != :medecin_id";
-    $stmt_check_phone = $conn->prepare($query_check_phone);
-    $stmt_check_phone->bindParam(':medecin_phone', $medecin_phone);
-    $stmt_check_phone->bindParam(':medecin_id', $medecin_id);
-    $stmt_check_phone->execute();
-
-    if ($stmt_check_phone->rowCount() > 0) {
-        $error_message = "Erreur : Ce numéro de téléphone est déjà utilisé par un autre médecin.";
+    // Basic validation (checking if fields are empty)
+    if (empty($medecin_name) || empty($medecin_email) || empty($medecin_phone)) {
+        $error_message = "Tous les champs doivent être remplis.";
     } else {
-        // Vérification de l'unicité de l'email
-        $query_check_email = "SELECT id FROM users WHERE email = :medecin_email AND id != :medecin_id";
-        $stmt_check_email = $conn->prepare($query_check_email);
-        $stmt_check_email->bindParam(':medecin_email', $medecin_email);
-        $stmt_check_email->bindParam(':medecin_id', $medecin_id);
-        $stmt_check_email->execute();
-
-        if ($stmt_check_email->rowCount() > 0) {
-            $error_message = "Erreur : Cet email est déjà utilisé par un autre médecin.";
+        // Update the doctor's information
+        $query = "UPDATE users SET username = :medecin_name, email = :medecin_email, phone = :medecin_phone WHERE id = :medecin_id AND role = 'medecin'";
+        $stmt = $conn->prepare($query);
+        $stmt->bindParam(':medecin_name', $medecin_name);
+        $stmt->bindParam(':medecin_email', $medecin_email);
+        $stmt->bindParam(':medecin_phone', $medecin_phone);
+        $stmt->bindParam(':medecin_id', $medecin_id);
+        
+        // Execute the query and redirect if successful
+        if ($stmt->execute()) {
+            header("Location: getMedecin.php?success=Le médecin a été modifié avec succès.");
+            exit();
         } else {
-            // Vérification de l'unicité du nom d'utilisateur
-            $query_check_username = "SELECT id FROM users WHERE username = :medecin_name AND id != :medecin_id";
-            $stmt_check_username = $conn->prepare($query_check_username);
-            $stmt_check_username->bindParam(':medecin_name', $medecin_name);
-            $stmt_check_username->bindParam(':medecin_id', $medecin_id);
-            $stmt_check_username->execute();
-
-            if ($stmt_check_username->rowCount() > 0) {
-                $error_message = "Erreur : Ce nom d'utilisateur est déjà utilisé par un autre médecin.";
-            } else {
-                // Si tout est bon, mise à jour des informations du médecin
-                $update_query = "UPDATE users SET username = :medecin_name, email = :medecin_email, phone = :medecin_phone WHERE id = :medecin_id AND role = 'medecin'";
-                $update_stmt = $conn->prepare($update_query);
-                $update_stmt->bindParam(':medecin_name', $medecin_name);
-                $update_stmt->bindParam(':medecin_email', $medecin_email);
-                $update_stmt->bindParam(':medecin_phone', $medecin_phone);
-                $update_stmt->bindParam(':medecin_id', $medecin_id);
-
-                if ($update_stmt->execute()) {
-                    header("Location: getMedecin.php?success=1");
-                    exit();
-                } else {
-                    $error_message = "Erreur lors de la mise à jour des informations.";
-                }
-            }
+            $error_message = "Erreur lors de la modification du médecin.";
         }
     }
 }
@@ -102,29 +75,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            background-image: url('../../images/cabinet.jpg'); /* Update the path with the correct image */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;margin-bottom: 60px; 
+            max-width: 450px;
+            background-color: rgba(255, 255, 255, 0.9); /* Light transparent background */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
         }
 
         h2 {
-            text-align: center;
             color: #007bff;
+            font-size: 24px;
             margin-bottom: 20px;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
+            text-align: left;
+            margin-bottom: 8px;
             font-weight: bold;
             color: #333;
         }
@@ -132,45 +114,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         input[type="text"],
         input[type="email"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-bottom: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
             font-size: 16px;
             box-sizing: border-box;
         }
 
         button {
             width: 100%;
-            padding: 10px;
-            background-color: #007bff;
+            padding: 12px;
+            background-color: #28a745;
             color: white;
             border: none;
-            border-radius: 4px;
-            font-size: 16px;
+            border-radius: 6px;
+            font-size: 18px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
 
         .error {
             background-color: #f8d7da;
             color: #721c24;
             padding: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             border: 1px solid #f5c6cb;
-            border-radius: 4px;
+            border-radius: 6px;
         }
 
         a {
-            display: inline-block;
-            margin-top: 20px;
-            text-align: center;
             color: #007bff;
             text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
             font-size: 16px;
         }
 
@@ -180,6 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
+
     <div class="container">
         <h2>Modifier Médecin</h2>
 
@@ -204,5 +186,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <a href="getMedecin.php">Retour à la Liste des Médecins</a>
     </div>
+
 </body>
 </html>
