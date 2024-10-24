@@ -1,0 +1,46 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
+@prefix o: <http://omeka.org/s/vocabs/o#> .
+@prefix etudiant_thyp: <https://jardindesconnaissances.univ-paris8.fr/onto/etudiant_thyp#> .
+
+<https://jardindesconnaissances.univ-paris8.fr/onto/etudiant_thyp> a owl:Ontology ;
+    dcterms:title "Formation Université Paris 8" .
+
+etudiant_thyp:Departement a rdfs:Class ;
+    rdfs:label "Département" ;
+    rdfs:domain o:Resource ;
+    vs:term_status "experimental" .
+
+etudiant_thyp:Etudiant a rdfs:Class ;
+    rdfs:label "Étudiant" ;
+    rdfs:domain o:Resource ;
+    owl:sameAs <http://xmlns.com/foaf/0.1/Person> ;
+    vs:term_status "experimental" .
+
+etudiant_thyp:code a rdf:Property ;
+    rdfs:label "Code EC" ;
+    rdfs:domain o:Resource ;
+    vs:term_status "experimental" .
+
+etudiant_thyp:age a rdf:Property ;
+    rdfs:label "Age" ;
+    rdfs:domain etudiant_thyp:Etudiant ;
+    vs:term_status "experimental" .
+
+etudiant_thyp:gender a rdf:Property ;
+    rdfs:label "Gender" ;
+    rdfs:domain etudiant_thyp:Etudiant ;
+    vs:term_status "experimental" .
+
+etudiant_thyp:mail a rdf:Property ;
+    rdfs:label "Mail" ;
+    rdfs:domain etudiant_thyp:Etudiant ;
+    vs:term_status "experimental" .
+
+etudiant_thyp:birthday a rdf:Property ;
+    rdfs:label "Birthday" ;
+    rdfs:domain etudiant_thyp:Etudiant ;
+    vs:term_status "experimental" .
