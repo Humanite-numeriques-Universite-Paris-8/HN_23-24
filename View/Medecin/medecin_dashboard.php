@@ -30,7 +30,7 @@ $username = $_SESSION['username'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tableau de Bord Médecin</title>
-    <link rel="stylesheet" href="../Admin/css/admin_dashboard.css"> <!-- Assurez-vous que ce chemin est correct -->
+    <link rel="stylesheet" href="Admin/css/admin_dashboard.css"> <!-- Assurez-vous que ce chemin est correct -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
@@ -255,8 +255,10 @@ body {
             <div class="card">
                 <h2>Consulter les questionnaires depuis google forms</h2>
                 <p>Consultez la liste des questionnaires remplis par les patients depuis Google Forms.</p>
-                <a href="../../data.html" class="btn btn-primary">Voir les questionnaires</a>
+                <a href="../Medecin/data_Medecin.html" class="btn btn-primary">Voir les questionnaires</a>
             </div>
+
+       
         </div>
     </div>
 
