@@ -204,6 +204,7 @@
         const apiKey = 'AIzaSyA0kGOS33BZvkVSI9yfVuxOng3qAKMIGWk'; // My Google API key
 
         async function fetchData() {
+        
             const range = encodeURIComponent('Réponses au formulaire 1'); // Replace with the correct sheet name
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${range}?key=${apiKey}`;
           
@@ -221,6 +222,7 @@
 
         // Function to display data in the table
         function displayData(data) {
+           
             if (!data || data.length === 0) {
                 console.error('No data found.');
                 return;
@@ -250,6 +252,18 @@
 
         function showDetails(row) {
             // Construct the content for the modal
+            const details = {
+                "Time submit": row[0],
+                "Quel est votre sexe?": row[1],
+                "Quel âge avez vous?": row[2],
+                "Vous fumez?": row[3],
+                "Vous Faites le sport et le régime?": row[4],
+                "Vous Buvez de l'Alcool?": row[5],
+                "Email": row[6]
+            };
+        
+            // Afficher dans la console chaque label avec sa valeur
+            console.log('Détails de la réponse:', details);
             const content = `
                 <p><strong>Time submit:</strong> ${row[0]}</p>
                 <p><strong>Quel est votre sexe?</strong> ${row[1]}</p>
