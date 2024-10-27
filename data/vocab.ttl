@@ -9,38 +9,42 @@
 <https://jardindesconnaissances.univ-paris8.fr/onto/etudiant_thyp> a owl:Ontology ;
     dcterms:title "Formation Université Paris 8" .
 
-etudiant_thyp:Departement a rdfs:Class ;
-    rdfs:label "Département" ;
+etudiant_thyp:Patient a rdfs:Class ;
+    rdfs:label "Patient" ;
     rdfs:domain o:Resource ;
     vs:term_status "experimental" .
 
-etudiant_thyp:Etudiant a rdfs:Class ;
-    rdfs:label "Étudiant" ;
-    rdfs:domain o:Resource ;
-    owl:sameAs <http://xmlns.com/foaf/0.1/Person> ;
+etudiant_thyp:timeSubmit a rdf:Property ;
+    rdfs:label "Time submit" ;
+    rdfs:domain etudiant_thyp:Patient ;
     vs:term_status "experimental" .
 
-etudiant_thyp:code a rdf:Property ;
-    rdfs:label "Code EC" ;
-    rdfs:domain o:Resource ;
+etudiant_thyp:sexe a rdf:Property ;
+    rdfs:label "Sexe" ;
+    rdfs:domain etudiant_thyp:Patient ;
     vs:term_status "experimental" .
 
 etudiant_thyp:age a rdf:Property ;
     rdfs:label "Age" ;
-    rdfs:domain etudiant_thyp:Etudiant ;
+    rdfs:domain etudiant_thyp:Patient ;
     vs:term_status "experimental" .
 
-etudiant_thyp:gender a rdf:Property ;
-    rdfs:label "Gender" ;
-    rdfs:domain etudiant_thyp:Etudiant ;
+etudiant_thyp:fume a rdf:Property ;
+    rdfs:label "Fume" ;
+    rdfs:domain etudiant_thyp:Patient ;
+    vs:term_status "experimental" .
+
+etudiant_thyp:sport a rdf:Property ;
+    rdfs:label "Sport" ;
+    rdfs:domain etudiant_thyp:Patient ;
+    vs:term_status "experimental" .
+
+etudiant_thyp:alcool a rdf:Property ;
+    rdfs:label "Alcool" ;
+    rdfs:domain etudiant_thyp:Patient ;
     vs:term_status "experimental" .
 
 etudiant_thyp:mail a rdf:Property ;
-    rdfs:label "Mail" ;
-    rdfs:domain etudiant_thyp:Etudiant ;
-    vs:term_status "experimental" .
-
-etudiant_thyp:birthday a rdf:Property ;
-    rdfs:label "Birthday" ;
-    rdfs:domain etudiant_thyp:Etudiant ;
+    rdfs:label "Email" ;
+    rdfs:domain etudiant_thyp:Patient ;
     vs:term_status "experimental" .

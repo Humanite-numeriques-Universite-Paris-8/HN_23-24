@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1deb3
 -- https://www.phpmyadmin.net/
 --
--- Hôte : 127.0.0.1:3306
--- Généré le : jeu. 24 oct. 2024 à 17:39
--- Version du serveur : 8.0.39
--- Version de PHP : 8.0.26
+-- Hôte : localhost:3306
+-- Généré le : dim. 27 oct. 2024 à 10:30
+-- Version du serveur : 8.0.39-0ubuntu0.24.04.2
+-- Version de PHP : 8.3.6
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données : `anas_thyp`
+-- Base de données : `omeka_s`
 --
 
 -- --------------------------------------------------------
@@ -27,28 +27,47 @@ SET time_zone = "+00:00";
 -- Structure de la table `resource_template`
 --
 
-DROP TABLE IF EXISTS `resource_template`;
-CREATE TABLE IF NOT EXISTS `resource_template` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `resource_template` (
+  `id` int NOT NULL,
   `owner_id` int DEFAULT NULL,
   `resource_class_id` int DEFAULT NULL,
   `title_property_id` int DEFAULT NULL,
   `description_property_id` int DEFAULT NULL,
-  `label` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `UNIQ_39ECD52EEA750E8` (`label`),
-  KEY `IDX_39ECD52E7E3C61F9` (`owner_id`),
-  KEY `IDX_39ECD52E448CC1BD` (`resource_class_id`),
-  KEY `IDX_39ECD52E724734A3` (`title_property_id`),
-  KEY `IDX_39ECD52EB84E0D1D` (`description_property_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `label` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Déchargement des données de la table `resource_template`
 --
 
 INSERT INTO `resource_template` (`id`, `owner_id`, `resource_class_id`, `title_property_id`, `description_property_id`, `label`) VALUES
-(4, 1, 94, NULL, NULL, 'Anas_etudiant_M2_THYP_Turtle');
+(1, NULL, NULL, NULL, NULL, 'Base Resource'),
+(2, 1, 94, NULL, NULL, 'Etudiant');
+
+--
+-- Index pour les tables déchargées
+--
+
+--
+-- Index pour la table `resource_template`
+--
+ALTER TABLE `resource_template`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `UNIQ_39ECD52EEA750E8` (`label`),
+  ADD KEY `IDX_39ECD52E7E3C61F9` (`owner_id`),
+  ADD KEY `IDX_39ECD52E448CC1BD` (`resource_class_id`),
+  ADD KEY `IDX_39ECD52E724734A3` (`title_property_id`),
+  ADD KEY `IDX_39ECD52EB84E0D1D` (`description_property_id`);
+
+--
+-- AUTO_INCREMENT pour les tables déchargées
+--
+
+--
+-- AUTO_INCREMENT pour la table `resource_template`
+--
+ALTER TABLE `resource_template`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Contraintes pour les tables déchargées
