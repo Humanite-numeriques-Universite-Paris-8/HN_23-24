@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost:3306
--- Généré le : dim. 27 oct. 2024 à 10:30
+-- Généré le : dim. 27 oct. 2024 à 18:18
 -- Version du serveur : 8.0.39-0ubuntu0.24.04.2
 -- Version de PHP : 8.3.6
 
@@ -42,7 +42,13 @@ CREATE TABLE `resource_template` (
 
 INSERT INTO `resource_template` (`id`, `owner_id`, `resource_class_id`, `title_property_id`, `description_property_id`, `label`) VALUES
 (1, NULL, NULL, NULL, NULL, 'Base Resource'),
-(2, 1, 94, NULL, NULL, 'Etudiant');
+(2, 1, 94, NULL, NULL, 'Etudiant'),
+(4, 1, 123, NULL, NULL, 'Patient'),
+(5, 1, 124, NULL, NULL, 'cabinet'),
+(6, 1, 126, NULL, NULL, 'User'),
+(7, 1, 125, NULL, NULL, 'appointment'),
+(8, 1, 127, NULL, NULL, 'Admin'),
+(9, 1, 126, NULL, NULL, 'Médecin');
 
 --
 -- Index pour les tables déchargées
@@ -67,7 +73,7 @@ ALTER TABLE `resource_template`
 -- AUTO_INCREMENT pour la table `resource_template`
 --
 ALTER TABLE `resource_template`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Contraintes pour les tables déchargées

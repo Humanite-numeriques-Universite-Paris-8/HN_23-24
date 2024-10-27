@@ -342,7 +342,7 @@ body {
             <div class="card">
                 <h2>Consulter les questionnaires depuis google forms</h2>
                 <p>Consultez la liste des questionnaires remplis par les patients depuis Google Forms.</p>
-                <a href="../../data.html" class="btn btn-primary">Voir le formulaire à remplir</a>
+                <a href="getdataPatientByEmail.php" class="btn btn-primary">Voir le formulaire à remplir</a>
             </div>
 
        
