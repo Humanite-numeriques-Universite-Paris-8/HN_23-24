@@ -321,6 +321,13 @@ body {
         <p class="welcome-msg">Vous êtes connecté avec succès !</p>
 
         <div class="card-container">
+
+        <div class="card">
+                <h2>Voir la liste des Cabinets</h2>
+                <p>Consultez la liste des cabinets disponibles.</p>
+                <a href="lister_ContactMedecin.php" class="btn btn-primary">Voir les Cabinets</a>
+            </div>
+
             <div class="card">
                 <h2>Réserver un Rendez-vous</h2>
                 <p>Réservez un rendez-vous avec un docteur dans un cabinet disponible.</p>
@@ -328,16 +335,19 @@ body {
             </div>
    
             <div class="card">
-                <h2>Voir la liste des Cabinets</h2>
-                <p>Consultez la liste des cabinets disponibles.</p>
-                <a href="lister_ContactMedecin.php" class="btn btn-primary">Voir les Cabinets</a>
-            </div>
-   
-            <div class="card">
                 <h2>Voir mes Rendez-vous</h2>
                 <p>Consultez la liste de vos rendez-vous.</p>
                 <a href="patient_lister_rdv.php" class="btn btn-primary">Voir mes Rendez-vous</a>
             </div>
+            <div class="card">
+                <h2>Consulter les questionnaires depuis google forms</h2>
+                <p>Consultez la liste des questionnaires remplis par les patients depuis Google Forms.</p>
+                <a href="../../data.html" class="btn btn-primary">Voir le formulaire à remplir</a>
+            </div>
+
+       
+   
+         
         </div>
     </div>
 
