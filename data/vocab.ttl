@@ -4,7 +4,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
 @prefix o: <http://omeka.org/s/vocabs/o#> .
-@prefix etudiant_thyp: <https://jardindesconnaissances.univ-paris8.fr/onto/etudiant_thyp_cabinet_Management#> .
+@prefix etudiant_thyp_cabinet_Management: <https://jardindesconnaissances.univ-paris8.fr/onto/etudiant_thyp_cabinet_Management#> .
 
 <https://jardindesconnaissances.univ-paris8.fr/onto/etudiant_thyp_cabinet_Management> a owl:Ontology ;
     dcterms:title "Gestion de Cabinet Médical - Université Paris 8" .
