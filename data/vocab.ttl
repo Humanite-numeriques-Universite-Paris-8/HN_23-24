@@ -4,144 +4,144 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
 @prefix o: <http://omeka.org/s/vocabs/o#> .
-@prefix etudiant_thyp_cabinet_Management: <https://jardindesconnaissances.univ-paris8.fr/onto/etudiant_thyp_cabinet_Management#> .
+@prefix etudiant_thyp: <https://jardindesconnaissances.univ-paris8.fr/onto/etudiant_thyp_cabinet_Management#> .
 
-<https://jardindesconnaissances.univ-paris8.fr/onto/etudiant_thyp_cabinet_Management> a owl:Ontology ;
+<https://jardindesconnaissances.univ-paris8.fr/onto/etudiant_thyp> a owl:Ontology ;
     dcterms:title "Gestion de Cabinet Médical - Université Paris 8" .
 
 ### Classe Patient
-etudiant_thyp_cabinet_Management:Patient a rdfs:Class ;
+etudiant_thyp:Patient a rdfs:Class ;
     rdfs:label "Patient" ;
     rdfs:comment "Représente un patient du cabinet médical" ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:timeSubmit a rdf:Property ;
+etudiant_thyp:timeSubmit a rdf:Property ;
     rdfs:label "Date de soumission" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Patient ;
+    rdfs:domain etudiant_thyp:Patient ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:sexe a rdf:Property ;
+etudiant_thyp:sexe a rdf:Property ;
     rdfs:label "Sexe" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Patient ;
+    rdfs:domain etudiant_thyp:Patient ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:age a rdf:Property ;
+etudiant_thyp:age a rdf:Property ;
     rdfs:label "Age" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Patient ;
+    rdfs:domain etudiant_thyp:Patient ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:fume a rdf:Property ;
+etudiant_thyp:fume a rdf:Property ;
     rdfs:label "Fume" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Patient ;
+    rdfs:domain etudiant_thyp:Patient ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:sport a rdf:Property ;
+etudiant_thyp:sport a rdf:Property ;
     rdfs:label "Sport" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Patient ;
+    rdfs:domain etudiant_thyp:Patient ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:alcool a rdf:Property ;
+etudiant_thyp:alcool a rdf:Property ;
     rdfs:label "Consommation d'Alcool" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Patient ;
+    rdfs:domain etudiant_thyp:Patient ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:mail a rdf:Property ;
+etudiant_thyp:mail a rdf:Property ;
     rdfs:label "Email" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Patient ;
+    rdfs:domain etudiant_thyp:Patient ;
     vs:term_status "experimental" .
 
 ### Classe Cabinet
-etudiant_thyp_cabinet_Management:Cabinet a rdfs:Class ;
+etudiant_thyp:Cabinet a rdfs:Class ;
     rdfs:label "Cabinet Médical" ;
     rdfs:comment "Représente un cabinet médical" ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:nom a rdf:Property ;
+etudiant_thyp:nom a rdf:Property ;
     rdfs:label "Nom du Cabinet" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Cabinet ;
+    rdfs:domain etudiant_thyp:Cabinet ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:adresse a rdf:Property ;
+etudiant_thyp:adresse a rdf:Property ;
     rdfs:label "Adresse" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Cabinet ;
+    rdfs:domain etudiant_thyp:Cabinet ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:specialite a rdf:Property ;
+etudiant_thyp:specialite a rdf:Property ;
     rdfs:label "Spécialité Médicale" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Cabinet ;
+    rdfs:domain etudiant_thyp:Cabinet ;
     vs:term_status "experimental" .
 
 ### Classe Appointment
-etudiant_thyp_cabinet_Management:Appointment a rdfs:Class ;
+etudiant_thyp:Appointment a rdfs:Class ;
     rdfs:label "Rendez-vous" ;
     rdfs:comment "Représente un rendez-vous médical" ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:appointmentDate a rdf:Property ;
+etudiant_thyp:appointmentDate a rdf:Property ;
     rdfs:label "Date du Rendez-vous" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Appointment ;
+    rdfs:domain etudiant_thyp:Appointment ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:phone a rdf:Property ;
+etudiant_thyp:phone a rdf:Property ;
     rdfs:label "Téléphone du Patient" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Appointment ;
+    rdfs:domain etudiant_thyp:Appointment ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:isValidated a rdf:Property ;
+etudiant_thyp:isValidated a rdf:Property ;
     rdfs:label "Validation du Rendez-vous" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Appointment ;
+    rdfs:domain etudiant_thyp:Appointment ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:securiteSociale a rdf:Property ;
+etudiant_thyp:securiteSociale a rdf:Property ;
     rdfs:label "Numéro de Sécurité Sociale" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Appointment ;
+    rdfs:domain etudiant_thyp:Appointment ;
     vs:term_status "experimental" .
 
 ### Classe User
-etudiant_thyp_cabinet_Management:User a rdfs:Class ;
+etudiant_thyp:User a rdfs:Class ;
     rdfs:label "Utilisateur" ;
     rdfs:comment "Représente un utilisateur dans le système (admin, médecin, patient)" ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:username a rdf:Property ;
+etudiant_thyp:username a rdf:Property ;
     rdfs:label "Nom d'Utilisateur" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:User ;
+    rdfs:domain etudiant_thyp:User ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:password a rdf:Property ;
+etudiant_thyp:password a rdf:Property ;
     rdfs:label "Mot de Passe" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:User ;
+    rdfs:domain etudiant_thyp:User ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:role a rdf:Property ;
+etudiant_thyp:role a rdf:Property ;
     rdfs:label "Rôle" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:User ;
+    rdfs:domain etudiant_thyp:User ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:telephone a rdf:Property ;
+etudiant_thyp:telephone a rdf:Property ;
     rdfs:label "Numéro de Téléphone" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:User ;
+    rdfs:domain etudiant_thyp:User ;
     vs:term_status "experimental" .
 
 ### Classe Admin
-etudiant_thyp_cabinet_Management:Admin a rdfs:Class ;
+etudiant_thyp:Admin a rdfs:Class ;
     rdfs:label "Administrateur" ;
     rdfs:comment "Représente un administrateur du système" ;
     vs:term_status "experimental" .
 
 ### Classe Medecin
-etudiant_thyp_cabinet_Management:Medecin a rdfs:Class ;
+etudiant_thyp:Medecin a rdfs:Class ;
     rdfs:label "Médecin" ;
     rdfs:comment "Représente un médecin dans le cabinet médical" ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:specialisation a rdf:Property ;
+etudiant_thyp:specialisation a rdf:Property ;
     rdfs:label "Spécialisation du Médecin" ;
-    rdfs:domain etudiant_thyp_cabinet_Management:Medecin ;
+    rdfs:domain etudiant_thyp:Medecin ;
     vs:term_status "experimental" .
 
-etudiant_thyp_cabinet_Management:cabinetAssocie a rdf:Property ;
+etudiant_thyp:cabinetAssocie a rdf:Property ;
     rdfs:label "Cabinet Associé" ;
     rdfs:domain etudiant_thyp:Medecin ;
-    rdfs:range etudiant_thyp_cabinet_Management:Cabinet ;
+    rdfs:range etudiant_thyp:Cabinet ;
     vs:term_status "experimental" .
