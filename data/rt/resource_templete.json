@@ -1,0 +1,17 @@
+[
+    {"type":"header","version":"5.2.1deb3","comment":"Export to JSON plugin for PHPMyAdmin"},
+    {"type":"database","name":"omeka_s"},
+    {"type":"table","name":"resource_template","database":"omeka_s","data":
+    [
+    {"id":"1","owner_id":null,"resource_class_id":null,"title_property_id":null,"description_property_id":null,"label":"Base Resource"},
+    {"id":"2","owner_id":"1","resource_class_id":"94","title_property_id":null,"description_property_id":null,"label":"Etudiant"},
+    {"id":"4","owner_id":"1","resource_class_id":"123","title_property_id":null,"description_property_id":null,"label":"Patient"},
+    {"id":"5","owner_id":"1","resource_class_id":"124","title_property_id":null,"description_property_id":null,"label":"cabinet"},
+    {"id":"6","owner_id":"1","resource_class_id":"126","title_property_id":null,"description_property_id":null,"label":"User"},
+    {"id":"7","owner_id":"1","resource_class_id":"125","title_property_id":null,"description_property_id":null,"label":"appointment"},
+    {"id":"8","owner_id":"1","resource_class_id":"127","title_property_id":null,"description_property_id":null,"label":"Admin"},
+    {"id":"9","owner_id":"1","resource_class_id":"126","title_property_id":null,"description_property_id":null,"label":"Médecin"}
+    ]
+    }
+    ]
+    
