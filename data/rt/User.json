@@ -1,17 +1,71 @@
-[
-    {"type":"header","version":"5.2.1deb3","comment":"Export to JSON plugin for PHPMyAdmin"},
-    {"type":"database","name":"omeka_s"},
-    {"type":"table","name":"resource_template","database":"omeka_s","data":
-    [
-    {"id":"1","owner_id":null,"resource_class_id":null,"title_property_id":null,"description_property_id":null,"label":"Base Resource"},
-    {"id":"2","owner_id":"1","resource_class_id":"94","title_property_id":null,"description_property_id":null,"label":"Etudiant"},
-    {"id":"4","owner_id":"1","resource_class_id":"123","title_property_id":null,"description_property_id":null,"label":"Patient"},
-    {"id":"5","owner_id":"1","resource_class_id":"124","title_property_id":null,"description_property_id":null,"label":"cabinet"},
-    {"id":"6","owner_id":"1","resource_class_id":"126","title_property_id":null,"description_property_id":null,"label":"User"},
-    {"id":"7","owner_id":"1","resource_class_id":"125","title_property_id":null,"description_property_id":null,"label":"appointment"},
-    {"id":"8","owner_id":"1","resource_class_id":"127","title_property_id":null,"description_property_id":null,"label":"Admin"},
-    {"id":"9","owner_id":"1","resource_class_id":"126","title_property_id":null,"description_property_id":null,"label":"Médecin"}
-    ]
+{
+    "o:label": "User",
+    "o:resource_template_property": [
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "http:\/\/purl.org\/dc\/terms\/",
+            "vocabulary_label": "Dublin Core",
+            "local_name": "title",
+            "label": "Title"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
+            "vocabulary_label": "vocab-cabinet_Management",
+            "local_name": "mail",
+            "label": "Email"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
+            "vocabulary_label": "vocab-cabinet_Management",
+            "local_name": "username",
+            "label": "Nom d'Utilisateur"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
+            "vocabulary_label": "vocab-cabinet_Management",
+            "local_name": "password",
+            "label": "Mot de Passe"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
+            "vocabulary_label": "vocab-cabinet_Management",
+            "local_name": "role",
+            "label": "R\u00f4le"
+        }
+    ],
+    "o:resource_class": {
+        "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
+        "vocabulary_label": "vocab-cabinet_Management",
+        "local_name": "User",
+        "label": "Utilisateur"
     }
-    ]
-    
+}
