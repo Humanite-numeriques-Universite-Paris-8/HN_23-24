@@ -20,8 +20,8 @@
             "o:is_private": false,
             "o:default_lang": null,
             "data_types": [],
-            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
-            "vocabulary_label": "vocab-cabinet_Management",
+            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/cabinet_medical#",
+            "vocabulary_label": "cabinet_medical",
             "local_name": "appointmentDate",
             "label": "Date du Rendez-vous"
         },
@@ -32,8 +32,20 @@
             "o:is_private": false,
             "o:default_lang": null,
             "data_types": [],
-            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
-            "vocabulary_label": "vocab-cabinet_Management",
+            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/cabinet_medical#",
+            "vocabulary_label": "cabinet_medical",
+            "local_name": "telephone",
+            "label": "Num\u00e9ro de T\u00e9l\u00e9phone"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/cabinet_medical#",
+            "vocabulary_label": "cabinet_medical",
             "local_name": "phone",
             "label": "T\u00e9l\u00e9phone du Patient"
         },
@@ -44,8 +56,8 @@
             "o:is_private": false,
             "o:default_lang": null,
             "data_types": [],
-            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
-            "vocabulary_label": "vocab-cabinet_Management",
+            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/cabinet_medical#",
+            "vocabulary_label": "cabinet_medical",
             "local_name": "isValidated",
             "label": "Validation du Rendez-vous"
         },
@@ -56,15 +68,15 @@
             "o:is_private": false,
             "o:default_lang": null,
             "data_types": [],
-            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
-            "vocabulary_label": "vocab-cabinet_Management",
+            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/cabinet_medical#",
+            "vocabulary_label": "cabinet_medical",
             "local_name": "securiteSociale",
             "label": "Num\u00e9ro de S\u00e9curit\u00e9 Sociale"
         }
     ],
     "o:resource_class": {
-        "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
-        "vocabulary_label": "vocab-cabinet_Management",
+        "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/cabinet_medical#",
+        "vocabulary_label": "cabinet_medical",
         "local_name": "Appointment",
         "label": "Rendez-vous"
     }

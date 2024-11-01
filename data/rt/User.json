@@ -20,8 +20,8 @@
             "o:is_private": false,
             "o:default_lang": null,
             "data_types": [],
-            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
-            "vocabulary_label": "vocab-cabinet_Management",
+            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/cabinet_medical#",
+            "vocabulary_label": "cabinet_medical",
             "local_name": "mail",
             "label": "Email"
         },
@@ -32,8 +32,8 @@
             "o:is_private": false,
             "o:default_lang": null,
             "data_types": [],
-            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
-            "vocabulary_label": "vocab-cabinet_Management",
+            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/cabinet_medical#",
+            "vocabulary_label": "cabinet_medical",
             "local_name": "username",
             "label": "Nom d'Utilisateur"
         },
@@ -44,10 +44,10 @@
             "o:is_private": false,
             "o:default_lang": null,
             "data_types": [],
-            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
-            "vocabulary_label": "vocab-cabinet_Management",
-            "local_name": "password",
-            "label": "Mot de Passe"
+            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/cabinet_medical#",
+            "vocabulary_label": "cabinet_medical",
+            "local_name": "role",
+            "label": "R\u00f4le"
         },
         {
             "o:alternate_label": null,
@@ -56,15 +56,15 @@
             "o:is_private": false,
             "o:default_lang": null,
             "data_types": [],
-            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
-            "vocabulary_label": "vocab-cabinet_Management",
-            "local_name": "role",
-            "label": "R\u00f4le"
+            "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/cabinet_medical#",
+            "vocabulary_label": "cabinet_medical",
+            "local_name": "password",
+            "label": "Mot de Passe"
         }
     ],
     "o:resource_class": {
-        "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/etudiant_thyp_cabinet_Management#",
-        "vocabulary_label": "vocab-cabinet_Management",
+        "vocabulary_namespace_uri": "https:\/\/jardindesconnaissances.univ-paris8.fr\/onto\/cabinet_medical#",
+        "vocabulary_label": "cabinet_medical",
         "local_name": "User",
         "label": "Utilisateur"
     }

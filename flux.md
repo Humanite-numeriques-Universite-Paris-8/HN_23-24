@@ -1,6 +1,3 @@
-//classDiagram
-  
-
 classDiagram
     class Utilisateur {
         +int id
@@ -12,8 +9,16 @@ classDiagram
     class Admin {
         +ajouterCabinet()
         +listerCabinets()
+        +modifierCabinet()
+        +supprimerCabinet()
         +obtenirListeMedecins()
         +obtenirListePatients()
+        +modifierMedecin()
+        +supprimerMedecin()
+        +modifierPatient()
+        +supprimerPatient()
+        +rechercher médecin()
+        +rechercher spécialité()
     }
 
     class Medecin {
@@ -21,32 +26,41 @@ classDiagram
         +listerRdv()
         +validerRdv()
         +supprimerRdv()
+        +annulerRdv()
         +telechargerPdfRdv()
     }
 
     class Patient {
         +String username
         +reserverRdv()
+        +listerRdv()
         +listerCabinets()
-        +deplacerModifierRdv()
+        +deplacerRdv()
         +annulerRdv()
         +telechargerPdfRdv()
+        +rechercher médecin()
+        +rechercher spécialité()
+        +listerFormulaire()
     }
 
     class RendezVous {
         +int id
+        +int patient_id
+        +int docteur_id
         +Date dateRendezVous
-        +String statut
+        +int phonePatient
+        +Date createdAt
         +confirmer()
         +annuler()
     }
 
     class Cabinet {
         +int id
-        +String nom
+         +int docteur_id
+        +String nomCabinet
         +String adresse
-        +String ville
-        +voirDetails()
+        +String specialite
+        
     }
 
     Utilisateur <|-- Admin
@@ -59,10 +73,6 @@ classDiagram
 
 
 
-
-
-//sequenceDiagram
-
 sequenceDiagram
     participant Admin
     participant Patient
@@ -73,37 +83,7 @@ sequenceDiagram
     Admin->>+BaseDeDonnees: Ajouter Cabinet
     BaseDeDonnees-->>-Admin: Confirmation
 
-    Admin->>+BaseDeDonnees: Lister Cabinets
-    BaseDeDonnees-->>-Admin: Liste des Cabinets
-
-    Admin->>+BaseDeDonnees: Lister Médecins
-    BaseDeDonnees-->>-Admin: Liste des Médecins
-
-    Admin->>+BaseDeDonnees: Lister Patients
-    BaseDeDonnees-->>-Admin: Liste des Patients
-
-    %% Interactions Patient
-    Patient->>+BaseDeDonnees: Réserver RDV
-    BaseDeDonnees-->>-Patient: Confirmation RDV
-
-    Patient->>+BaseDeDonnees: Lister Cabinets
-    BaseDeDonnees-->>-Patient: Liste des Cabinets
-
-    Patient->>+BaseDeDonnees: Modifier RDV
-    BaseDeDonnees-->>-Patient: Confirmation Modification
-
-    Patient->>+BaseDeDonnees: Annuler RDV
-    BaseDeDonnees-->>-Patient: Confirmation Annulation
-
-    Patient->>+BaseDeDonnees: Télécharger PDF de RDV
-    BaseDeDonnees-->>-Patient: Fichier PDF
-
-    %% Interactions Médecin
-    Medecin->>+BaseDeDonnees: Lister RDV
-    BaseDeDonnees-->>-Medecin: Liste des RDV
-
-    Medecin->>+BaseDeDonnees: Valider RDV
-    BaseDeDonnees-->>-Medecin: Confirmation Validation
+…    BaseDeDonnees-->>-Medecin: Confirmation Validation
 
     Medecin->>+BaseDeDonnees: Supprimer RDV
     BaseDeDonnees-->>-Medecin: Confirmation Suppression
