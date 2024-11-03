@@ -3,165 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organized Class Diagram with D3.js</title>
-    <script src="https://d3js.org/d3.v6.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f9fc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        h1 {
-            text-align: center;
-            color: #1a73e8;
-        }
-        #diagram {
-            width: 95vw;
-            height: 90vh;
-            background-color: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        .class-box {
-            fill: #e3f2fd;
-            stroke: #1a73e8;
-            stroke-width: 1.5px;
-            border-radius: 5px;
-        }
-        .class-label {
-            font-size: 14px;
-            font-weight: bold;
-            fill: #1a73e8;
-        }
-        .attribute {
-            font-size: 12px;
-            fill: #333;
-        }
-        .relation-line {
-            stroke: #1a73e8;
-            stroke-width: 1.5px;
-            marker-end: url(#arrow);
-            stroke-dasharray: 4;
-        }
-    </style>
+    <title>Dynamic Class Diagram with Mermaid</title>
+    <script type="module">
+        import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+        mermaid.initialize({ startOnLoad: false });
+        window.mermaid = mermaid;
+    </script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
 
-<h1>Organized Class Diagram with D3.js</h1>
-<div id="diagram"></div>
+<h1>Class Diagram for Cabinet</h1>
+<div class="mermaid" id="classDiagram"></div>
 
 <script>
-    const classes = [
-        { id: "Utilisateur", attributes: ["int id", "String nomUtilisateur", "String email", "String motDePasse"] },
-        { id: "Admin", attributes: ["ajouterCabinet()", "listerCabinets()", "modifierCabinet()", "supprimerCabinet()"] },
-        { id: "Medecin", attributes: ["String specialite", "listerRdv()", "validerRdv()"] },
-        { id: "Patient", attributes: ["String username", "reserverRdv()", "listerRdv()"] },
-        { id: "RendezVous", attributes: ["int id", "int patient_id", "int docteur_id"] },
-        { id: "Cabinet", attributes: ["int id", "String nomCabinet", "String adresse", "String specialite"] }
-    ];
+const apiUrl = "https://api.github.com/repos/AnasHefied/Projet1_Thyp_Ahef/contents/data/rt"; // GitHub API URL for the JSON files
+let mermaidText = "classDiagram\n";
 
-    const relations = [
-        { source: "Utilisateur", target: "Admin", type: "inheritance" },
-        { source: "Utilisateur", target: "Medecin", type: "inheritance" },
-        { source: "Utilisateur", target: "Patient", type: "inheritance" },
-        { source: "Medecin", target: "RendezVous", type: "association" },
-        { source: "Patient", target: "RendezVous", type: "association" },
-        { source: "Cabinet", target: "Medecin", type: "association" }
-    ];
+// Fetch the list of JSON files from the GitHub repository
+d3.json(apiUrl)
+    .then(files => {
+        // Filter out only JSON files
+        const jsonFiles = files.filter(file => file.name.endsWith(".json"));
+        
+        // Fetch each JSON file content
+        const filePromises = jsonFiles.map(file => d3.json(file.download_url));
+        
+        Promise.all(filePromises)
+            .then(fileContents => {
+                // Process each JSON file's content to generate class diagram notation
+                fileContents.forEach(data => {
+                    // Use `o:label` as the class name if available
+                    const className = data['o:label'] || "UnnamedClass";
+                    mermaidText += `class ${className} {\n`;
 
-    const svg = d3.select("#diagram").append("svg")
-        .attr("width", "100%")
-        .attr("height", "100%")
-        .attr("viewBox", "-50 -50 1200 800"); // Increased viewbox to add padding
+                    // Extract properties and add them as class attributes
+                    const properties = data["o:resource_template_property"];
+                    if (properties) {
+                        properties.forEach(prop => {
+                            const label = prop.label || "UnnamedProperty";
+                            const localName = prop.local_name || "String";
+                            const type = (localName === "cabinet_medical") ? "Boolean" : "String";
+                            mermaidText += `    +${type} ${label}\n`;
+                        });
+                    }
+                    mermaidText += "}\n";
+                });
 
-    svg.append("defs").append("marker")
-        .attr("id", "arrow")
-        .attr("viewBox", "0 50 50 50")
-        .attr("refX", 10)
-        .attr("refY", 0)
-        .attr("markerWidth", 60)
-        .attr("markerHeight", 60)
-        .attr("orient", "auto")
-        .append("path")
-        .attr("d", "M0,-5L10,0L0,5")
-        .attr("fill", "#1a73e8");
-
-
-    const simulation = d3.forceSimulation(classes)
-        .force("link", d3.forceLink(relations).id(d => d.id).distance(180))
-        .force("charge", d3.forceManyBody().strength(-300))
-        .force("center", d3.forceCenter(500, 350))
-        .force("collision", d3.forceCollide().radius(120))
-        .on("tick", ticked);
-
-    const link = svg.selectAll(".relation-line")
-        .data(relations)
-        .enter().append("line")
-        .attr("class", "relation-line")
-        .attr("stroke-dasharray", d => d.type === "inheritance" ? "5,5" : "");
-
-    const node = svg.selectAll(".class-group")
-        .data(classes)
-        .enter().append("g")
-        .attr("class", "class-group")
-        .call(d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended));
-
-    node.append("rect")
-        .attr("class", "class-box")
-        .attr("width", 180)
-        .attr("height", d => 40 + d.attributes.length * 20)
-        .attr("rx", 8).attr("ry", 8);
-
-    node.append("text")
-        .attr("class", "class-label")
-        .attr("x", 10)
-        .attr("y", 20)
-        .text(d => d.id);
-
-    node.each(function(d) {
-        d3.select(this).selectAll(".attribute")
-            .data(d.attributes)
-            .enter().append("text")
-            .attr("class", "attribute")
-            .attr("x", 10)
-            .attr("y", (d, i) => 40 + i * 20)
-            .text(d => d);
+                // Insert the generated Mermaid code into the HTML container
+                document.getElementById("classDiagram").innerHTML = mermaidText;
+                
+                // Initialize Mermaid to render the diagram
+                mermaid.init(undefined, document.querySelectorAll(".mermaid"));
+            })
+            .catch(error => {
+                console.error("Error retrieving data from JSON files:", error);
+            });
+    })
+    .catch(error => {
+        console.error("Error retrieving files from GitHub API:", error);
     });
-
-    function ticked() {
-        link.attr("x1", d => d.source.x + 90)
-            .attr("y1", d => d.source.y + 30)
-            .attr("x2", d => d.target.x + 90)
-            .attr("y2", d => d.target.y + 30);
-
-        node.attr("transform", d => `translate(${d.x},${d.y})`);
-    }
-
-    function dragstarted(event, d) {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-    }
-
-    function dragged(event, d) {
-        d.fx = event.x;
-        d.fy = event.y;
-    }
-
-    function dragended(event, d) {
-        if (!event.active) simulation.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
-    }
 </script>
 
 </body>
