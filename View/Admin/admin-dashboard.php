@@ -330,6 +330,11 @@ if (isset($_SESSION['username'])) {
                 <p>Mise à jour en cas de changement de mon numéro de téléphone.</p>
                 <a class="btn" href="../Admin/update_profile.php">Mise à jour Mon Num de Tél</a>
             </div>
+            <div class="card">
+                <h2>Cabinet</h2>
+                <p>GET API MAPS</p>
+                <a class="btn" href="../Admin/getCabinetMap.html">Maps</a>
+            </div>
         </div>
     </div>
 

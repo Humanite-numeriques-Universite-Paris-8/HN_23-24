@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Items avec l'API OMK</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Liste des Items avec l'API OMK</h1>
+    </header>
+    <main>
+        <table id="itemsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Nom d'utilisateur</th>
+                    <th>Rôle</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Les items seront chargés ici dynamiquement -->
+            </tbody>
+        </table>
+        <div id="result"></div>
+    </main>
+    <footer>
+        <p>&copy; 2023 Mon Site Web</p>
+    </footer>
+
+    <script type="module">
+        import { omkApiHelper } from './omkApiHelper.js';
+
+        const apiHelper = new omkApiHelper({
+            apiOmk: 'http://localhost/Sites/omeka-s/api/',
+            ident: 'mZn1TKoqGPx1ufGQbrh05eLnR2KDCKIp', // Mise à jour ici
+            key: 'ETKwfNYNIeS3CYgHTfq2vZwdtvIm5YxI', // Mise à jour ici
+        });
+        
+        // Fonction pour charger et afficher les items
+// Fonction pour charger et afficher les items
+async function loadItems() {
+    const items = await apiHelper.getItems();
+    const tbody = document.getElementById('itemsTable').querySelector('tbody');
+    
+    // Vider le contenu du tableau pour éviter les doublons
+    tbody.innerHTML = ''; 
+
+    items.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.id}</td>
+            <td>${item.email}</td>
+            <td>${item.username}</td>
+            <td>${item.role}</td>
+            <td>
+                <button onclick="editItem('${item.id}')">Modifier</button>
+                <button onclick="deleteItem('${item.id}')">Supprimer</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+
+        // Fonction pour modifier un item
+        window.editItem = async function(id) {
+            const newEmail = prompt("Entrez le nouvel email:");
+            const newUsername = prompt("Entrez le nouveau nom d'utilisateur:");
+            const newRole = prompt("Entrez le nouveau rôle:");
+            if (newEmail && newUsername && newRole) {
+                await apiHelper.updateItem(id, {
+                    email: newEmail,
+                    username: newUsername,
+                    role: newRole
+                });
+                loadItems(); // Recharger la liste des items
+                document.getElementById('result').innerText = 'Item modifié avec succès!';
+            }
+        }
+
+        // Fonction pour supprimer un item
+  // Fonction pour supprimer un item
+window.deleteItem = async function(id) {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cet item?")) {
+        await apiHelper.deleteItem(id);
+        loadItems(); // Recharger la liste des items après suppression
+        document.getElementById('result').innerText = 'Item supprimé avec succès!';
+    }
+}
+
+
+        // Charger les items au chargement de la page
+        loadItems();
+    </script>
+</body>
+</html>

@@ -2,11 +2,9 @@
 require_once '../../config/database.php'; // Assurez-vous que ce chemin est correct
 
 $conn = connectDB();
-
-// Initialisation de la variable pour les messages d'erreur
 $error_message = '';
 
-// Vérifiez si l'ID du cabinet est passé dans l'URL
+// Si l'ID du cabinet est passé dans l'URL, récupérez-le
 if (isset($_GET['id'])) {
     $cabinet_id = $_GET['id'];
 
@@ -89,43 +87,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier Cabinet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-image: url('../../images/images1.jpg'); /* Ensure the correct path */
-            background-size: cover;
-            background-position: center;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-            display: flex;
+            display: flex; 
             justify-content: center;
             align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('../../images/cabinet4.avif');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: 'Poppins', sans-serif;
         }
-
         .form-container {
-            max-width: 500px;margin-bottom: 60px; 
-            width: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
+            width: 40%;
             padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
-            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
-
         h1 {
             text-align: center;
             color: #007bff;
             font-size: 24px;
             margin-bottom: 20px;
         }
-
         label {
             font-weight: bold;
             display: block;
             margin-bottom: 5px;
             color: #333;
         }
-
         input[type="text"], select {
             width: 100%;
             padding: 12px;
@@ -135,7 +130,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-size: 16px;
             box-sizing: border-box;
         }
-
         button[type="submit"] {
             width: 100%;
             padding: 12px;
@@ -146,15 +140,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-size: 16px;
             cursor: pointer;
         }
-
         button[type="submit"]:hover {
             background-color: #218838;
         }
-
         .error-message {
             color: red;
             text-align: center;
             margin-bottom: 15px;
+        }
+        .autocomplete-suggestions {
+            border: 1px solid #ddd;
+            background-color: #fff;
+            max-height: 150px;
+            overflow-y: auto;
+            border-radius: 5px;
+            position: absolute;
+            z-index: 9999;
+            width: calc(100% - 22px);
+        }
+        .autocomplete-suggestions div {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .autocomplete-suggestions div:hover {
+            background-color: #e9e9e9;
         }
     </style>
 </head>
@@ -177,8 +186,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <input type="text" name="nom" id="nom" value="<?php echo htmlspecialchars($cabinet['nom']); ?>" required>
             
             <label for="adresse">Adresse du Cabinet:</label>
-            <input type="text" name="adresse" id="adresse" value="<?php echo htmlspecialchars($cabinet['adresse']); ?>" required>
-            
+            <input type="text" name="adresse" id="adresse" value="<?php echo htmlspecialchars($cabinet['adresse']); ?>" placeholder="Tapez pour voir les suggestions" required>
+            <div id="autocomplete-list" class="autocomplete-suggestions"></div>
+
             <label for="specialite">Spécialité:</label>
             <select name="specialite" id="specialite" required>
                 <option value="Cardiologie" <?php echo isset($cabinet['specialite']) && $cabinet['specialite'] == 'Cardiologie' ? 'selected' : ''; ?>>Cardiologie</option>
@@ -206,6 +216,51 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </form>
         <?php endif; ?>
     </div>
+
+    <script>
+        // Fonction pour afficher les suggestions d'adresses
+        function showSuggestions(input, suggestions) {
+            const suggestionBox = document.getElementById("autocomplete-list");
+            suggestionBox.innerHTML = "";
+
+            if (!input) return;
+
+            suggestions.forEach((address) => {
+                const suggestionItem = document.createElement("div");
+                suggestionItem.textContent = address;
+                suggestionItem.onclick = function() {
+                    document.getElementById("adresse").value = address;
+                    suggestionBox.innerHTML = "";
+                };
+                suggestionBox.appendChild(suggestionItem);
+            });
+        }
+
+        // Récupérer les adresses via AJAX
+        document.getElementById("adresse").addEventListener("input", function() {
+            const query = this.value;
+            if (query.length < 3) return; // Limite la requête aux entrées de 3 caractères ou plus
+
+            fetch('getCabinetMaps.php?query=' + query)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error("Erreur : ", data.error);
+                        return;
+                    }
+                    showSuggestions(query, data);  // Afficher les suggestions
+                })
+                .catch(error => console.error("Erreur lors de la récupération des adresses:", error));
+        });
+
+        // Fermer la liste de suggestions en cliquant ailleurs
+        document.addEventListener("click", function(e) {
+            const suggestionBox = document.getElementById("autocomplete-list");
+            if (e.target.id !== "adresse") {
+                suggestionBox.innerHTML = "";
+            }
+        });
+    </script>
 
 </body>
 </html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Items avec l'API OMK</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Gestion des Items avec l'API OMK</h1>
+    </header>
+    <main>
+        <form id="itemForm">
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+
+            <label for="username">Nom d'utilisateur:</label>
+            <input type="text" id="username" required>
+
+            <label for="role">Rôle:</label>
+            <select id="role" required>
+                <option value="Patient">Patient</option>
+                <option value="Médecin">Médecin</option>
+                <option value="Administrateur">Administrateur</option>
+            </select>
+
+            <button type="button" id="btnCreateItem">Créer un item</button>
+            <button type="button" id="btnUpdateItem">Mettre à jour l'item</button>
+            <button type="button" id="btnDeleteItem">Supprimer l'item</button>
+        </form>
+        <div id="result"></div>
+    </main>
+    <footer>
+        <p>&copy; 2023 Mon Site Web</p>
+    </footer>
+
+    <script type="module">
+        import { omkApiHelper } from './omkApiHelper.js';
+
+        const apiHelper = new omkApiHelper({
+            mail: 'a.hef2000@gmail.com',
+            apiOmk: 'http://localhost/Sites/omeka-s/api/',
+            ident: 'mZn1TKoqGPx1ufGQbrh05eLnR2KDCKIp', // Mise à jour ici
+            key: 'ETKwfNYNIeS3CYgHTfq2vZwdtvIm5YxI', // Mise à jour ici
+        });
+        
+
+        document.getElementById('btnCreateItem').addEventListener('click', () => {
+            const data = {
+                email: document.getElementById('email').value,
+                username: document.getElementById('username').value,
+                role: document.getElementById('role').value
+            };
+            apiHelper.createItem(data)
+                .then(result => {
+                    document.getElementById('result').innerText = 'Item créé avec succès: ' + JSON.stringify(result);
+                })
+                .catch(error => {
+                    document.getElementById('result').innerText = 'Erreur lors de la création de l\'item: ' + error;
+                });
+        });
+
+        // Implémentez les fonctions de mise à jour et de suppression de manière similaire
+    </script>
+</body>
+</html>
