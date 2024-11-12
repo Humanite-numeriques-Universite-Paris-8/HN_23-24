@@ -345,7 +345,11 @@ body {
                 <a href="getdataPatientByEmail.php" class="btn btn-primary">Voir le formulaire à remplir</a>
             </div>
 
-       
+            <div class="card">
+                <h2>Cabinet</h2>
+                <p>GET API MAPS</p>
+                <a class="btn" href="../Admin/getCabinetMap.html">Maps</a>
+            </div>
    
          
         </div>
