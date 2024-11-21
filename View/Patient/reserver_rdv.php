@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Vérifie si l'utilisateur est bien connecté, sinon rediriger vers la page de connexion
+// Vérifie si l'utilisateur est connecté
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../../View/Auth/login.php");
     exit();
@@ -25,14 +25,14 @@ $stmt_user->bindParam(':user_id', $user_id);
 $stmt_user->execute();
 $user = $stmt_user->fetch(PDO::FETCH_ASSOC);
 
-// Vérifier si le patient a déjà un numéro de sécurité sociale dans les précédents rendez-vous
+// Vérifier si le patient a déjà un numéro de sécurité sociale
 $query_ss = "SELECT securite_sociale FROM appointments WHERE patient_id = :user_id LIMIT 1";
 $stmt_ss = $conn->prepare($query_ss);
 $stmt_ss->bindParam(':user_id', $user_id);
 $stmt_ss->execute();
 $existing_ss = $stmt_ss->fetch(PDO::FETCH_ASSOC);
 
-// Si la méthode de requête est POST, traiter la soumission du formulaire
+// Si le formulaire est soumis
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cabinet_id = $_POST['cabinet_id'];
     $appointment_date = $_POST['appointment_date'];
@@ -40,13 +40,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input_securite_sociale = $_POST['securite_sociale']; 
     $patient_id = $_SESSION['user_id'];
 
-    // Validation supplémentaire pour les horaires et les jours
-    $selected_datetime = new DateTime($appointment_date);
-    $day_of_week = $selected_datetime->format('N'); // 1 = lundi, 7 = dimanche
-    $selected_time = $selected_datetime->format('H:i');
+    // Validation de la date et heure sélectionnées
+    $current_datetime = new DateTime(); // Date et heure actuelles
+    $selected_datetime = new DateTime($appointment_date); // Date et heure sélectionnées
+    $day_of_week = $selected_datetime->format('N'); // Jour de la semaine (1 = lundi, 7 = dimanche)
+    $selected_time = $selected_datetime->format('H:i'); // Heure sélectionnée
 
-    // Vérifier si c'est un week-end (samedi ou dimanche)
-    if ($day_of_week >= 6) {
+    if ($selected_datetime < $current_datetime) {
+        $error_message = "Erreur : Vous ne pouvez pas réserver un rendez-vous dans le passé.";
+    } elseif ($day_of_week >= 6) { // Week-end (samedi ou dimanche)
         $error_message = "Erreur : Les rendez-vous ne peuvent pas être pris le week-end.";
     } elseif ($selected_time < '09:00' || ($selected_time >= '13:00' && $selected_time < '14:00') || $selected_time > '17:00') {
         $error_message = "Erreur : Les rendez-vous sont uniquement disponibles de 9h00 à 13h00 et de 14h00 à 17h00.";
@@ -62,11 +64,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($phone_exists) {
             $error_message = "Erreur : Ce numéro de téléphone est déjà utilisé par un autre patient.";
         } else {
-            // Si la sécurité sociale est déjà enregistrée pour ce patient, vérifier si elle correspond à la saisie
+            // Vérifier si la sécurité sociale correspond à celle déjà enregistrée
             if ($existing_ss && $existing_ss['securite_sociale'] !== $input_securite_sociale) {
                 $error_message = "Erreur : Ce n'est pas votre numéro de sécurité sociale.";
             } else {
-                // Vérifier si un autre patient utilise déjà ce numéro de sécurité sociale
+                // Vérifier si un autre patient utilise ce numéro de sécurité sociale
                 $check_ss_query = "SELECT id FROM appointments WHERE securite_sociale = :securite_sociale AND patient_id != :user_id";
                 $check_ss_stmt = $conn->prepare($check_ss_query);
                 $check_ss_stmt->bindParam(':securite_sociale', $input_securite_sociale);
@@ -91,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if ($appointment_exists > 0) {
                             $error_message = "Erreur : Un rendez-vous est déjà pris pour cette date et cette heure.";
                         } else {
-                            // Mettre à jour le téléphone dans la table `users`
+                            // Mettre à jour le téléphone
                             $update_phone_query = "UPDATE users SET phone = :phone WHERE id = :user_id";
                             $update_phone_stmt = $conn->prepare($update_phone_query);
                             $update_phone_stmt->bindParam(':phone', $phone);
@@ -108,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             if ($docteur && isset($docteur['docteur_id'])) {
                                 $docteur_id = $docteur['docteur_id'];
 
-                                // Insérer le rendez-vous dans la base de données
+                                // Insérer le rendez-vous
                                 $insert_query = "INSERT INTO appointments (patient_id, cabinet_id, docteur_id, appointment_date, securite_sociale, phone)
                                                  VALUES (:patient_id, :cabinet_id, :docteur_id, :appointment_date, :securite_sociale, :phone)";
                                 $stmt = $conn->prepare($insert_query);
@@ -141,6 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">

@@ -186,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <input type="text" name="nom" id="nom" value="<?php echo htmlspecialchars($cabinet['nom']); ?>" required>
             
             <label for="adresse">Adresse du Cabinet:</label>
-            <input type="text" name="adresse" id="adresse" value="<?php echo htmlspecialchars($cabinet['adresse']); ?>" placeholder="Tapez pour voir les suggestions" required>
+            <input type="text" name="adresse" id="adresse" value="<?php echo htmlspecialchars($cabinet['adresse']); ?>" placeholder="Tapez pour voir les suggestions" autocomplete="off" required>
             <div id="autocomplete-list" class="autocomplete-suggestions"></div>
 
             <label for="specialite">Spécialité:</label>

@@ -6,10 +6,14 @@ $conn = connectDB();
 
 // Récupérer la liste des médecins
 $query = "
-    SELECT m.id AS medecin_id, m.username AS medecin_name, m.email AS medecin_email, m.phone AS medecin_phone, c.specialite, c.nom AS cabinet_name
+    SELECT DISTINCT m.id AS medecin_id, 
+                    m.username AS medecin_name, 
+                    m.email AS medecin_email, 
+                    m.phone AS medecin_phone
     FROM users m
     LEFT JOIN cabinets c ON m.id = c.docteur_id
-    WHERE m.role =  'medecin'"; // Le rôle 'medecin'
+    WHERE m.role = 'medecin'";
+
 
 $stmt = $conn->prepare($query);
 $stmt->execute();
