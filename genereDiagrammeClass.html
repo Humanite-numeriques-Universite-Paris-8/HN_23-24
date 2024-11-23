@@ -13,13 +13,19 @@
 <body>
 
 <h1>Class Diagram for Cabinet Medical</h1>
-<div class="mermaid" id="classDiagram">classDiagram</div>
+<div class="mermaid" id="classDiagram">classDiagram\nLoading...</div>
 
 <script>
     const apiUrl = "http://localhost:8080/Sites/omeka-s/api/resource_templates?key_identity=wTw5CcChfG4w14oKJKs1wqrkcwN8CUpD&key_credential=c1VI6sYCtNslYEsa66LVAX1xIpb7kQIr";
 
-    // Function to fetch property label
+    // Cache to speed up repeated property fetching
+    const propertyCache = {};
+
+    // Function to fetch property label with caching
     async function fetchPropertyLabel(propertyUrl) {
+        if (!propertyUrl) return "UnnamedProperty";
+        if (propertyCache[propertyUrl]) return propertyCache[propertyUrl];
+
         try {
             const response = await fetch(propertyUrl, { mode: "cors" });
             if (!response.ok) {
@@ -27,7 +33,9 @@
                 return "UnnamedProperty";
             }
             const data = await response.json();
-            return data["o:label"] || "UnnamedProperty";
+            const label = data["o:label"] || "UnnamedProperty";
+            propertyCache[propertyUrl] = label; // Cache the result
+            return label;
         } catch (error) {
             console.error(`Error fetching property label from ${propertyUrl}:`, error);
             return "UnnamedProperty";
@@ -41,36 +49,43 @@
             const response = await fetch(apiUrl);
             if (!response.ok) {
                 console.error(`Failed to fetch data from API. Status: ${response.status}`);
+                document.getElementById('classDiagram').textContent = "Error loading diagram.";
                 return;
             }
             const data = await response.json();
 
-            for (const template of data) {
-                let className = template['o:label'] ? template['o:label'].replace(/\s+/g, '_') : "UnnamedClass";
-                mermaidText += `class ${className} {\n`;
+            // Process each template in parallel
+            const classPromises = data.map(async (template) => {
+                const className = template['o:label']?.replace(/\s+/g, '_') || "UnnamedClass";
+                let classText = `class ${className} {\n`;
 
-                for (const property of template['o:resource_template_property']) {
-                    const propertyUrl = property['o:property']?.['@id'];
-                    if (propertyUrl) {
-                        const propertyName = await fetchPropertyLabel(propertyUrl);
-                        mermaidText += `  +String ${propertyName.replace(/\s+/g, '_')}\n`;
-                    } else {
-                        mermaidText += "  +String UnnamedProperty\n";
-                    }
+                const properties = template['o:resource_template_property'] || [];
+                const propertyLabels = await Promise.all(properties.map((property) =>
+                    fetchPropertyLabel(property['o:property']?.['@id'])
+                ));
+
+                for (const label of propertyLabels) {
+                    classText += `  +String ${label.replace(/\s+/g, '_')}\n`;
                 }
-                mermaidText += "}\n"; // Close class
-            }
+
+                classText += "}\n"; // Close class
+                return classText;
+            });
+
+            // Await all class generation and append them
+            const classTexts = await Promise.all(classPromises);
+            mermaidText += classTexts.join("");
 
             console.log("Generated Mermaid Text:\n", mermaidText);
             document.getElementById('classDiagram').textContent = mermaidText;
             mermaid.init(undefined, document.querySelectorAll(".mermaid"));
-
         } catch (error) {
             console.error('Error generating Mermaid diagram:', error);
+            document.getElementById('classDiagram').textContent = "Error loading diagram.";
         }
     }
 
-    // Run the function to generate the Mermaid diagram
+    // Generate the Mermaid diagram
     generateMermaidText();
 </script>
 
