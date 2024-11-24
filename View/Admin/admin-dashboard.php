@@ -6,7 +6,7 @@ if (isset($_SESSION['username'])) {
     $username = $_SESSION['username'];  // Get username from session
 } else {
     // Redirect to login if not logged in
-    header("Location: ../../View/Auth/login.php");
+    header("Location: ../../View/Auth/login.html");
     exit();
 }
 ?>

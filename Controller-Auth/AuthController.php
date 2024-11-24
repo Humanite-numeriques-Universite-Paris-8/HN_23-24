@@ -17,7 +17,7 @@ class AuthController {
             $user = $this->userModel->getUserByEmail($email);
             if (!$user) {
                 // Redirect to login page with error message
-                header("Location: ../View/Auth/login.php?error=Aucun compte trouvé pour cet email. Veuillez vous inscrire.");
+                header("Location: ../View/Auth/login.html?error=Aucun compte trouvé pour cet email. Veuillez vous inscrire.");
                 exit();
             }
     
@@ -45,7 +45,7 @@ class AuthController {
     
                 exit();
             } else {
-                header("Location: ../View/Auth/login.php?error=Mot de passe incorrect.");
+                header("Location: ../View/Auth/login.html?error=Mot de passe incorrect.");
                 exit();
             }
         }
@@ -61,7 +61,7 @@ class AuthController {
             // Vérification si le rôle admin est sélectionné mais l'email n'est pas celui autorisé
             if ($role === 'admin' && $email !== 'a.hef2000@gmail.com') {
                 // Redirection avec un message d'erreur
-                header("Location: ../View/Auth/register.php?error=Vous ne pouvez pas créer un autre compte admin avec cet email.");
+                header("Location: ../View/Auth/register.html?error=Vous ne pouvez pas créer un autre compte admin avec cet email.");
                 exit();
             }
     
@@ -69,13 +69,13 @@ class AuthController {
             $existingUser = $this->userModel->getUserByEmail($email);
             if ($existingUser) {
                 // Redirection avec un message d'erreur
-                header("Location: ../View/Auth/register.php?error=Cet email est déjà enregistré. Veuillez vous connecter.");
+                header("Location: ../View/Auth/register.html?error=Cet email est déjà enregistré. Veuillez vous connecter.");
                 exit();
             }
     
             // Vérifiez que tous les champs sont remplis
             if (empty($username) || empty($password) || empty($email) || empty($role)) {
-                header("Location: ../View/Auth/register.php?error=Tous les champs doivent être remplis.");
+                header("Location: ../View/Auth/register.html?error=Tous les champs doivent être remplis.");
                 exit();
             }
     
@@ -84,18 +84,18 @@ class AuthController {
             $this->userModel->register($username, $password, $email, $role);
 
             // Redirection vers la page de connexion après enregistrement
-            header("Location: ../View/Auth/login.php?success=Inscription réussie, veuillez vous connecter.");
+            header("Location: ../View/Auth/login.html?success=Inscription réussie, veuillez vous connecter.");
             exit();
         } else {
             // Charger la vue d'enregistrement pour une requête GET
-            include "../View/Auth/register.php";
+            include "../View/Auth/register.html";
         }
     }
     
     public function logout() {
         session_start();
         session_destroy();
-        header("Location: ../View/Auth/login.php");
+        header("Location: ../View/Auth/login.html");
         exit();
     }
 }
