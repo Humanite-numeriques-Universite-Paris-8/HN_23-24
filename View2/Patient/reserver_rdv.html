@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réserver un Rendez-vous</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        select,
+        input[type="text"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        select:focus,
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .success-message,
+        .error-message {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            color: #28a745;
+        }
+
+        .error-message {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Réserver un Rendez-vous</h2>
+        <form id="reservationForm">
+            <label for="cabinet">Cabinet:</label>
+            <select id="cabinet" required>
+                <option value="" disabled selected>Choisissez un cabinet</option>
+                <option value="Cabinet Paris">Cabinet Paris</option>
+                <option value="Cabinet Lyon">Cabinet Lyon</option>
+            </select>
+
+            <label for="appointmentDate">Date et Heure:</label>
+            <input type="datetime-local" id="appointmentDate" required>
+
+            <label for="securiteSociale">Sécurité Sociale:</label>
+            <input type="text" id="securiteSociale" required>
+
+            <label for="phone">Numéro de Téléphone:</label>
+            <input type="tel" id="phone" pattern="[0-9]{10}" required>
+
+            <button type="submit">Réserver</button>
+        </form>
+
+        <p id="message" class="success-message" style="display: none;">Réservation réussie !</p>
+        <p id="error" class="error-message" style="display: none;">Erreur : Veuillez remplir tous les champs.</p>
+    </div>
+
+    <script>
+        document.getElementById('reservationForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Empêche le rechargement de la page
+
+            const cabinet = document.getElementById('cabinet').value;
+            const appointmentDate = document.getElementById('appointmentDate').value;
+            const securiteSociale = document.getElementById('securiteSociale').value;
+            const phone = document.getElementById('phone').value;
+            const message = document.getElementById('message');
+            const error = document.getElementById('error');
+
+            // Vérification des champs
+            if (!cabinet || !appointmentDate || !securiteSociale || !phone) {
+                error.style.display = 'block';
+                message.style.display = 'none';
+                return;
+            }
+
+            // Récupérer les réservations existantes dans le localStorage
+            const existingReservations = JSON.parse(localStorage.getItem('reservations')) || [];
+
+            // Ajouter la nouvelle réservation
+            existingReservations.push({
+                cabinet,
+                appointmentDate,
+                securiteSociale,
+                phone
+            });
+
+            // Enregistrer dans le localStorage
+            localStorage.setItem('reservations', JSON.stringify(existingReservations));
+
+            // Afficher le message de succès
+            error.style.display = 'none';
+            message.style.display = 'block';
+
+            // Réinitialiser le formulaire après un court délai
+            setTimeout(() => {
+                message.style.display = 'none';
+                document.getElementById('reservationForm').reset();
+            }, 3000);
+
+            // Redirection vers la liste des rendez-vous
+            setTimeout(() => {
+                window.location.href = "patient_lister_rdv.html";
+            }, 2000);
+        });
+    </script>
+
+</body>
+</html>

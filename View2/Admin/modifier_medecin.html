@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier Médecin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('../../images/cabinet.jpg'); /* Update the path with the correct image */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background-color: rgba(255, 255, 255, 0.9); /* Light transparent background */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h2 {
+            color: #007bff;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            border-radius: 6px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Modifier Médecin</h2>
+
+        <div id="error-message" class="error" style="display: none;"></div>
+
+        <form id="updateForm">
+            <label for="medecin_name">Nom du Médecin:</label>
+            <input type="text" id="medecin_name" name="medecin_name" required>
+
+            <label for="medecin_email">Email:</label>
+            <input type="email" id="medecin_email" name="medecin_email" required>
+
+            <label for="medecin_phone">Numéro de Téléphone:</label>
+            <input type="text" id="medecin_phone" name="medecin_phone" required>
+
+            <button type="submit">Mettre à Jour</button>
+        </form>
+
+        <a href="getMedecin.html">Retour à la Liste des Médecins</a>
+    </div>
+
+    <script>
+        // Exemple de données initiales
+        const medecin = {
+            id: 1, // ID simulé
+            name: "Dr. Dupont",
+            email: "dupont@example.com",
+            phone: "0612345678"
+        };
+
+        // Préremplir le formulaire avec les données du médecin
+        document.getElementById('medecin_name').value = medecin.name;
+        document.getElementById('medecin_email').value = medecin.email;
+        document.getElementById('medecin_phone').value = medecin.phone;
+
+        // Gérer la soumission du formulaire
+        document.getElementById('updateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const updatedName = document.getElementById('medecin_name').value;
+            const updatedEmail = document.getElementById('medecin_email').value;
+            const updatedPhone = document.getElementById('medecin_phone').value;
+
+            // Vérification des champs
+            if (!updatedName || !updatedEmail || !updatedPhone) {
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = "Tous les champs sont obligatoires.";
+                errorMessage.style.display = "block";
+                return;
+            }
+
+            alert("Les informations du médecin ont été mises à jour avec succès !");
+            // Simuler l'enregistrement en affichant les nouvelles données dans la console
+            console.log({
+                id: medecin.id,
+                name: updatedName,
+                email: updatedEmail,
+                phone: updatedPhone
+            });
+
+            // Redirection simulée
+            window.location.href = "getMedecin.html";
+        });
+    </script>
+
+</body>
+</html>

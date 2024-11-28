@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Contacts des Médecins</title>
+
+    <!-- Google Fonts for better typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* Global Styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('../../images/images1.jpg'); /* Chemin vers votre image */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Overlay sombre */
+            z-index: -1; /* Derrière le contenu */
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Transparence légère */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 600;
+        }
+
+        td {
+            color: #333;
+            font-size: 14px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        p {
+            text-align: center;
+            color: red;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            th, td {
+                font-size: 12px;
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="overlay"></div> <!-- Overlay sombre pour un meilleur contraste -->
+
+    <div class="container">
+        <h1>Liste des Contacts des Médecins</h1>
+
+        <table id="contactsTable">
+            <thead>
+                <tr>
+                    <th>Nom du Cabinet</th>
+                    <th>Adresse du Cabinet</th>
+                    <th>Nom du Docteur</th>
+                    <th>Email du Docteur</th>
+                    <th>Numéro de Téléphone</th>
+                    <th>Spécialité</th>
+                </tr>
+            </thead>
+            <tbody id="contactsBody">
+                <!-- Les données seront insérées ici par JavaScript -->
+            </tbody>
+        </table>
+
+        <p id="noDataMessage" style="display: none;">Aucun médecin trouvé.</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Exemple de données, remplacez-les avec les données réelles récupérées via API ou JSON
+            const medecins = [
+                {
+                    cabinet_nom: "Cabinet A",
+                    adresse_cabinet: "123 Rue Exemple, Ville",
+                    docteur_nom: "Dr. Dupont",
+                    docteur_email: "dupont@example.com",
+                    docteur_phone: "0123456789",
+                    specialite: "Cardiologie"
+                },
+                {
+                    cabinet_nom: "Cabinet B",
+                    adresse_cabinet: "456 Avenue Exemple, Ville",
+                    docteur_nom: "Dr. Martin",
+                    docteur_email: "martin@example.com",
+                    docteur_phone: "0987654321",
+                    specialite: "Dermatologie"
+                }
+            ];
+
+            const tableBody = document.getElementById('contactsBody');
+            const noDataMessage = document.getElementById('noDataMessage');
+
+            if (medecins.length > 0) {
+                medecins.forEach(medecin => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${medecin.cabinet_nom}</td>
+                        <td>${medecin.adresse_cabinet}</td>
+                        <td>${medecin.docteur_nom}</td>
+                        <td>${medecin.docteur_email}</td>
+                        <td>${medecin.docteur_phone || "Non renseigné"}</td>
+                        <td>${medecin.specialite}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                noDataMessage.style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier Patient</title>
+    <style>
+        /* Global styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('../../images/images1.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h2 {
+            color: #007bff;
+            font-size: 26px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.25);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #f5c6cb;
+            border-radius: 6px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            h2 {
+                font-size: 22px;
+            }
+            input[type="text"], input[type="email"] {
+                font-size: 14px;
+                padding: 10px;
+            }
+            button {
+                padding: 10px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Modifier Patient</h2>
+
+        <div id="error-message" class="error" style="display: none;"></div>
+
+        <form id="updateForm">
+            <input type="hidden" id="patient_id" name="patient_id" value="1"> <!-- Remplacez par un ID réel -->
+
+            <label for="patient_name">Nom:</label>
+            <input type="text" id="patient_name" name="patient_name" value="Jean Dupont" required>
+
+            <label for="patient_email">Email:</label>
+            <input type="email" id="patient_email" name="patient_email" value="jean.dupont@example.com" required>
+
+            <label for="patient_phone">Numéro de Téléphone:</label>
+            <input type="text" id="patient_phone" name="patient_phone" value="0612345678" required>
+
+            <label for="securite_sociale">Sécurité Sociale:</label>
+            <input type="text" id="securite_sociale" name="securite_sociale" maxlength="21" value="1 23 45 67 890 123 45" required>
+
+            <button type="submit">Mettre à Jour</button>
+        </form>
+
+        <a href="getPatient.html">Retour à la Liste des Patients</a>
+    </div>
+
+    <script>
+        // Fonction pour formater le numéro de sécurité sociale
+        document.getElementById('securite_sociale').addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, ''); // Supprime tout sauf les chiffres
+            let formattedValue = '';
+
+            // Ajoute des espaces après les groupes spécifiques
+            if (value.length > 0) { formattedValue += value.substring(0, 1) + ' '; }
+            if (value.length > 1) { formattedValue += value.substring(1, 3) + ' '; }
+            if (value.length > 3) { formattedValue += value.substring(3, 5) + ' '; }
+            if (value.length > 5) { formattedValue += value.substring(5, 7) + ' '; }
+            if (value.length > 7) { formattedValue += value.substring(7, 10) + ' '; }
+            if (value.length > 10) { formattedValue += value.substring(10, 13) + ' '; }
+            if (value.length > 13) { formattedValue += value.substring(13, 15); }
+
+            e.target.value = formattedValue.trim(); // Met à jour l'input avec le format appliqué
+        });
+
+        // Gérer la soumission du formulaire
+        document.getElementById('updateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const patientName = document.getElementById('patient_name').value;
+            const patientEmail = document.getElementById('patient_email').value;
+            const patientPhone = document.getElementById('patient_phone').value;
+            const securiteSociale = document.getElementById('securite_sociale').value;
+
+            if (!patientName || !patientEmail || !patientPhone || !securiteSociale) {
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = "Tous les champs sont obligatoires.";
+                errorMessage.style.display = "block";
+                return;
+            }
+
+            alert("Les informations du patient ont été mises à jour avec succès !");
+            console.log({ patientName, patientEmail, patientPhone, securiteSociale });
+            window.location.href = "getPatient.html";
+        });
+    </script>
+</body>
+</html>

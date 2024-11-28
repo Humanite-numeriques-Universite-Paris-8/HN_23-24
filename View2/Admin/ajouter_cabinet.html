@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Cabinet Médical</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Styles pour la page */
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+
+        .form-container {
+            width: 40%;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h2>Ajouter un Cabinet Médical</h2>
+    <div id="error-message" class="error-message" style="display:none;">Erreur : Tous les champs doivent être remplis.</div>
+    <form id="cabinetForm">
+        <label for="nom">Nom du Cabinet:</label>
+        <input type="text" id="nom" placeholder="Nom du cabinet" required>
+
+        <label for="adresse">Adresse du Cabinet:</label>
+        <input type="text" id="adresse" placeholder="Adresse" required>
+
+        <label for="specialite">Spécialité:</label>
+        <select id="specialite" required>
+            <option value="Cardiologie">Cardiologie</option>
+            <option value="Dermatologie">Dermatologie</option>
+            <option value="Gynécologie">Gynécologie</option>
+            <option value="Pédiatrie">Pédiatrie</option>
+        </select>
+
+        <button type="submit">Ajouter le Cabinet</button>
+    </form>
+</div>
+
+<script type="module">
+    import { omkApiHelper } from './omkApiHelper.js';  // Assure that omkApiHelper.js is in the correct location
+
+    const form = document.getElementById('cabinetForm');
+    const errorMessage = document.getElementById('error-message');
+
+    form.addEventListener('submit', async function (event) {
+        event.preventDefault();  // Prevent the form from reloading the page
+
+        // Get values from the form fields
+        const nom = document.getElementById('nom').value;
+        const adresse = document.getElementById('adresse').value;
+        const specialite = document.getElementById('specialite').value;
+
+        // Validate input fields
+        if (!nom || !adresse || !specialite) {
+            errorMessage.style.display = 'block';  // Display error message if fields are empty
+            return;
+        }
+
+        errorMessage.style.display = 'none';  // Hide error message
+
+        // Prepare data to be sent to the API
+        const data = {
+            nom: nom,
+            adresse: adresse,
+            specialite: specialite
+        };
+
+        try {
+            const apiHelper = new omkApiHelper({
+                 apiOmk: 'http://localhost/Sites/omeka-s/api/', // URL de l'API Omeka S
+                ident: 'QEBeL8jUeA5G0acLRGpUpQ64SgakhJwE', // Identifiant Omeka
+                key: 'koFGtDLK7zUNv7Qbie4dAmUgKSWdiYcj' // Clé d'authentification
+            });
+
+            const response = await apiHelper.addItem(data);
+
+            if (response) {
+                alert('Cabinet médical ajouté avec succès!');
+            }
+
+        } catch (error) {
+            console.error('Erreur lors de l\'ajout du cabinet médical:', error);
+            alert('Une erreur est survenue. Veuillez réessayer.');
+        }
+    });
+</script>
+</body>
+</html>

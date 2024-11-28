@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voir les Cabinets</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .container {
+            width: 80%;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Liste des Cabinets</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Adresse</th>
+            <th>Docteur</th>
+            <th>Spécialité</th>
+        </tr>
+        </thead>
+        <tbody id="cabinet-list">
+        <!-- Les données des cabinets seront insérées ici -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    
+    const cabinets = JSON.parse(localStorage.getItem('cabinets')) || [];
+    const container = document.getElementById('cabinet-list');
+
+    if (cabinets.length === 0) {
+        container.innerHTML = `<tr><td colspan="4" style="text-align: center;">Aucun cabinet ajouté.</td></tr>`;
+    } else {
+        cabinets.forEach(cabinet => {
+            const row = `
+                <tr>
+                    <td>${cabinet.nom}</td>
+                    <td>${cabinet.adresse}</td>
+                    <td>${cabinet.docteur}</td>
+                    <td>${cabinet.specialite}</td>
+                </tr>`;
+            container.innerHTML += row;
+        });
+    }
+</script>
+</body>
+</html>

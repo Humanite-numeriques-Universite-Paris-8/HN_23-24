@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Patients</title>
+    
+    <!-- Link to Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-image: url('../../images/images1.jpg'); /* Chemin vers votre image */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container { 
+            width: 90%;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+            transform: scale(1.01);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .btn-modifier, .btn-supprimer {
+            padding: 8px 12px;
+            border-radius: 4px;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        .btn-modifier {
+            background-color: #28a745;
+            margin-right: 8px;
+        }
+
+        .btn-supprimer {
+            background-color: #dc3545;
+        }
+
+        .btn-modifier:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .btn-supprimer:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
+
+        .btn-modifier i, .btn-supprimer i {
+            margin-right: 6px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            table th, table td {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            .btn-modifier, .btn-supprimer {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Liste des Patients</h1>
+        <table aria-label="Liste des patients">
+            <thead>
+                <tr>
+                    <th>Nom du Patient</th>
+                    <th>Email</th>
+                    <th>Numéro de Téléphone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="patientsTable">
+                <!-- Les données seront insérées ici dynamiquement -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Exemple de données statiques pour les patients
+        const patients = [
+            { id: 1, name: "Jean Dupont", email: "jean.dupont@example.com", phone: "0612345678" },
+            { id: 2, name: "Marie Curie", email: "marie.curie@example.com", phone: "0712345678" },
+            { id: 3, name: "Albert Einstein", email: "albert.einstein@example.com", phone: "0812345678" }
+        ];
+
+        // Récupérer le corps du tableau
+        const tableBody = document.getElementById("patientsTable");
+
+        // Injecter les données dans le tableau
+        patients.forEach((patient) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${patient.name}</td>
+                <td>${patient.email}</td>
+                <td>${patient.phone || "Non renseigné"}</td>
+                <td>
+                    <a href="modifier_patient.html?id=${patient.id}" class="btn-modifier btn">
+                        <i class="fas fa-edit"></i> Modifier
+                    </a>
+                    <button class="btn-supprimer btn" onclick="supprimerPatient(${patient.id})">
+                        <i class="fas fa-trash-alt"></i> Supprimer
+                    </button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Fonction pour supprimer un patient (simulé)
+        function supprimerPatient(id) {
+            const confirmation = confirm("Êtes-vous sûr de vouloir supprimer ce patient ?");
+            if (confirmation) {
+                alert(`Patient avec l'ID ${id} supprimé.`);
+                // Supprime la ligne du tableau
+                const row = document.querySelector(`button[onclick="supprimerPatient(${id})"]`).parentElement.parentElement;
+                row.remove();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Rendez-vous</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .actions button {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+
+        .btn-annuler {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-deplacer {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-annuler:hover {
+            background-color: #b02a37;
+        }
+
+        .btn-deplacer:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mes Rendez-vous</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Cabinet</th>
+                <th>Date et Heure</th>
+                <th>Sécurité Sociale</th>
+                <th>Numéro de Téléphone</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="appointmentsTable">
+            <!-- Les rendez-vous seront insérés ici -->
+        </tbody>
+    </table>
+
+    <script>
+        // Récupérer les données depuis le localStorage
+        const reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+
+        // Récupérer le tableau pour insérer les rendez-vous
+        const tableBody = document.getElementById('appointmentsTable');
+
+        // Afficher chaque réservation dans le tableau
+        reservations.forEach((reservation, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${reservation.cabinet}</td>
+                <td>${reservation.appointmentDate}</td>
+                <td>${reservation.securiteSociale}</td>
+                <td>${reservation.phone}</td>
+                <td class="actions">
+                 <button class="btn-deplacer" onclick="moveReservation(${index})">Déplacer</button>
+
+                    <button class="btn-annuler" onclick="deleteReservation(${index})">Annuler</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Fonction pour rediriger vers la page de déplacement
+        function moveReservation(index) {
+            // Transmettre les données nécessaires via l'URL
+            window.location.href = `deplacer_rdv.html?index=${index}`;
+        }
+
+        // Fonction pour annuler une réservation
+        function deleteReservation(index) {
+            if (confirm("Êtes-vous sûr de vouloir annuler ce rendez-vous ?")) {
+                // Supprimer le rendez-vous de la liste
+                reservations.splice(index, 1);
+                // Mettre à jour le localStorage
+                localStorage.setItem('reservations', JSON.stringify(reservations));
+                // Recharger la page pour refléter les modifications
+                window.location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

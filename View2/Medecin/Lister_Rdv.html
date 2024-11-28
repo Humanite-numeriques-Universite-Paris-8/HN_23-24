@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Rendez-vous</title>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- Include jsPDF and jsPDF-AutoTable for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('../../images/images1.jpg');
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 1200px;
+            z-index: 1;
+        }
+
+        h2 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .action-buttons button {
+            margin-right: 10px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .validate-btn {
+            background-color: #17a2b8;
+        }
+
+        .cancel-btn {
+            background-color: #dc3545;
+        }
+
+        .btn-back, .btn-pdf {
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .btn-back {
+            background-color: #28a745;
+        }
+
+        .btn-pdf {
+            background-color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="overlay"></div>
+
+<div class="container">
+    <h2>Liste des Rendez-vous de mes patients</h2>
+
+    <table id="appointmentsTable">
+        <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Cabinet</th>
+                <th>Date du Rendez-vous</th>
+                <th>Sécurité Sociale</th>
+                <th>Téléphone</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Les données seront insérées ici dynamiquement -->
+        </tbody>
+    </table>
+
+    <a href="medecin-dashboard.html" class="btn-back"><i class="fas fa-arrow-left"></i> Retour</a>
+    <button id="download-pdf" class="btn-pdf"><i class="fas fa-file-pdf"></i> Télécharger PDF</button>
+</div>
+
+<script>
+    // Simulated appointments data
+    let appointments = JSON.parse(localStorage.getItem('appointments')) || [
+        { id: 1, patient: 'Jean Dupont', cabinet: 'Cabinet Paris', date: '2024-12-01 10:00', securiteSociale: '123456789', phone: '0612345678' },
+        { id: 2, patient: 'Marie Durand', cabinet: 'Cabinet Lyon', date: '2024-12-02 14:30', securiteSociale: '987654321', phone: '0712345678' },
+    ];
+
+    // Populate the table with appointments
+    const tableBody = document.querySelector('#appointmentsTable tbody');
+    const renderTable = () => {
+        tableBody.innerHTML = '';
+        appointments.forEach((appointment) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${appointment.patient}</td>
+                <td>${appointment.cabinet}</td>
+                <td>${appointment.date}</td>
+                <td>${appointment.securiteSociale}</td>
+                <td>${appointment.phone}</td>
+                <td class="action-buttons">
+                    <button class="validate-btn" onclick="validateAppointment(${appointment.id})">Valider</button>
+                    <button class="cancel-btn" onclick="cancelAppointment(${appointment.id})">Annuler</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    };
+
+    renderTable();
+
+    // Validate an appointment
+    function validateAppointment(id) {
+        if (confirm('Êtes-vous sûr de vouloir valider ce rendez-vous ?')) {
+            alert(`Rendez-vous ${id} validé.`);
+        }
+    }
+
+    // Cancel an appointment
+    function cancelAppointment(id) {
+        if (confirm('Êtes-vous sûr de vouloir annuler ce rendez-vous ?')) {
+            const index = appointments.findIndex((app) => app.id === id);
+            if (index > -1) {
+                appointments.splice(index, 1);
+                localStorage.setItem('appointments', JSON.stringify(appointments));
+                alert(`Rendez-vous ${id} annulé.`);
+                renderTable(); // Refresh the table without reloading the page
+            }
+        }
+    }
+
+    // Download appointments as PDF
+    document.getElementById('download-pdf').addEventListener('click', () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.text('Liste des Rendez-vous', 10, 10);
+        doc.autoTable({
+            head: [['Patient', 'Cabinet', 'Date', 'Sécurité Sociale', 'Téléphone']],
+            body: appointments.map((app) => [app.patient, app.cabinet, app.date, app.securiteSociale, app.phone]),
+        });
+
+        doc.save('rendez-vous.pdf');
+    });
+</script>
+
+</body>
+</html>

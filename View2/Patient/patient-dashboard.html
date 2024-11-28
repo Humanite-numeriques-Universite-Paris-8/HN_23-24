@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord Patient</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('../../images/medecin-GPS-Sante.jpg') no-repeat center center;
+            background-size: cover;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #007bff;
+            padding: 15px 30px;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-left h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+            border: 1px solid #fff;
+            border-radius: 30px;
+            padding: 5px 15px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-container input[type="text"] {
+            border: none;
+            padding: 8px 35px 8px 15px;
+            font-size: 14px;
+            outline: none;
+            border-radius: 30px;
+            width: 300px;
+            color: #333;
+            background-position: 10px center;
+            background-repeat: no-repeat;
+            background-size: 18px;
+        }
+
+        .search-container button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 30px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-container button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Dashboard Container */
+        .dashboard-container {
+            text-align: center;
+            margin: 40px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            margin: 40px auto;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .dashboard-container h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        .dashboard-container p.welcome-msg {
+            font-size: 18px;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .card-container {
+            display: flex;
+            justify-content: space-evenly;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background-color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 20px;
+            width: 240px;
+            margin: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+
+        .card p {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Footer Styling */
+        .footer {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #ffc107;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="navbar-left">
+            <h1>DoctoCabinet Patient</h1>
+        </div>
+        <div class="search-container">
+            <input type="text" id="search_term" placeholder="Rechercher par spécialité ou docteur...">
+            <button onclick="search()">Rechercher</button>
+        </div>
+        <div class="navbar-right">
+            <button onclick="logout()">Déconnexion</button>
+        </div>
+    </div>
+
+    <!-- Tableau de bord -->
+    <div class="dashboard-container">
+        <h1>Bienvenue sur le Tableau de Bord Patient</h1>
+        <p class="welcome-msg">Vous êtes connecté avec succès !</p>
+        <div class="card-container">
+            <div class="card">
+                <h2>Voir la liste des Cabinets</h2>
+                <p>Consultez la liste des cabinets disponibles.</p>
+                <a href="lister_cabinets.html" class="btn">Voir les Cabinets</a>
+            </div>
+            <div class="card">
+                <h2>Réserver un Rendez-vous</h2>
+                <p>Réservez un rendez-vous avec un docteur.</p>
+                <a href="reserver_rdv.html" class="btn">Réserver un Rdv</a>
+            </div>
+            <div class="card">
+                <h2>Voir mes Rendez-vous</h2>
+                <p>Consultez la liste de vos rendez-vous.</p>
+                <a href="patient_lister_rdv.html" class="btn">Voir mes Rendez-vous</a>
+            </div>
+            <div class="card">
+                <h2>Consulter les Questionnaires</h2>
+                <p>Accédez aux questionnaires à remplir.</p>
+                <a href="questionnaires.html" class="btn">Voir les Questionnaires</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>Contacter l'assistance en cas de besoin. Adresse : 10 Allée Gagarine, Ivry-sur-Seine. Email : support@example.com</p>
+    </div>
+
+    <script>
+        function search() {
+            const term = document.getElementById("search_term").value;
+            if (term) {
+                alert("Recherche pour : " + term);
+            } else {
+                alert("Veuillez entrer un terme de recherche.");
+            }
+        }
+
+        function logout() {
+            alert("Déconnexion réussie !");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>
