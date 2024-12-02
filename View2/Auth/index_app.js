@@ -1,46 +1,12 @@
-// Simuler une base de données d'utilisateurs dans le localStorage
-const usersDB = JSON.parse(localStorage.getItem('users')) || [];
+import { getUsersFromOmeka, addUserToOmeka } from './database.js';
+import AuthController from './AuthController.js'; // Importation de ton contrôleur d'authentification
 
-// Fonction pour sauvegarder les utilisateurs dans le localStorage
-function saveUsers(users) {
-    localStorage.setItem('users', JSON.stringify(users));
-}
-
-// Fonction pour récupérer un utilisateur par email
-function getUserByEmail(email) {
-    return usersDB.find(user => user.email === email);
-}
-
-// Fonction pour ajouter un nouvel utilisateur
-function addUser(username, email, password, role) {
-    usersDB.push({ username, email, password, role });
-    saveUsers(usersDB);
-}
-
-// Fonction pour gérer les actions
-function handleAction(action) {
-    switch (action) {
-        case 'register':
-            handleRegister();
-            break;
-        case 'login':
-            handleLogin();
-            break;
-        case 'logout':
-            handleLogout();
-            break;
-        default:
-            alert("Action invalide !");
-            break;
-    }
-}
-
-// Gestion de l'inscription
-function handleRegister() {
+// Fonction de gestion de l'inscription
+async function handleRegister() {
     const registerForm = document.getElementById('registerForm');
     if (!registerForm) return;
 
-    registerForm.addEventListener('submit', function (e) {
+    registerForm.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         const username = document.getElementById('username').value.trim();
@@ -53,78 +19,93 @@ function handleRegister() {
             return;
         }
 
-        // Vérifier si l'utilisateur existe déjà
-        if (getUserByEmail(email)) {
-            alert("Cet email est déjà enregistré. Veuillez vous connecter.");
-            return;
-        }
+        try {
+            // Vérifie si l'utilisateur existe déjà dans Omeka
+            const users = await getUsersFromOmeka();
+            const existingUser = users.find(
+                (u) => u["cabinet_medical:email"]?.[0]?.["@value"] === email
+            );
 
-        // Ajouter l'utilisateur
-        addUser(username, email, password, role);
-        alert("Inscription réussie ! Vous pouvez maintenant vous connecter.");
-        window.location.href = "../Auth/login.html";
+            if (existingUser) {
+                alert("Cet email est déjà utilisé.");
+                return;
+            }
+
+            // Ajouter l'utilisateur à Omeka via la fonction addUserToOmeka
+            await addUserToOmeka(username, email, password, role);
+            alert("Inscription réussie ! Vous pouvez maintenant vous connecter.");
+            window.location.href = "../Auth/login.html"; // Redirection vers la page de connexion
+        } catch (error) {
+            console.error("Erreur lors de l'inscription :", error);
+            alert("Erreur lors de l'inscription. Veuillez réessayer.");
+        }
     });
 }
 
-// Gestion de la connexion
-function handleLogin() {
+// Fonction de gestion de la connexion
+async function handleLogin() {
     const loginForm = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('error-message');
+    
     if (!loginForm) return;
 
-    loginForm.addEventListener('submit', function (e) {
-        e.preventDefault();
+    loginForm.addEventListener('submit', async function (e) {
+        e.preventDefault(); // Empêcher le comportement par défaut du formulaire
 
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value.trim();
 
         if (!email || !password) {
-            alert("Tous les champs sont obligatoires.");
+            errorMessage.innerText = "Tous les champs doivent être remplis.";
             return;
         }
 
-        // Vérifier si l'utilisateur existe
-        const user = getUserByEmail(email);
-        if (!user || user.password !== password) {
-            alert("Identifiants incorrects.");
-            return;
-        }
+        try {
+            // Récupère les utilisateurs depuis Omeka
+            const users = await getUsersFromOmeka();
+            console.log("Users from Omeka:", users);  // Débogage pour afficher la structure des utilisateurs
 
-        // Stocker les informations de session
-        sessionStorage.setItem('user', JSON.stringify(user));
-        alert("Connexion réussie !");
+            const user = users.find(u => {
+                const userEmail = u['cabinet_medical:email']?.[0]?.['@value']?.trim();  // Assurer qu'il n'y a pas d'espaces
+                return userEmail === email;
+            });
 
-        // Rediriger selon le rôle
-        switch (user.role) {
-            case 'admin':
+            if (!user) {
+                errorMessage.innerText = "Email non trouvé.";
+                return;
+            }
+
+            // Vérifie le mot de passe
+            const userPassword = user['cabinet_medical:password']?.[0]?.['@value']; // Récupère le mot de passe
+            if (userPassword !== password) {
+                errorMessage.innerText = "Mot de passe incorrect.";
+                return;
+            }
+
+            // Authentification réussie
+            sessionStorage.setItem('user', JSON.stringify(user));
+            alert("Connexion réussie !");
+            const role = user['cabinet_medical:role']?.[0]?.['@value']; // Récupère le rôle
+
+            // Redirection selon le rôle
+            if (role === 'admin') {
                 window.location.href = "../Admin/admin-dashboard.html";
-                break;
-            case 'medecin':
+            } else if (role === 'medecin') {
                 window.location.href = "../Medecin/medecin-dashboard.html";
-                break;
-            case 'patient':
+            } else if (role === 'patient') {
                 window.location.href = "../Patient/patient-dashboard.html";
-                break;
-            default:
-                alert("Rôle inconnu !");
-                break;
+            } else {
+                errorMessage.innerText = "Rôle inconnu.";
+            }
+        } catch (error) {
+            console.error("Erreur lors de la connexion:", error);
+            errorMessage.innerText = "Une erreur est survenue, veuillez réessayer plus tard.";
         }
     });
 }
 
-// Gestion de la déconnexion
-function handleLogout() {
-    // Supprimer les données de session
-    sessionStorage.clear();
-    alert("Vous êtes déconnecté.");
-    window.location.href = "../Auth/login.html";
-}
-
-// Identifier l'action à partir des paramètres URL
-function getActionFromURL() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('action') || 'login';
-}
-
-// Exécuter l'action
-const action = getActionFromURL();
-handleAction(action);
+// Appel des fonctions lors du chargement du DOM
+document.addEventListener('DOMContentLoaded', () => {
+    handleRegister(); // Appelle la fonction d'inscription
+    handleLogin(); // Appelle la fonction de connexion
+});

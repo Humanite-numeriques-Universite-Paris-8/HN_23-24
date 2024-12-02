@@ -90,6 +90,12 @@
         .register-link a:hover {
             text-decoration: underline;
         }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -97,31 +103,81 @@
     <div class="login-container">
         <h2>Connexion</h2>
 
+        <!-- Formulaire de connexion -->
         <form id="loginForm">
             <div class="input-container">
                 <i class="fas fa-envelope"></i>
-                <input type="email" id="email" placeholder="Email" required>
+                <input type="email" id="email" name="email" placeholder="Email" required>
             </div>
 
             <div class="input-container">
                 <i class="fas fa-lock"></i>
-                <input type="password" id="password" placeholder="Mot de passe" required>
+                <input type="password" id="password" name="password" placeholder="Mot de passe" required>
             </div>
 
             <button type="submit">Connexion</button>
+
+            <!-- Message d'erreur -->
+            <div id="error-message" class="error-message"></div>
         </form>
 
-        <p class="register-link">Vous n'avez pas de compte? 
-            <a href="../Auth/register.html">S'inscrire</a>
-        </p>
+        <p class="register-link">Pas encore inscrit ? <a href="register.html">Inscrivez-vous ici</a></p>
     </div>
 
-    <script src="./index_app.js"></script>
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', function (e) {
+    <script type="module">
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            handleAction('login');
+        
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+        
+            if (!email || !password) {
+                document.getElementById('error-message').innerText = 'Tous les champs doivent être remplis.';
+                return;
+            }
+        
+            try {
+                const response = await fetch('http://localhost/sites/omeka-s/api/items?key_identity=fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK&key_credential=xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9');
+                const data = await response.json();
+        
+                if (response.ok) {
+                    console.log('Données API récupérées :', data);
+        
+                    // Rechercher l'utilisateur correspondant
+                    const user = data.find(item => {
+                        const userEmail = item['cabinet_medical:mail']?.[0]?.['@value']?.trim().toLowerCase();
+                        const userPassword = item['cabinet_medical:password']?.[0]?.['@value'];
+                        return userEmail === email.toLowerCase() && userPassword === password;
+                    });
+        
+                    if (user) {
+                        // Identifier le rôle de l'utilisateur
+                        const role = user['cabinet_medical:role']?.[0]?.['@value']?.toLowerCase();
+        
+                        if (role === 'admin') {
+                            alert('Bienvenue, Administrateur !');
+                            window.location.href = '../Admin/admin_dashboard.html';
+                        } else if (role === 'medecin') {
+                            alert('Bienvenue, Médecin !');
+                            window.location.href = '../Medecin/medecin-dashboard.html';
+                        } else if (role === 'patient') {
+                            alert('Bienvenue, Patient !');
+                            window.location.href = '../Patient/patient-dashboard.html';
+                        } else {
+                            document.getElementById('error-message').innerText = 'Rôle inconnu. Contactez l\'administrateur.';
+                        }
+                    } else {
+                        document.getElementById('error-message').innerText = 'Identifiant ou mot de passe incorrect.';
+                    }
+                } else {
+                    throw new Error('Impossible de récupérer les utilisateurs.');
+                }
+            } catch (error) {
+                console.error('Erreur lors de la connexion :', error);
+                document.getElementById('error-message').innerText = 'Une erreur est survenue. Veuillez réessayer.';
+            }
         });
+        
     </script>
 
 </body>

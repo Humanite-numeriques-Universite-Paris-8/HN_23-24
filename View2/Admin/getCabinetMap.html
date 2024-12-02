@@ -37,7 +37,7 @@
     }
 
     // Charger les données JSON à partir du fichier local 'data.json'
-    fetch('Map.json')
+    fetch('./Map.json')
         .then(response => response.json())
         .then(data => {
             addMarkers(data);  // Ajouter les marqueurs sur la carte

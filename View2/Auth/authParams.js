@@ -5,11 +5,11 @@ const LOGIN_ENDPOINT = '/login';
 const REGISTER_ENDPOINT = '/register';
 
 // Clés d'authentification
-const KEY_IDENTITY = 'Nh2muclMwYy2RfkhsB20gXNrFowmmcr3';
-const KEY_CREDENTIAL = 'M9A0hM93t7Ju4Vs8dYmJCLlEoXeIYqen';
+const KEY_IDENTITY = 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK';
+const KEY_CREDENTIAL = 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9';
 
 const authHeaders = {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
 };
 
 // Exporter les clés et l'API URL pour réutilisation

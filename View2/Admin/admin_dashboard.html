@@ -152,10 +152,10 @@
         </div>
         <div class="search-container">
             <input type="text" id="search-term" placeholder="Rechercher...">
-            <button onclick="search()">Rechercher</button>
+            <button id="searchButton">Rechercher</button>
         </div>
-        <div class="navbar-right">
-            <button id="logout-btn">Déconnexion</button>
+        <div>
+            <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
         </div>
     </div>
 
@@ -199,23 +199,42 @@
     </div>
 
     <script>
+        // Fonction pour se déconnecter
+        function logout() {
+            sessionStorage.removeItem('user'); // Supprime les données de session
+            window.location.href = "../Auth/login.html"; // Redirige vers la page de connexion
+        }
+    
         // Fonction de recherche
         function search() {
             const searchTerm = document.getElementById('search-term').value.trim();
             if (searchTerm) {
                 alert(`Recherche pour : ${searchTerm}`);
-                // Ajoutez ici une logique pour afficher les résultats ou appeler une API
             } else {
                 alert('Veuillez entrer un terme de recherche.');
             }
         }
-
-        // Gestion de la déconnexion
-        document.getElementById('logout-btn').addEventListener('click', function() {
-            alert("Vous avez été déconnecté.");
-            window.location.href = "../Auth/login.html"; // Redirection vers la page de connexion
+    
+        // Ajouter les événements au chargement du DOM
+        document.addEventListener("DOMContentLoaded", function () {
+            // Gestion de la déconnexion
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', logout);
+            } else {
+                console.error("Le bouton de déconnexion est introuvable.");
+            }
+    
+            // Gestion de la recherche
+            const searchButton = document.getElementById('searchButton');
+            if (searchButton) {
+                searchButton.addEventListener('click', search);
+            } else {
+                console.error("Le bouton de recherche est introuvable.");
+            }
         });
     </script>
+    
 
 </body>
 </html>

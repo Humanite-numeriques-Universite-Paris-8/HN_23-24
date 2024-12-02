@@ -6,6 +6,7 @@
     <title>Inscription</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Styles pour la page */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -125,26 +126,69 @@
             <div class="input-container">
                 <i class="fas fa-user-tag"></i>
                 <select id="role" required>
-                    <option value="" disabled selected>Sélectionnez un rôle</option>
+                    <option value="" selected>Sélectionnez un rôle</option>
                     <option value="admin">Admin</option>
                     <option value="medecin">Médecin</option>
                     <option value="patient">Patient</option>
                 </select>
             </div>
 
-            <button type="submit">S'inscrire</button>
-        </form>
+            <div class="error-message" id="error-message"></div>
 
-        <p class="login-link">Déjà inscrit? 
-            <a href="../Auth/login.html">Connectez-vous ici</a>.
-        </p>
+            <button type="submit">S'inscrire</button>
+
+            <div class="login-link">
+                <p>Vous avez déjà un compte ? <a href="login.html">Se connecter</a></p>
+            </div>
+        </form>
     </div>
 
-    <script src="./index_app.js"></script>
-    <script>
-        document.getElementById('registerForm').addEventListener('submit', function (e) {
+    <script type="module">
+        // Fonction pour envoyer les données au serveur et inscrire l'utilisateur
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            handleAction('register');
+
+            // Récupération des valeurs du formulaire
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const role = document.getElementById('role').value;
+
+            // Validation des champs
+            if (!username || !email || !password || !role) {
+                document.getElementById('error-message').innerText = 'Tous les champs doivent être remplis.';
+                return;
+            }
+
+            // Envoi des données au backend via un fetch API
+            try {
+                const response = await fetch('http://localhost/sites/omeka-s/api/items?key_identity=fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK&key_credential=xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        "@type": "o:Item",
+                        "o:resource_class": { "o:id": 113 }, // Classe User
+                        "o:resource_template": { "o:id": 7 }, // Template User
+                        "cabinet_medical:email": [{ "type": "literal", "property_id": 197, "@value": email }],
+                        "cabinet_medical:nom_utilisateur": [{ "type": "literal", "property_id": 205, "@value": username }],
+                        "cabinet_medical:role": [{ "type": "literal", "property_id": 207, "@value": role }],
+                        "cabinet_medical:password": [{ "type": "literal", "property_id": 206, "@value": password }],
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Inscription réussie !');
+                    window.location.href = "login.html"; // Rediriger vers la page de connexion
+                } else {
+                    throw new Error(data.message || 'Erreur lors de l\'inscription.');
+                }
+            } catch (error) {
+                document.getElementById('error-message').innerText = error.message;
+            }
         });
     </script>
 

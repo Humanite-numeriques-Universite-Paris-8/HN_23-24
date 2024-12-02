@@ -1,129 +1,59 @@
-// Simuler une base de données d'utilisateurs
-const usersDB = JSON.parse(localStorage.getItem('users')) || [];
+import { getUsersFromOmeka, addUserToOmeka } from './database.js';
 
-// Fonction pour sauvegarder les utilisateurs dans le localStorage
-function saveUsers(users) {
-    localStorage.setItem('users', JSON.stringify(users));
-}
-
-// Fonction pour récupérer un utilisateur par email
-function getUserByEmail(email) {
-    return usersDB.find(user => user.email === email);
-}
-
-// Fonction pour enregistrer un nouvel utilisateur
-function registerUser(username, email, password, role) {
-    usersDB.push({ username, email, password, role });
-    saveUsers(usersDB);
-}
-
-// Contrôleur pour la gestion des utilisateurs
 const AuthController = {
-    login: function (email, password) {
-        // Vérifier si l'utilisateur existe
-        const user = getUserByEmail(email);
-        if (!user) {
-            return { success: false, message: "Aucun compte trouvé pour cet email. Veuillez vous inscrire." };
-        }
+    // Gestion de la connexion
+    login: async function (email, password) {
+        try {
+            // Récupérer les utilisateurs depuis la table utilisateur (par exemple dans Omeka)
+            const users = await getUsersFromOmeka(); // Cette fonction interroge ta base de données
+            console.log("Utilisateurs récupérés :", users);  // Pour déboguer
 
-        // Vérifier le mot de passe
-        if (user.password !== password) {
-            return { success: false, message: "Mot de passe incorrect." };
-        }
+            // Recherche de l'utilisateur par email dans la base
+            const user = users.find(u => u["utilisateur:email"]?.[0]?.["@value"] === email); // Assure-toi de l'ID du champ email
 
-        // Définir les données de session
-        sessionStorage.setItem('user', JSON.stringify(user));
-        return { success: true, role: user.role };
+            if (!user) {
+                return { success: false, message: "Identifiant incorrect" };
+            }
+
+            // Vérification du mot de passe
+            const storedPassword = user["utilisateur:mot_de_passe"]?.[0]?.["@value"]; // Vérifie que c'est le bon champ
+            if (storedPassword !== password) {
+                return { success: false, message: "Mot de passe incorrect" };
+            }
+
+            // Récupérer le rôle de l'utilisateur depuis la table `utilisateur`
+            const role = user["utilisateur:role"]?.[0]?.["@value"];
+            return { success: true, user: user, role: role };
+
+        } catch (error) {
+            console.error("Erreur lors de la connexion :", error);
+            return { success: false, message: "Une erreur est survenue, veuillez réessayer." };
+        }
     },
 
-    register: function (username, email, password, role) {
-        // Vérification si le rôle admin est sélectionné mais l'email n'est pas autorisé
-        if (role === 'admin' && email !== 'a.hef2000@gmail.com') {
-            return { success: false, message: "Vous ne pouvez pas créer un autre compte admin avec cet email." };
-        }
 
-        // Vérifiez si l'email est déjà utilisé
-        const existingUser = getUserByEmail(email);
-        if (existingUser) {
-            return { success: false, message: "Cet email est déjà enregistré. Veuillez vous connecter." };
-        }
+    // Gestion de l'inscription
+    register: async function (username, email, password, role) {
+        try {
+            const userData = {
+                "@type": "o:Item",
+                "o:resource_class": { "o:id": 113 },
+                "o:resource_template": { "o:id": 7 },
+                "o:properties": {
+                    "197": [{ "type": "literal", "@value": email }], // Email
+                    "205": [{ "type": "literal", "@value": username }], // Nom d'utilisateur
+                    "207": [{ "type": "literal", "@value": role }], // Rôle
+                    "206": [{ "type": "literal", "@value": password }], // Mot de passe
+                },
+            };
 
-        // Vérifiez que tous les champs sont remplis
-        if (!username || !email || !password || !role) {
-            return { success: false, message: "Tous les champs doivent être remplis." };
+            await addUserToOmeka(userData); // Enregistrement de l'utilisateur dans Omeka
+            return { success: true, message: "Inscription réussie." };
+        } catch (error) {
+            console.error("Erreur lors de l'inscription :", error);
+            return { success: false, message: "Erreur lors de l'inscription." };
         }
-
-        // Enregistrer le nouvel utilisateur
-        registerUser(username, email, password, role);
-        return { success: true, message: "Inscription réussie, veuillez vous connecter." };
     },
-
-    logout: function () {
-        sessionStorage.clear();
-        window.location.href = "../Auth/login.html";
-    }
 };
 
-// Gestion du formulaire de connexion
-if (document.getElementById('loginForm')) {
-    document.getElementById('loginForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value.trim();
-        const errorMessage = document.getElementById('errorMessage');
-
-        const result = AuthController.login(email, password);
-        if (!result.success) {
-            errorMessage.textContent = result.message;
-            errorMessage.style.display = 'block';
-            return;
-        }
-
-        // Rediriger en fonction du rôle
-        errorMessage.style.display = 'none';
-        if (result.role === "patient") {
-            window.location.href = "../Patient/patient-dashboard.html";
-        } else if (result.role === "medecin") {
-            window.location.href = "../Medecin/medecin-dashboard.html";
-        } else if (result.role === "admin") {
-            window.location.href = "../Admin/admin-dashboard.html";
-        }
-    });
-}
-
-// Gestion du formulaire d'inscription
-if (document.getElementById('registerForm')) {
-    document.getElementById('registerForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        const username = document.getElementById('username').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value.trim();
-        const role = document.getElementById('role').value;
-        const message = document.getElementById('message');
-
-        const result = AuthController.register(username, email, password, role);
-        if (!result.success) {
-            message.textContent = result.message;
-            message.style.display = "block";
-            return;
-        }
-
-        // Succès, rediriger vers la page de connexion
-        message.style.color = "green";
-        message.textContent = result.message;
-        message.style.display = "block";
-
-        setTimeout(() => {
-            window.location.href = "../Auth/login.html";
-        }, 2000);
-    });
-}
-
-// Gestion de la déconnexion
-if (document.getElementById('logoutButton')) {
-    document.getElementById('logoutButton').addEventListener('click', function () {
-        AuthController.logout();
-    });
-}
+export default AuthController;

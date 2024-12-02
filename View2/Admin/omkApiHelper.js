@@ -1,3 +1,4 @@
+// omkApiHelper.js
 export class omkApiHelper {
     constructor(params) {
         this.api = params.apiOmk;
@@ -5,89 +6,193 @@ export class omkApiHelper {
         this.key = params.key;
     }
 
-    // Méthode pour obtenir tous les items
-    async getItems() {
-        const url = `${this.api}items?key_identity=${this.ident}&key_credential=${this.key}`;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`Erreur lors de la récupération des items: ${await response.text()}`);
-        const items = await response.json();
-        return items.map(item => ({
-            id: item['o:id'],
-            email: item['cabinet_medical:mail'] ? item['cabinet_medical:mail'][0]['@value'] : 'N/A',
-            username: item['cabinet_medical:username'] ? item['cabinet_medical:username'][0]['@value'] : 'N/A',
-            role: item['cabinet_medical:role'] ? item['cabinet_medical:role'][0]['@value'] : 'N/A'
-        }));
-    }
-
-    // Méthode pour créer un item
-    async createItem(data) {
+    // Ajouter un nouvel item (cabinet médical, par exemple)
+    async addItem(data) {
         const url = `${this.api}items?key_identity=${this.ident}&key_credential=${this.key}`;
         const itemData = {
             "@type": "o:Item",
-            "o:resource_class": { "o:id": 110 }, // Remplacez 110 par l'ID correct de la classe "Patient"
-            "cabinet_medical:mail": [{ "type": "literal", "property_id": 197, "@value": data.email }],
-            "cabinet_medical:username": [{ "type": "literal", "property_id": 205, "@value": data.username }],
-            "cabinet_medical:role": [{ "type": "literal", "property_id": 207, "@value": data.role }]
+            "o:resource_class": { "o:id": 111 },  // Identifiant de la classe de ressource
+            "o:resource_template": { "o:id": 11 }, // Identifiant du modèle de ressource
+            "cabinet_medical:nom": [{ "type": "literal", "property_id": 198, "@value": data.nom }],
+            "cabinet_medical:adresse": [{ "type": "literal", "property_id": 199, "@value": data.adresse }],
+            "cabinet_medical:specialite": [{ "type": "literal", "property_id": 200, "@value": data.specialite }]
         };
-        
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(itemData)
-        });
-    
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Erreur lors de la création de l'item: ${errorText}`);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(itemData)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Erreur API: ${errorText}`);
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error(error);
+            throw error; // Rethrow the error after logging it
         }
-    
-        return response.json();
     }
 
-    // Méthode pour mettre à jour un item
+    // Récupérer un item à partir de son URL
+    async getItemByUrl(url) {
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur lors de la récupération de l'item : ${response.statusText}`);
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error(error);
+            throw error; // Rethrow the error after logging it
+        }
+    }
+
+    // Récupérer des items en fonction de l'identifiant de la classe de ressource
+    async getItemsByResourceClass(resourceClassId) {
+        const url = `${this.api}items?resource_class_id=${resourceClassId}&key_identity=${this.ident}&key_credential=${this.key}`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur API: ${response.statusText}`);
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error(error);
+            throw error; // Rethrow the error after logging it
+        }
+    }
+    async deleteItem(id) {
+        const url = `${this.api}items/${id}?key_identity=${this.ident}&key_credential=${this.key}`;
+        try {
+            const response = await fetch(url, { method: 'DELETE' });
+            
+            if (response.ok) {
+                console.log(`Item ${id} supprimé avec succès.`);
+                return response;
+            }
+    
+            // Gérer les codes 204 ou autres réponses vides
+            if (response.status === 204) {
+                console.log('Requête DELETE réussie avec un statut 204 No Content.');
+                return response;
+            }
+    
+            // Lire la réponse en texte pour diagnostiquer les erreurs
+            const errorText = await response.text();
+            console.error('Erreur API DELETE :', errorText);
+            throw new Error(`Erreur API: ${response.statusText} - ${errorText}`);
+        } catch (error) {
+            console.error('Erreur lors de la suppression:', error.message);
+            throw error;
+        }
+    }
+    // Récupérer un item par son ID
+    async getItem(id) {
+        const url = `${this.api}items/${id}?key_identity=${this.ident}&key_credential=${this.key}`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur API: ${response.statusText}`);
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error(error);
+            throw error; // Rethrow the error after logging it
+        }
+    }
+
+    // Mettre à jour un item existant
     async updateItem(id, data) {
         const url = `${this.api}items/${id}?key_identity=${this.ident}&key_credential=${this.key}`;
         const itemData = {
             "@type": "o:Item",
-            "o:resource_class": { "o:id": data.resourceClassId }, // Utiliser un ID de classe de ressource dynamique
-            "cabinet_medical:mail": [{ "type": "literal", "property_id": 197, "@value": data.email }],
-            "cabinet_medical:username": [{ "type": "literal", "property_id": 205, "@value": data.username }],
-            "cabinet_medical:role": [{ "type": "literal", "property_id": 207, "@value": data.role }]
+            "o:resource_class": { "o:id": 111 },
+            "o:resource_template": { "o:id": 11 },
+            "cabinet_medical:nom": [{ "type": "literal", "property_id": 198, "@value": data.nom }],
+            "cabinet_medical:adresse": [{ "type": "literal", "property_id": 199, "@value": data.adresse }],
+            "cabinet_medical:specialite": [{ "type": "literal", "property_id": 200, "@value": data.specialite }]
         };
-        
-        const response = await fetch(url, {
-            method: 'PUT', // ou 'PATCH' si c'est autorisé par l'API
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(itemData)
-        });
-    
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Erreur lors de la mise à jour de l'item: ${errorText}`);
+
+        try {
+            const response = await fetch(url, {
+                method: 'PUT', // On utilise PUT pour mettre à jour l'item
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(itemData)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Erreur API: ${errorText}`);
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error(error);
+            throw error; // Rethrow the error after logging it
         }
-    
-        return response.json();
     }
 
-    // Méthode pour supprimer un item
-    async deleteItem(id) {
-        const url = `${this.api}items/${id}?key_identity=${this.ident}&key_credential=${this.key}`;
-        const response = await fetch(url, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Erreur lors de la suppression de l'item: ${errorText}`);
+    async updateMedecinItem(id, data) {
+        const url = `${this.api}items/${id}?key_identity=${this.ident}&key_credential=${this.key}`;
+        const itemData = {
+            "@type": "o:Item",
+            "o:resource_class": { "o:id": 111 },
+            "o:resource_template": { "o:id": 10 },
+            "medecin:nom": [{ "type": "literal", "property_id": 160, "@value": data.nom }],
+            "medecin:email": [{ "type": "literal", "property_id": 161, "@value": data.email }],
+            "medecin:telephone": [{ "type": "literal", "property_id": 162, "@value": data.telephone }]
+        };
+    
+        try {
+            const response = await fetch(url, {
+                method: 'PUT', // Utilisation de la méthode PUT pour la mise à jour
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(itemData)
+            });
+    
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Erreur API: ${errorText}`);
+            }
+    
+            return response.json();
+        } catch (error) {
+            console.error(error);
+            throw error; // Relancer l'erreur après l'avoir loguée
         }
-        
-        return response.json();
+    }
+    
+    async getMedecins() {
+        const resourceClassId = 115; // Remplacez par l'ID de classe de ressource des médecins si nécessaire
+        try {
+            const medecins = await this.getItemsByResourceClass(resourceClassId);
+            console.log("Médecins récupérés :", medecins);
+            return medecins;
+        } catch (error) {
+            console.error("Erreur lors de la récupération des médecins :", error.message);
+            throw error;
+        }
     }
 }

@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-image: url('../../images/cabinet.jpg'); /* Update the path with the correct image */
+            background-image: url('../../images/cabinet.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -22,7 +22,7 @@
         .container {
             width: 100%;
             max-width: 450px;
-            background-color: rgba(255, 255, 255, 0.9); /* Light transparent background */
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
@@ -44,7 +44,8 @@
         }
 
         input[type="text"],
-        input[type="email"] {
+        input[type="email"],
+        input[type="tel"] {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -93,10 +94,10 @@
     </style>
 </head>
 <body>
-
     <div class="container">
         <h2>Modifier Médecin</h2>
 
+        <!-- Zone d'erreur pour afficher les messages -->
         <div id="error-message" class="error" style="display: none;"></div>
 
         <form id="updateForm">
@@ -107,57 +108,56 @@
             <input type="email" id="medecin_email" name="medecin_email" required>
 
             <label for="medecin_phone">Numéro de Téléphone:</label>
-            <input type="text" id="medecin_phone" name="medecin_phone" required>
+            <input type="tel" id="medecin_phone" name="medecin_phone" required>
 
-            <button type="submit">Mettre à Jour</button>
+            <button type="submit">Enregistrer les modifications</button>
         </form>
-
-        <a href="getMedecin.html">Retour à la Liste des Médecins</a>
     </div>
 
-    <script>
-        // Exemple de données initiales
-        const medecin = {
-            id: 1, // ID simulé
-            name: "Dr. Dupont",
-            email: "dupont@example.com",
-            phone: "0612345678"
-        };
+    <script type="module">
+        import { omkApiHelper } from './omkApiHelper.js';
 
-        // Préremplir le formulaire avec les données du médecin
-        document.getElementById('medecin_name').value = medecin.name;
-        document.getElementById('medecin_email').value = medecin.email;
-        document.getElementById('medecin_phone').value = medecin.phone;
-
-        // Gérer la soumission du formulaire
-        document.getElementById('updateForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const updatedName = document.getElementById('medecin_name').value;
-            const updatedEmail = document.getElementById('medecin_email').value;
-            const updatedPhone = document.getElementById('medecin_phone').value;
-
-            // Vérification des champs
-            if (!updatedName || !updatedEmail || !updatedPhone) {
-                const errorMessage = document.getElementById('error-message');
-                errorMessage.textContent = "Tous les champs sont obligatoires.";
-                errorMessage.style.display = "block";
+        document.addEventListener('DOMContentLoaded', async () => {
+            const medecinId = new URLSearchParams(window.location.search).get('id');
+            if (!medecinId) {
+                alert('ID du médecin non trouvé dans l\'URL.');
                 return;
             }
 
-            alert("Les informations du médecin ont été mises à jour avec succès !");
-            // Simuler l'enregistrement en affichant les nouvelles données dans la console
-            console.log({
-                id: medecin.id,
-                name: updatedName,
-                email: updatedEmail,
-                phone: updatedPhone
+            const apiHelper = new omkApiHelper({
+                apiOmk: 'http://localhost/Sites/omeka-s/api/',
+                ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+                key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
             });
 
-            // Redirection simulée
-            window.location.href = "getMedecin.html";
+            try {
+                // Récupération des données du médecin à partir de l'API
+                const medecinData = await apiHelper.getItem(medecinId);
+                document.getElementById('medecin_name').value = medecinData['medecin:nom']?.[0]?.['@value'] || '';
+                document.getElementById('medecin_email').value = medecinData['medecin:email']?.[0]?.['@value'] || '';
+                document.getElementById('medecin_phone').value = medecinData['medecin:telephone']?.[0]?.['@value'] || '';
+            } catch (error) {
+                alert(`Erreur lors du chargement des données du médecin : ${error.message}`);
+            }
+
+            document.getElementById('updateForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const updatedData = {
+                    nom: document.getElementById('medecin_name').value,
+                    email: document.getElementById('medecin_email').value,
+                    telephone: document.getElementById('medecin_phone').value
+                };
+
+                try {
+                    await apiHelper.updateMedecinItem(medecinId, updatedData);
+                    alert('Médecin modifié avec succès !');
+                    window.location.href = './getMedecin.html'; // Redirection vers la liste des médecins
+                } catch (error) {
+                    alert(`Erreur lors de la modification : ${error.message}`);
+                }
+            });
         });
     </script>
-
 </body>
 </html>

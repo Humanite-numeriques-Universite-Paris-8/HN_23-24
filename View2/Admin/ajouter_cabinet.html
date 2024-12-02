@@ -6,139 +6,265 @@
     <title>Ajouter un Cabinet Médical</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* Styles pour la page */
         body {
-            font-family: 'Poppins', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f8f9fa;
+            background-image: url('../../images/cabinet4.avif');
+            background-size: cover;
+            background-position: center;
+            font-family: 'Poppins', sans-serif;
         }
-
         .form-container {
             width: 40%;
-            padding: 30px;
             background-color: rgba(255, 255, 255, 0.9);
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
         }
-
-        h2 {
-            margin-bottom: 20px;
+        h1 {
             text-align: center;
-            font-size: 24px;
+            margin-bottom: 20px;
             color: #333;
         }
-
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             font-weight: bold;
         }
-
-        input[type="text"], select {
+        input, select, button {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
+            margin-bottom: 15px;
+            padding: 10px;
             font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
-
-        button[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
+        button {
             background-color: #28a745;
             color: white;
-            font-size: 16px;
+            border: none;
             cursor: pointer;
         }
-
-        button[type="submit"]:hover {
+        button:hover {
             background-color: #218838;
         }
-
-        .error-message {
-            color: red;
-            text-align: center;
-            margin-bottom: 20px;
+        @media (max-width: 768px) {
+            .form-container {
+                max-width: 90%;
+                padding: 20px;
+            }
+        }
+        .form-container {
+            width: 40%;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            position: relative;
+        }
+        input[type="text"], select, input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .autocomplete-suggestions {
+            border: 1px solid #ddd;
+            background-color: #fff;
+            max-height: 150px;
+            overflow-y: auto;
+            border-radius: 5px;
+            position: absolute;
+            z-index: 9999;
+            width: calc(100% - 22px);
+        }
+        .autocomplete-suggestions div {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .autocomplete-suggestions div:hover {
+            background-color: #e9e9e9;
         }
     </style>
 </head>
 <body>
-<div class="form-container">
-    <h2>Ajouter un Cabinet Médical</h2>
-    <div id="error-message" class="error-message" style="display:none;">Erreur : Tous les champs doivent être remplis.</div>
-    <form id="cabinetForm">
-        <label for="nom">Nom du Cabinet:</label>
-        <input type="text" id="nom" placeholder="Nom du cabinet" required>
+    <div class="form-container">
+        <h1>Ajouter un Cabinet Médical</h1>
+        <form id="addCabinetForm">
+            <label for="nom">Nom du Cabinet:</label>
+            <input type="text" id="nom" name="nom" required>
 
-        <label for="adresse">Adresse du Cabinet:</label>
-        <input type="text" id="adresse" placeholder="Adresse" required>
+            <label for="adresse">Adresse du Cabinet:</label>
+            <input type="text" name="adresse" id="adresse" placeholder="Tapez pour voir les suggestions" autocomplete="off" required>
+            <div id="autocomplete-list" class="autocomplete-suggestions"></div>
 
-        <label for="specialite">Spécialité:</label>
-        <select id="specialite" required>
-            <option value="Cardiologie">Cardiologie</option>
-            <option value="Dermatologie">Dermatologie</option>
-            <option value="Gynécologie">Gynécologie</option>
-            <option value="Pédiatrie">Pédiatrie</option>
-        </select>
+            <label for="specialite">Spécialité:</label>
+            <select id="specialite" name="specialite" required>
+                <option value="Cardiologie">Cardiologie</option>
+                <option value="Dermatologie">Dermatologie</option>
+                <option value="Gynécologie">Gynécologie</option>
+            </select>
 
-        <button type="submit">Ajouter le Cabinet</button>
-    </form>
-</div>
+            <label for="docteur_id">Docteur:</label>
+            <select id="docteur_id" name="docteur_id" required>
+                <option value="">Sélectionnez un médecin</option>
+                <!-- Les médecins seront insérés ici dynamiquement -->
+            </select>
 
-<script type="module">
-    import { omkApiHelper } from './omkApiHelper.js';  // Assure that omkApiHelper.js is in the correct location
+            <button type="submit">Ajouter Cabinet</button>
+        </form>
+    </div>
 
-    const form = document.getElementById('cabinetForm');
-    const errorMessage = document.getElementById('error-message');
-
-    form.addEventListener('submit', async function (event) {
-        event.preventDefault();  // Prevent the form from reloading the page
-
-        // Get values from the form fields
-        const nom = document.getElementById('nom').value;
-        const adresse = document.getElementById('adresse').value;
-        const specialite = document.getElementById('specialite').value;
-
-        // Validate input fields
-        if (!nom || !adresse || !specialite) {
-            errorMessage.style.display = 'block';  // Display error message if fields are empty
-            return;
-        }
-
-        errorMessage.style.display = 'none';  // Hide error message
-
-        // Prepare data to be sent to the API
-        const data = {
-            nom: nom,
-            adresse: adresse,
-            specialite: specialite
-        };
-
-        try {
-            const apiHelper = new omkApiHelper({
-                 apiOmk: 'http://localhost/Sites/omeka-s/api/', // URL de l'API Omeka S
-                ident: 'QEBeL8jUeA5G0acLRGpUpQ64SgakhJwE', // Identifiant Omeka
-                key: 'koFGtDLK7zUNv7Qbie4dAmUgKSWdiYcj' // Clé d'authentification
-            });
-
-            const response = await apiHelper.addItem(data);
-
-            if (response) {
-                alert('Cabinet médical ajouté avec succès!');
+    <script type="module">
+        class OmekaApiHelper {
+            constructor(params) {
+                this.api = params.apiOmk;
+                this.ident = params.ident;
+                this.key = params.key;
             }
 
-        } catch (error) {
-            console.error('Erreur lors de l\'ajout du cabinet médical:', error);
-            alert('Une erreur est survenue. Veuillez réessayer.');
+            async fetchItems(resourceClassId) {
+                const url = `${this.api}items?resource_class_id=${resourceClassId}&key_identity=${this.ident}&key_credential=${this.key}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erreur lors de la récupération des données: ${response.statusText}`);
+                }
+
+                return response.json();
+            }
+
+            async addItem(data) {
+                const url = `${this.api}items?key_identity=${this.ident}&key_credential=${this.key}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erreur lors de l'ajout: ${await response.text()}`);
+                }
+
+                return response.json();
+            }
         }
-    });
-</script>
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const apiHelper = new OmekaApiHelper({
+                apiOmk: 'http://localhost/Sites/omeka-s/api/',
+                ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+                key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
+            });
+        
+            const docteurSelect = document.getElementById('docteur_id');
+            try {
+                const utilisateurs = await apiHelper.fetchItems(113); // Classe Utilisateur
+                console.log('Données utilisateurs récupérées :', utilisateurs);
+        
+                const medecins = utilisateurs.filter(user => {
+                    const role = user['cabinet_medical:role']?.[0]?.['@value'];
+                    return role === 'medecin';
+                });
+        
+                if (medecins.length === 0) {
+                    console.warn('Aucun utilisateur avec le rôle médecin trouvé.');
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'Aucun médecin disponible';
+                    docteurSelect.appendChild(option);
+                } else {
+                    medecins.forEach(medecin => {
+                        const option = document.createElement('option');
+                        option.value = medecin['o:id'];
+                        option.textContent = medecin['cabinet_medical:username']?.[0]?.['@value'] || 'Nom inconnu';
+                        docteurSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur lors de la récupération des utilisateurs :', error);
+            }
+        });
+        
+        // Soumettre le formulaire
+        document.getElementById('addCabinetForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const apiHelper = new OmekaApiHelper({
+                apiOmk: 'http://localhost/Sites/omeka-s/api/',
+                ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+                key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
+            });
+
+            const formData = {
+                "@type": "o:Item",
+                "o:resource_class": { "o:id": 111 }, // Classe Cabinet Médical
+                "cabinet_medical:nom": [{ "type": "literal", "property_id": 198, "@value": document.getElementById('nom').value }],
+                "cabinet_medical:adresse": [{ "type": "literal", "property_id": 199, "@value": document.getElementById('adresse').value }],
+                "cabinet_medical:specialite": [{ "type": "literal", "property_id": 200, "@value": document.getElementById('specialite').value }],
+                "cabinet_medical:docteur_id": [
+                    {
+                        "type": "resource",
+                        "property_id": 201,
+                        "@id": `http://localhost/Sites/omeka-s/api/items/${document.getElementById('docteur_id').value}`
+                    }
+                ]
+            };
+
+            try {
+                await apiHelper.addItem(formData);
+                alert('Cabinet ajouté avec succès !');
+                window.location.href = 'voir_cabinets.html';
+            } catch (error) {
+                console.error('Erreur lors de l\'ajout:', error);
+                alert('Une erreur est survenue lors de l\'ajout.');
+            }
+        });
+
+        function showSuggestions(input, suggestions) {
+            const suggestionBox = document.getElementById("autocomplete-list");
+            suggestionBox.innerHTML = "";
+        
+            if (!input) return;
+        
+            suggestions.forEach((address) => {
+                const suggestionItem = document.createElement("div");
+                suggestionItem.textContent = address.display_name; // Affiche le nom
+                suggestionItem.onclick = function() {
+                    document.getElementById("adresse").value = address.display_name;
+                    suggestionBox.innerHTML = "";
+                };
+                suggestionBox.appendChild(suggestionItem);
+            });
+        }
+        
+        // Récupérer les adresses via AJAX
+        document.getElementById("adresse").addEventListener("input", function() {
+            const query = this.value;
+            if (query.length < 3) return; // Limite la requête aux entrées de 3 caractères ou plus
+        
+            fetch('./Map.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const filteredSuggestions = data.filter(address =>
+                        address.display_name.toLowerCase().includes(query.toLowerCase())
+                    );
+                    showSuggestions(query, filteredSuggestions);
+                })
+                .catch(error => console.error("Erreur lors de la récupération des adresses :", error));
+        });
+        
+    </script>
 </body>
 </html>

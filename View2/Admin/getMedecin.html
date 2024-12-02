@@ -3,23 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des Médecins</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <title>Liste des Médecins Connectés</title>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f4f4f9;
             margin: 0;
-            padding: 0;
             display: flex;
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
         }
-
         .container {
-            width: 90%;
+            width: 80%;
             max-width: 1200px;
             margin: 50px auto;
             padding: 20px;
@@ -27,111 +23,119 @@
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-
-        h1 {
-            text-align: center;
-            font-size: 28px;
-            margin-bottom: 20px;
-            color: #007bff;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
         }
-
         th, td {
             padding: 12px;
-            text-align: left;
             border: 1px solid #ddd;
         }
-
         th {
             background-color: #007bff;
             color: white;
         }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
+        .no-data {
+            text-align: center;
+            color: red;
         }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
         .btn {
             padding: 8px 12px;
-            border-radius: 4px;
-            color: white;
-            font-size: 14px;
-            text-decoration: none;
+            border: none;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            color: white;
+            border-radius: 4px;
         }
-
-        .btn-primary {
-            background-color: #007bff;
+        .btn-modifier {
+            background-color: #28a745;
         }
-
-        .btn-danger {
+        .btn-supprimer {
             background-color: #dc3545;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-danger:hover {
-            background-color: #c82333;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Liste des Médecins</h1>
-        <table id="medecinsTable">
+        <h1>Liste des Médecins Connectés</h1>
+        <table>
             <thead>
                 <tr>
-                    <th>Nom du Médecin</th>
+                    <th>Nom d'utilisateur</th>
                     <th>Email</th>
-                    <th>Numéro de Téléphone</th>
+                    <th>Téléphone</th>
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- Les médecins seront chargés ici dynamiquement -->
+            <tbody id="medecinsList">
+                <!-- Les données seront ajoutées ici -->
             </tbody>
         </table>
     </div>
+    <script type="module">
+        import { omkApiHelper } from './omkApiHelper.js';
 
-    <script>
-        // Charger les médecins depuis un fichier JSON
-        fetch('medecins.json') // Assurez-vous que medecins.json est dans le même dossier
-            .then(response => response.json())
-            .then(medecins => {
-                const tableBody = document.querySelector('#medecinsTable tbody');
+        document.addEventListener('DOMContentLoaded', async () => {
+            const apiHelper = new omkApiHelper({
+                apiOmk: 'http://localhost/Sites/omeka-s/api/',
+                ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+                key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
+            });
 
-                medecins.forEach(medecin => {
-                    const row = document.createElement('tr');
+            const medecinsList = document.getElementById('medecinsList');
 
-                    row.innerHTML = `
-                        <td>${medecin.nom}</td>
-                        <td>${medecin.email}</td>
-                        <td>${medecin.telephone}</td>
-                        <td>
-                            <a href="#" class="btn btn-primary"><i class="fas fa-edit"></i> Modifier</a>
-                            <a href="#" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Supprimer</a>
-                        </td>
-                    `;
+            try {
+                // Remplacez 113 par l'ID de la classe correcte pour "User" ou "Medecin"
+                const usersData = await apiHelper.getItemsByResourceClass(113); 
+                console.log('Utilisateurs récupérés :', usersData);
 
-                    tableBody.appendChild(row);
+                // Filtrer les médecins par rôle
+                const medecins = usersData.filter(user => {
+                    const role = user['cabinet_medical:role']?.[0]?.['@value'] || '';
+                    return role.toLowerCase() === 'medecin';
                 });
-            })
-            .catch(error => console.error('Erreur lors du chargement des médecins:', error));
+
+                if (medecins.length === 0) {
+                    medecinsList.innerHTML = '<tr><td colspan="5" class="no-data">Aucun médecin trouvé.</td></tr>';
+                    return;
+                }
+
+                // Remplir le tableau avec les données des médecins
+                medecins.forEach(medecin => {
+                    const username = medecin['cabinet_medical:username']?.[0]?.['@value'] || 'Non spécifié';
+                    const email = medecin['cabinet_medical:mail']?.[0]?.['@value'] || 'Non spécifié';
+                    const telephone = medecin['cabinet_medical:phone']?.[0]?.['@value'] || 'Non spécifié';
+
+                    const row = `
+                        <tr>
+                            <td>${username}</td>
+                            <td>${email}</td>
+                            <td>${telephone}</td>
+                            <td>
+                                <button class="btn btn-modifier" onclick="modifierMedecin(${medecin['o:id']})">Modifier</button>
+                                <button class="btn btn-supprimer" onclick="supprimerMedecin(${medecin['o:id']})">Supprimer</button>
+                            </td>
+                        </tr>`;
+                    medecinsList.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Erreur lors de la récupération des données :', error);
+                medecinsList.innerHTML = '<tr><td colspan="5" class="no-data">Erreur lors de la récupération des données.</td></tr>';
+            }
+        });
+
+        // Attacher les fonctions à l'objet window pour qu'elles soient globales
+        window.modifierMedecin = function(id) {
+            // Redirection vers la page de modification avec l'ID du médecin
+            window.location.href = `modifier_medecin.html?id=${id}`;
+        };
+
+        window.supprimerMedecin = function(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce médecin ?')) {
+                alert(`Supprimer le médecin avec l'ID ${id}`);
+                // Ajoutez ici la logique pour supprimer un médecin
+            }
+        };
     </script>
 </body>
 </html>
