@@ -122,11 +122,9 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
         const apiHelper = new OmekaApiHelper({
-            
             apiOmk: 'http://localhost/Sites/omeka-s/api/',
-            ident: 'R7hxNLmaPXZld3Yfxdz8KnxYSOxvJUrK',
-            key: 'IlJM7oZb9NJDQkLRRuNEsFFU23I354wp'
- 
+            ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+            key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
         });
 
         const cabinetList = document.getElementById('cabinet-list');
@@ -138,26 +136,26 @@
             if (cabinets.length === 0) {
                 cabinetList.innerHTML = `<tr><td colspan="5" style="text-align: center;">Aucun cabinet trouvé.</td></tr>`;
             } else {
-                cabinets.forEach(cabinet => {
+                // Parcourir chaque cabinet pour récupérer ses détails
+                for (const cabinet of cabinets) {
                     const nom = cabinet['cabinet_medical:nom']?.[0]?.['@value'] || 'Non spécifié';
                     const adresse = cabinet['cabinet_medical:adresse']?.[0]?.['@value'] || 'Non spécifiée';
                     const specialite = cabinet['cabinet_medical:specialite']?.[0]?.['@value'] || 'Non spécifiée';
-                    const doctor = 'omeka2'; // Médecin unique pour l'instant
-                    
-                    // Ajouter une ligne au tableau
+                    const doctorName = cabinet['cabinet_medical:username']?.[0]?.['@value'] || 'Non spécifié';
+
                     const row = `
                         <tr>
                             <td>${nom}</td>
                             <td>${adresse}</td>
                             <td>${specialite}</td>
-                            <td>${doctor}</td>
+                            <td>${doctorName}</td>
                             <td>
                                 <button class="btn btn-edit" onclick="window.location.href='modifier_cabinet.html?id=${cabinet['o:id']}'">Modifier</button>
                                 <button class="btn btn-delete" onclick="deleteCabinet(${cabinet['o:id']})">Supprimer</button>
                             </td>
                         </tr>`;
                     cabinetList.innerHTML += row;
-                });
+                }
             }
         } catch (error) {
             console.error('Erreur lors de la récupération des cabinets:', error);

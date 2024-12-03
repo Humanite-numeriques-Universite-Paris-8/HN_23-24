@@ -118,7 +118,6 @@
             <button type="submit">Ajouter Cabinet</button>
         </form>
     </div>
-
     <script type="module">
         class OmekaApiHelper {
             constructor(params) {
@@ -126,21 +125,21 @@
                 this.ident = params.ident;
                 this.key = params.key;
             }
-
+    
             async fetchItems(resourceClassId) {
                 const url = `${this.api}items?resource_class_id=${resourceClassId}&key_identity=${this.ident}&key_credential=${this.key}`;
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
-
+    
                 if (!response.ok) {
                     throw new Error(`Erreur lors de la récupération des données: ${response.statusText}`);
                 }
-
+    
                 return response.json();
             }
-
+    
             async addItem(data) {
                 const url = `${this.api}items?key_identity=${this.ident}&key_credential=${this.key}`;
                 const response = await fetch(url, {
@@ -148,32 +147,35 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-
+    
                 if (!response.ok) {
                     throw new Error(`Erreur lors de l'ajout: ${await response.text()}`);
                 }
-
+    
                 return response.json();
             }
         }
-
+    
         document.addEventListener('DOMContentLoaded', async () => {
             const apiHelper = new OmekaApiHelper({
                 apiOmk: 'http://localhost/Sites/omeka-s/api/',
                 ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
                 key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
             });
-        
+    
             const docteurSelect = document.getElementById('docteur_id');
             try {
-                const utilisateurs = await apiHelper.fetchItems(113); // Classe Utilisateur
+                // Récupérer les utilisateurs de la classe "Utilisateur"
+                const utilisateurs = await apiHelper.fetchItems(113);
                 console.log('Données utilisateurs récupérées :', utilisateurs);
-        
+    
+                // Filtrer uniquement les médecins
                 const medecins = utilisateurs.filter(user => {
                     const role = user['cabinet_medical:role']?.[0]?.['@value'];
                     return role === 'medecin';
                 });
-        
+    
+                // Ajouter les médecins au menu déroulant
                 if (medecins.length === 0) {
                     console.warn('Aucun utilisateur avec le rôle médecin trouvé.');
                     const option = document.createElement('option');
@@ -183,7 +185,7 @@
                 } else {
                     medecins.forEach(medecin => {
                         const option = document.createElement('option');
-                        option.value = medecin['o:id'];
+                        option.value = medecin['o:id']; // ID de la ressource médecin
                         option.textContent = medecin['cabinet_medical:username']?.[0]?.['@value'] || 'Nom inconnu';
                         docteurSelect.appendChild(option);
                     });
@@ -192,40 +194,59 @@
                 console.error('Erreur lors de la récupération des utilisateurs :', error);
             }
         });
-        
-        // Soumettre le formulaire
-        document.getElementById('addCabinetForm').addEventListener('submit', async function (event) {
-            event.preventDefault();
-            const apiHelper = new OmekaApiHelper({
-                apiOmk: 'http://localhost/Sites/omeka-s/api/',
-                ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
-                key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
-            });
+    
+   // Soumettre le formulaire
+document.getElementById('addCabinetForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
 
-            const formData = {
-                "@type": "o:Item",
-                "o:resource_class": { "o:id": 111 }, // Classe Cabinet Médical
-                "cabinet_medical:nom": [{ "type": "literal", "property_id": 198, "@value": document.getElementById('nom').value }],
-                "cabinet_medical:adresse": [{ "type": "literal", "property_id": 199, "@value": document.getElementById('adresse').value }],
-                "cabinet_medical:specialite": [{ "type": "literal", "property_id": 200, "@value": document.getElementById('specialite').value }],
-                "cabinet_medical:docteur_id": [
-                    {
-                        "type": "resource",
-                        "property_id": 201,
-                        "@id": `http://localhost/Sites/omeka-s/api/items/${document.getElementById('docteur_id').value}`
-                    }
-                ]
-            };
+    const apiHelper = new OmekaApiHelper({
+        apiOmk: 'http://localhost/Sites/omeka-s/api/',
+        ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+        key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
+    });
 
-            try {
-                await apiHelper.addItem(formData);
-                alert('Cabinet ajouté avec succès !');
-                window.location.href = 'voir_cabinets.html';
-            } catch (error) {
-                console.error('Erreur lors de l\'ajout:', error);
-                alert('Une erreur est survenue lors de l\'ajout.');
+    const docteurSelect = document.getElementById('docteur_id');
+    const selectedDoctorID = docteurSelect.value;
+    const selectedDoctorName = docteurSelect.options[docteurSelect.selectedIndex].text;
+
+    const formData = {
+        "@type": "o:Item",
+        "o:resource_class": { "o:id": 111 }, // Classe Cabinet Médical
+        "o:resource_template": { "o:id": 11 }, // Template Cabinet
+        "cabinet_medical:nom": [
+            { "type": "literal", "property_id": 198, "@value": document.getElementById('nom').value }
+        ],
+        "cabinet_medical:adresse": [
+            { "type": "literal", "property_id": 199, "@value": document.getElementById('adresse').value }
+        ],
+        "cabinet_medical:specialite": [
+            { "type": "literal", "property_id": 200, "@value": document.getElementById('specialite').value }
+        ],
+        "cabinet_medical:docteur_id": [
+            {
+                "type": "resource",
+                "property_id": 205,
+                "@id": `http://localhost/Sites/omeka-s/api/items/${selectedDoctorID}`
             }
-        });
+        ],
+        "cabinet_medical:username": [
+            {
+                "type": "literal",
+                "property_id": 205, // Remplacez par l'ID réel de la propriété username
+                "@value": selectedDoctorName
+            }
+        ]
+    };
+
+    try {
+        await apiHelper.addItem(formData);
+        alert('Cabinet ajouté avec succès !');
+        window.location.href = 'voir_cabinets.html';
+    } catch (error) {
+        console.error('Erreur lors de l\'ajout :', error);
+        alert('Une erreur est survenue lors de l\'ajout.');
+    }
+});
 
         function showSuggestions(input, suggestions) {
             const suggestionBox = document.getElementById("autocomplete-list");
