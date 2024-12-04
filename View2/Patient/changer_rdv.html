@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Déplacer un Rendez-vous</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>Déplacer un Rendez-vous</h1>
+    <div class="form-container">
+        <form id="updateForm">
+            <label for="appointmentDate">Nouvelle Date et Heure :</label>
+            <input type="datetime-local" id="appointmentDate" required>
+            <button type="submit">Enregistrer les modifications</button>
+        </form>
+    </div>
+
+    <script>
+        const apiUrl = "http://localhost/Sites/omeka-s/api/";
+        const apiKeyIdentity = "fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK";
+        const apiKeyCredential = "xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9";
+
+        // Récupérer l'ID du rendez-vous depuis l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const appointmentId = urlParams.get("id");
+
+        if (!appointmentId) {
+            alert("Aucun rendez-vous spécifié !");
+            window.location.href = "mes_rendez_vous.html"; // Redirection si aucun ID n'est fourni
+        }
+
+        // Fonction pour récupérer les informations du rendez-vous
+        async function fetchAppointment() {
+            try {
+                const response = await fetch(`${apiUrl}items/${appointmentId}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+                if (!response.ok) {
+                    throw new Error("Erreur lors de la récupération du rendez-vous.");
+                }
+
+                const appointment = await response.json();
+
+                // Pré-remplir le champ avec la date actuelle du rendez-vous
+                const appointmentDate = appointment["cabinet_medical:appointmentDate"]?.[0]?.["@value"];
+                if (appointmentDate) {
+                    // Remplacer l'espace par un "T" pour le format compatible avec datetime-local
+                    document.getElementById("appointmentDate").value = appointmentDate.replace(" ", "T");
+                }
+            } catch (error) {
+                console.error("Erreur :", error);
+                alert("Impossible de récupérer les informations du rendez-vous.");
+                window.location.href = "mes_rendez_vous.html"; // Redirection en cas d'erreur
+            }
+        }
+
+        // Fonction pour mettre à jour le rendez-vous
+        async function updateAppointment(event) {
+            event.preventDefault();
+
+            const newDate = document.getElementById("appointmentDate").value;
+
+            try {
+                // Étape 1 : Récupérer les données existantes
+                const getResponse = await fetch(`${apiUrl}items/${appointmentId}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+                if (!getResponse.ok) {
+                    throw new Error("Erreur lors de la récupération des données existantes.");
+                }
+
+                const existingData = await getResponse.json();
+
+                // Étape 2 : Modifier la date de rendez-vous
+                existingData["cabinet_medical:appointmentDate"] = [
+                    { "@value": newDate.replace("T", " "), "type": "literal", "property_id": 201 }
+                ];
+
+                // Étape 3 : Envoyer une requête PUT pour mettre à jour
+                const putResponse = await fetch(`${apiUrl}items/${appointmentId}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(existingData),
+                });
+
+                if (!putResponse.ok) {
+                    throw new Error("Erreur lors de la mise à jour du rendez-vous.");
+                }
+
+                alert("Rendez-vous déplacé avec succès !");
+                window.location.href = "./patient_lister_rdv.html"; // Retour à la liste des rendez-vous
+            } catch (error) {
+                console.error("Erreur :", error);
+                alert("Une erreur est survenue lors de la mise à jour.");
+            }
+        }
+
+        // Charger les données du rendez-vous au chargement de la page
+        document.addEventListener("DOMContentLoaded", fetchAppointment);
+
+        // Soumettre le formulaire pour mettre à jour le rendez-vous
+        document.getElementById("updateForm").addEventListener("submit", updateAppointment);
+    </script>
+</body>
+</html>
