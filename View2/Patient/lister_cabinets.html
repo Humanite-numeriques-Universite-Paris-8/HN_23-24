@@ -1,21 +1,17 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des Contacts des Médecins</title>
-
-    <!-- Google Fonts for better typography -->
+    <title>Lister les cabinets</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
     <style>
         /* Global Styling */
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
-            background-image: url('../../images/images1.jpg'); /* Chemin vers votre image */
+            background-image: url('../../images/images1.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -26,18 +22,8 @@
             position: relative;
         }
 
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5); /* Overlay sombre */
-            z-index: -1; /* Derrière le contenu */
-        }
-
         .container {
-            background-color: rgba(255, 255, 255, 0.9); /* Transparence légère */
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
@@ -45,7 +31,7 @@
             width: 100%;
         }
 
-        h1 {
+        h2 {
             text-align: center;
             color: #333;
             font-size: 32px;
@@ -83,11 +69,6 @@
             background-color: #f1f1f1;
         }
 
-        p {
-            text-align: center;
-            color: red;
-        }
-
         /* Responsive Design */
         @media (max-width: 768px) {
             th, td {
@@ -101,77 +82,95 @@
         }
     </style>
 </head>
-
 <body>
+<div class="container">
+    <h2>Liste des Cabinets</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Adresse</th>
+                <th>Spécialité</th>
+                <th>Médecin</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+            </tr>
+        </thead>
+        <tbody id="cabinet-list">
+            <!-- Les données des cabinets seront insérées ici dynamiquement -->
+        </tbody>
+    </table>
+</div>
+<script type="module">
+    class OmekaApiHelper {
+        constructor(params) {
+            this.api = params.apiOmk;
+            this.ident = params.ident;
+            this.key = params.key;
+        }
 
-    <div class="overlay"></div> <!-- Overlay sombre pour un meilleur contraste -->
+        async fetchItems(resourceClassId) {
+            const url = `${this.api}items?resource_class_id=${resourceClassId}&key_identity=${this.ident}&key_credential=${this.key}`;
+            const response = await fetch(url, { method: 'GET' });
 
-    <div class="container">
-        <h1>Liste des Contacts des Médecins</h1>
-
-        <table id="contactsTable">
-            <thead>
-                <tr>
-                    <th>Nom du Cabinet</th>
-                    <th>Adresse du Cabinet</th>
-                    <th>Nom du Docteur</th>
-                    <th>Email du Docteur</th>
-                    <th>Numéro de Téléphone</th>
-                    <th>Spécialité</th>
-                </tr>
-            </thead>
-            <tbody id="contactsBody">
-                <!-- Les données seront insérées ici par JavaScript -->
-            </tbody>
-        </table>
-
-        <p id="noDataMessage" style="display: none;">Aucun médecin trouvé.</p>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Exemple de données, remplacez-les avec les données réelles récupérées via API ou JSON
-            const medecins = [
-                {
-                    cabinet_nom: "Cabinet A",
-                    adresse_cabinet: "123 Rue Exemple, Ville",
-                    docteur_nom: "Dr. Dupont",
-                    docteur_email: "dupont@example.com",
-                    docteur_phone: "0123456789",
-                    specialite: "Cardiologie"
-                },
-                {
-                    cabinet_nom: "Cabinet B",
-                    adresse_cabinet: "456 Avenue Exemple, Ville",
-                    docteur_nom: "Dr. Martin",
-                    docteur_email: "martin@example.com",
-                    docteur_phone: "0987654321",
-                    specialite: "Dermatologie"
-                }
-            ];
-
-            const tableBody = document.getElementById('contactsBody');
-            const noDataMessage = document.getElementById('noDataMessage');
-
-            if (medecins.length > 0) {
-                medecins.forEach(medecin => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${medecin.cabinet_nom}</td>
-                        <td>${medecin.adresse_cabinet}</td>
-                        <td>${medecin.docteur_nom}</td>
-                        <td>${medecin.docteur_email}</td>
-                        <td>${medecin.docteur_phone || "Non renseigné"}</td>
-                        <td>${medecin.specialite}</td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            } else {
-                noDataMessage.style.display = 'block';
+            if (!response.ok) {
+                throw new Error(`Erreur lors de la récupération des données: ${response.statusText}`);
             }
+
+            return response.json();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const apiHelper = new OmekaApiHelper({
+            apiOmk: 'http://localhost/Sites/omeka-s/api/',
+            ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+            key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
         });
-    </script>
+
+        const cabinetList = document.getElementById('cabinet-list');
+
+        try {
+            // Récupérer les cabinets et les utilisateurs
+            const cabinets = await apiHelper.fetchItems(111); // ID de la classe "Cabinet Médical"
+            const users = await apiHelper.fetchItems(113); // ID de la classe "User"
+
+            if (cabinets.length === 0) {
+                cabinetList.innerHTML = `<tr><td colspan="6" style="text-align: center;">Aucun cabinet trouvé.</td></tr>`;
+            } else {
+                // Parcourir chaque cabinet pour récupérer ses détails
+                for (const cabinet of cabinets) {
+                    const nom = cabinet['cabinet_medical:nom']?.[0]?.['@value'] || 'Non spécifié';
+                    const adresse = cabinet['cabinet_medical:adresse']?.[0]?.['@value'] || 'Non spécifiée';
+                    const specialite = cabinet['cabinet_medical:specialite']?.[0]?.['@value'] || 'Non spécifiée';
+                    const doctorName = cabinet['cabinet_medical:username']?.[0]?.['@value'] || 'Non spécifié';
+
+                    // Trouver l'utilisateur associé
+                    const user = users.find(user => {
+                        return user['cabinet_medical:username']?.[0]?.['@value'] === doctorName;
+                    });
+
+                    const email = user ? user['cabinet_medical:mail']?.[0]?.['@value'] || 'Non spécifié' : 'Non spécifié';
+                    const telephone = user ? user['cabinet_medical:telephone']?.[0]?.['@value'] || 'Non spécifié' : 'Non spécifié';
+
+                    const row = `
+                        <tr>
+                            <td>${nom}</td>
+                            <td>${adresse}</td>
+                            <td>${specialite}</td>
+                            <td>${doctorName}</td>
+                            <td>${email}</td>
+                            <td>${telephone}</td>
+                        </tr>`;
+                    cabinetList.innerHTML += row;
+                }
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération des cabinets:', error);
+            cabinetList.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">Erreur lors de la récupération des cabinets.</td></tr>`;
+        }
+    });
+</script>
 
 </body>
-
 </html>

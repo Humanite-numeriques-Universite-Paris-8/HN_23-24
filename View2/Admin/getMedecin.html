@@ -104,7 +104,7 @@
                 medecins.forEach(medecin => {
                     const username = medecin['cabinet_medical:username']?.[0]?.['@value'] || 'Non spécifié';
                     const email = medecin['cabinet_medical:mail']?.[0]?.['@value'] || 'Non spécifié';
-                    const telephone = medecin['cabinet_medical:phone']?.[0]?.['@value'] || 'Non spécifié';
+                    const telephone = medecin['cabinet_medical:telephone']?.[0]?.['@value'] || 'Non spécifié';
 
                     const row = `
                         <tr>

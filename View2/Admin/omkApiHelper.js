@@ -15,7 +15,7 @@ export class omkApiHelper {
             "o:resource_template": { "o:id": 11 }, // Identifiant du modèle de ressource
             "cabinet_medical:nom": [{ "type": "literal", "property_id": 198, "@value": data.nom }],
             "cabinet_medical:adresse": [{ "type": "literal", "property_id": 199, "@value": data.adresse }],
-            "cabinet_medical:specialite": [{ "type": "literal", "property_id": 200, "@value": data.specialite }]
+            "cabinet_medical:specialite": [{ "type": "literal", "property_id": 200, "@value": data.specialite }],
         };
 
         try {
@@ -153,46 +153,20 @@ export class omkApiHelper {
         }
     }
 
+    async updateItemMedecin(id, data) {
+        const url = `${this.api}items/${itemId}?key_identity=${this.ident}&key_credential=${this.key}`;
+        const response = await fetch(url, {
+            method: 'PUT', // Méthode pour mettre à jour
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
 
-    async updateMedecinItem(id, data) {
-        const url = `${this.api}items/${id}?key_identity=${this.ident}&key_credential=${this.key}`;
-        const itemData = {
-            "@type": "o:Item",
-            "o:resource_class": { "o:id": 111 },
-            "o:resource_template": { "o:id": 10 },
-            "medecin:nom": [{ "type": "literal", "property_id": 160, "@value": data.nom }],
-            "medecin:email": [{ "type": "literal", "property_id": 161, "@value": data.email }],
-            "medecin:telephone": [{ "type": "literal", "property_id": 162, "@value": data.telephone }]
-        };
-    
-        try {
-            const response = await fetch(url, {
-                method: 'PUT', // Utilisation de la méthode PUT pour la mise à jour
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(itemData)
-            });
-    
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Erreur API: ${errorText}`);
-            }
-    
-            return response.json();
-        } catch (error) {
-            console.error(error);
-            throw error; // Relancer l'erreur après l'avoir loguée
+        if (!response.ok) {
+            throw new Error(`Erreur lors de la mise à jour : ${response.statusText}`);
         }
+
+        return response.json();
     }
-    
-    async getMedecins() {
-        const resourceClassId = 115; // Remplacez par l'ID de classe de ressource des médecins si nécessaire
-        try {
-            const medecins = await this.getItemsByResourceClass(resourceClassId);
-            console.log("Médecins récupérés :", medecins);
-            return medecins;
-        } catch (error) {
-            console.error("Erreur lors de la récupération des médecins :", error.message);
-            throw error;
-        }
-    }
+
+ 
 }

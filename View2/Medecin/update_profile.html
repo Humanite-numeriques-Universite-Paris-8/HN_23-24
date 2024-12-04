@@ -4,14 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mettre à Jour Mon Profil</title>
+    <title>Mettre à Jour Mon Profil (Médecin)</title>
     <style>
-        /* Background and container styling */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-image: url('../../images/images1.jpg'); /* Change this path as needed */
+            background-image: url('../../images/images1.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -109,7 +108,7 @@
 
 <body>
     <div class="container">
-        <h2>Mettre à Jour Mon Profil</h2>
+        <h2>Mettre à Jour Mon Profil (Médecin)</h2>
 
         <div id="feedbackMessage" style="display: none;"></div>
 
@@ -124,36 +123,95 @@
     </div>
 
     <script>
-        // Simuler les données du médecin stockées dans le localStorage
-        const doctorData = JSON.parse(localStorage.getItem('doctor')) || { phone: '' };
+        const omekaApiUrl = 'http://localhost/Sites/omeka-s/api/';
+        const apiKey = {
+            identity: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+            credential: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
+        };
 
-        // Pré-remplir le champ de téléphone
-        document.getElementById('phone').value = doctorData.phone;
+        const userEmail = 'omeka2@gmail.com'; // Remplacez par l'email de l'utilisateur connecté
+        let medecinData = null;
 
-        // Formulaire de mise à jour
-        document.getElementById('updateProfileForm').addEventListener('submit', function (event) {
-            event.preventDefault();
+        async function fetchMedecinData() {
+            try {
+                const response = await fetch(`${omekaApiUrl}items?key_identity=${apiKey.identity}&key_credential=${apiKey.credential}`);
+                const data = await response.json();
 
-            const phoneInput = document.getElementById('phone').value.trim();
-            const feedbackMessage = document.getElementById('feedbackMessage');
+                medecinData = data.find(item => {
+                    const email = item['cabinet_medical:mail']?.[0]?.['@value'] || '';
+                    const role = item['cabinet_medical:role']?.[0]?.['@value'] || '';
+                    return email.toLowerCase() === userEmail.toLowerCase() && role.toLowerCase() === 'medecin';
+                });
 
-            // Vérifier si le numéro est valide
-            if (!phoneInput.match(/^[0-9]{10}$/)) {
-                feedbackMessage.style.display = 'block';
-                feedbackMessage.textContent = 'Erreur : Veuillez entrer un numéro de téléphone valide.';
-                feedbackMessage.className = 'error';
-                return;
+                if (medecinData) {
+                    document.getElementById('phone').value = medecinData['cabinet_medical:telephone']?.[0]?.['@value'] || '';
+                } else {
+                    throw new Error('Médecin non trouvé.');
+                }
+            } catch (error) {
+                console.error('Erreur lors de la récupération des données du médecin:', error);
+                showMessage('Erreur lors de la récupération des données.', 'error');
             }
+        }
 
-            // Simuler la mise à jour dans le localStorage
-            doctorData.phone = phoneInput;
-            localStorage.setItem('doctor', JSON.stringify(doctorData));
+        async function updateMedecinPhone(newPhone) {
+            try {
+                const body = {
+                    ...medecinData,
+                    "cabinet_medical:telephone": [
+                        {
+                            "type": "literal",
+                            "property_id": 208, // ID de la propriété téléphone
+                            "@value": newPhone
+                        }
+                    ]
+                };
 
-            // Afficher un message de succès
-            feedbackMessage.style.display = 'block';
-            feedbackMessage.textContent = 'Votre profil a été mis à jour avec succès.';
-            feedbackMessage.className = 'success';
+                const response = await fetch(`${omekaApiUrl}items/${medecinData['o:id']}?key_identity=${apiKey.identity}&key_credential=${apiKey.credential}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la mise à jour du téléphone.');
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('Erreur lors de la mise à jour des données:', error);
+                showMessage('Erreur lors de la mise à jour des données.', 'error');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await fetchMedecinData();
+
+            document.getElementById('updateProfileForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const phoneInput = document.getElementById('phone').value.trim();
+
+                if (!/^[0-9]{10}$/.test(phoneInput)) {
+                    showMessage('Numéro de téléphone invalide.', 'error');
+                    return;
+                }
+
+                const updatedData = await updateMedecinPhone(phoneInput);
+
+                if (updatedData) {
+                    showMessage('Votre profil a été mis à jour avec succès.', 'success');
+                }
+            });
         });
+
+        function showMessage(message, type) {
+            const feedbackMessage = document.getElementById('feedbackMessage');
+            feedbackMessage.textContent = message;
+            feedbackMessage.className = type;
+            feedbackMessage.style.display = 'block';
+        }
     </script>
 </body>
 
