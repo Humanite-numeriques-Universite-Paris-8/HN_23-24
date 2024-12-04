@@ -166,6 +166,90 @@
             color: #fff;
             text-decoration: underline;
         }
+                   /* Search bar improvements */
+          /* Search bar improvements */
+    .search-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+        margin-right: 20px;
+        border: 1px solid #fff;
+        border-radius: 30px;
+        padding: 5px 15px;
+        background-color: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .search-container input[type="text"] {
+        border: none;
+        padding: 8px 35px 8px 15px; /* Adjust padding for icon */
+        font-size: 14px;
+        outline: none;
+        border-radius: 30px;
+        width: 300px; /* Adjust width as necessary */
+        color: #333;
+        background-image: url('search-icon.png'); /* Replace with your search icon */
+        background-position: 10px center;
+        background-repeat: no-repeat;
+        background-size: 18px; /* Adjust icon size */
+    }
+    
+    .search-container button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        cursor: pointer;
+        border-radius: 30px;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+    }
+    
+    .search-container button:hover {
+        background-color: #0056b3;
+    }
+
+    
+    #suggestions-box {
+        position: absolute;
+        top: 40px; /* Ajusté en fonction de la hauteur du champ */
+        left: 0;
+        width: 100%;
+        background-color: white;
+        border: 1px solid #ccc;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0.3s, opacity 0.3s;
+    }
+    
+    #suggestions-box.visible {
+        visibility: visible;
+        opacity: 1;
+    }
+    
+    #suggestions-box div {
+        padding: 12px;
+        font-size: 14px;
+        color: #333;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    #suggestions-box div:hover {
+        background-color: #007bff;
+        color: white;
+    }
+    
+    #suggestions-box img {
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+        border-radius: 50%;
+    }
     </style>
 </head>
 <body>
@@ -175,9 +259,21 @@
             <h1>DoctoCabinet Patient</h1>
         </div>
         <div class="search-container">
-            <input type="text" id="search_term" placeholder="Rechercher par spécialité ou docteur...">
-            <button onclick="search()">Rechercher</button>
+            <form id="search-form">
+                <input
+                    type="text"
+                    id="search_term"
+                    name="search_term"
+                    placeholder="Rechercher par nom ou spécialité..."
+                    onkeyup="showSuggestions(this.value)"
+                    autocomplete="off"
+                    required
+                />
+                <button type="button" onclick="performSearch()">Rechercher</button>
+                <div id="suggestions-box"></div>
+            </form>
         </div>
+        
         <div class="navbar-right">
             <a href="../Auth/login.html">Déconnexion</a>
         </div>
@@ -218,15 +314,108 @@
     </div>
 
     <script>
-        function search() {
-            const term = document.getElementById("search_term").value;
-            if (term) {
-                alert("Recherche pour : " + term);
-            } else {
-                alert("Veuillez entrer un terme de recherche.");
+        const apiUrl = "http://localhost/Sites/omeka-s/api/"; // URL de l'API Omeka
+        const apiKeyIdentity = "fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK"; // Clé identité API
+        const apiKeyCredential = "xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9"; // Clé crédential API
+        
+        // Fonction pour récupérer les médecins et leurs spécialités via l'API
+        async function fetchMedecins() {
+            try {
+                const response = await fetch(`${apiUrl}items?resource_class_id=111&key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+                if (!response.ok) {
+                    throw new Error(`Erreur API : ${response.statusText}`);
+                }
+        
+                const data = await response.json();
+        
+                // Extraire les données des médecins et leurs spécialités
+                return data.map((item) => ({
+                    name: item['cabinet_medical:username']?.[0]?.['@value'] || "Non spécifié",
+                    specialite: item['cabinet_medical:specialite']?.[0]?.['@value'] || "Non spécifiée",
+                }));
+            } catch (error) {
+                console.error("Erreur lors de la récupération des médecins :", error);
+                return [];
             }
         }
+        
+        // Fonction pour afficher les suggestions en fonction du terme de recherche
+        async function showSuggestions(searchTerm) {
+            const suggestionsBox = document.getElementById("suggestions-box");
+        
+            // Masquer les suggestions si aucun terme n'est saisi
+            if (searchTerm.trim().length === 0) {
+                suggestionsBox.innerHTML = "";
+                suggestionsBox.classList.remove("visible");
+                return;
+            }
+        
+            try {
+                const medecins = await fetchMedecins();
+                const lowerSearchTerm = searchTerm.toLowerCase();
+        
+                // Filtrer les médecins par nom ou spécialité
+                const filteredMedecins = medecins.filter(
+                    (medecin) =>
+                        medecin.name.toLowerCase().includes(lowerSearchTerm) ||
+                        medecin.specialite.toLowerCase().includes(lowerSearchTerm)
+                );
+        
+                // Afficher les suggestions
+                if (filteredMedecins.length > 0) {
+                    suggestionsBox.innerHTML = filteredMedecins
+                        .map(
+                            (medecin) =>
+                                `<div onclick="selectSuggestion('${medecin.specialite}', '${medecin.name}')">${medecin.specialite} - ${medecin.name}</div>`
+                        )
+                        .join("");
+                    suggestionsBox.classList.add("visible");
+                } else {
+                    suggestionsBox.innerHTML = "<div>Aucune suggestion trouvée</div>";
+                    suggestionsBox.classList.add("visible");
+                }
+            } catch (error) {
+                console.error("Erreur lors de l'affichage des suggestions :", error);
+                suggestionsBox.innerHTML = "<div>Erreur lors de la récupération des suggestions</div>";
+                suggestionsBox.classList.add("visible");
+            }
+        }
+        
+        // Fonction appelée lorsqu'une suggestion est sélectionnée
+        function selectSuggestion(specialite, name) {
+            // Remplir le champ de recherche avec la suggestion sélectionnée
+            document.getElementById("search_term").value = `${specialite} - ${name}`;
+        
+            // Masquer la boîte de suggestions
+            document.getElementById("suggestions-box").classList.remove("visible");
+        }
+        
+        // Fonction pour effectuer une recherche complète (lors du clic sur le bouton "Rechercher")
+   // Fonction pour effectuer une recherche complète (lors du clic sur le bouton "Rechercher")
+function performSearch() {
+    const searchTerm = document.getElementById("search_term").value.trim();
 
+    if (searchTerm.length === 0) {
+        alert("Veuillez entrer un terme de recherche.");
+        return;
+    }
+
+    // Rediriger vers la page de recherche avec les paramètres
+    const encodedSearchTerm = encodeURIComponent(searchTerm);
+    window.location.href = `get_searchMedecin.html?search=${encodedSearchTerm}`;
+}
+
+        
+        // Ajouter un écouteur pour le champ de recherche (saisie dynamique)
+        document.getElementById("search_term").addEventListener("keyup", (event) => {
+            showSuggestions(event.target.value);
+        });
+        
+        // Ajouter un écouteur pour le formulaire de recherche
+        document.getElementById("search-form").addEventListener("submit", (event) => {
+            event.preventDefault(); // Empêche le rechargement de la page
+            performSearch();
+        });
         function logout() {
             alert("Déconnexion réussie !");
             window.location.href = "login.html";

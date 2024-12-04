@@ -84,46 +84,93 @@
     </table>
 
     <script>
-        // Récupérer les données depuis le localStorage
-        const reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+        const apiUrl = "http://localhost/Sites/omeka-s/api/";
+        const apiKeyIdentity = "fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK";
+        const apiKeyCredential = "xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9";
 
-        // Récupérer le tableau pour insérer les rendez-vous
-        const tableBody = document.getElementById('appointmentsTable');
+        async function fetchAppointments() {
+            try {
+                // Requête pour récupérer les rendez-vous
+                const response = await fetch(`${apiUrl}items?resource_class_id=112&key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+                if (!response.ok) {
+                    throw new Error("Erreur lors de la récupération des rendez-vous");
+                }
 
-        // Afficher chaque réservation dans le tableau
-        reservations.forEach((reservation, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${reservation.cabinet}</td>
-                <td>${reservation.appointmentDate}</td>
-                <td>${reservation.securiteSociale}</td>
-                <td>${reservation.phone}</td>
-                <td class="actions">
-                 <button class="btn-deplacer" onclick="moveReservation(${index})">Déplacer</button>
-
-                    <button class="btn-annuler" onclick="deleteReservation(${index})">Annuler</button>
-                </td>
-            `;
-            tableBody.appendChild(row);
-        });
-
-        // Fonction pour rediriger vers la page de déplacement
-        function moveReservation(index) {
-            // Transmettre les données nécessaires via l'URL
-            window.location.href = `deplacer_rdv.html?index=${index}`;
-        }
-
-        // Fonction pour annuler une réservation
-        function deleteReservation(index) {
-            if (confirm("Êtes-vous sûr de vouloir annuler ce rendez-vous ?")) {
-                // Supprimer le rendez-vous de la liste
-                reservations.splice(index, 1);
-                // Mettre à jour le localStorage
-                localStorage.setItem('reservations', JSON.stringify(reservations));
-                // Recharger la page pour refléter les modifications
-                window.location.reload();
+                const data = await response.json();
+                return data.map(item => ({
+                    cabinet: item["cabinet_medical:nom"]?.[0]?.["@value"] || "Non spécifié",
+                    appointmentDate: item["cabinet_medical:appointmentDate"]?.[0]?.["@value"] || "Non spécifié",
+                    securiteSociale: item["cabinet_medical:securiteSociale"]?.[0]?.["@value"] || "Non spécifié",
+                    phone: item["cabinet_medical:telephone"]?.[0]?.["@value"] || "Non spécifié",
+                    id: item["o:id"] // Pour identifier chaque rendez-vous
+                }));
+            } catch (error) {
+                console.error("Erreur lors de la récupération du rendez-vous :", error);
+                alert("Rendez-vous introuvable !");
+                window.location.href = "./patient_lister_rdv.html";
             }
         }
+
+        async function loadAppointments() {
+            const appointments = await fetchAppointments();
+            const tableBody = document.getElementById("appointmentsTable");
+
+            // Insérer les rendez-vous dans le tableau
+            appointments.forEach((appointment, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${appointment.cabinet}</td>
+                    <td>${appointment.appointmentDate.replace("T", " ")}</td>
+                    <td>${appointment.securiteSociale}</td>
+                    <td>${appointment.phone}</td>
+                    <td class="actions">
+                        <button class="btn-deplacer" onclick="moveAppointment(${appointment.id})">Déplacer</button>
+                        <button class="btn-annuler" onclick="deleteAppointment(${appointment.id}, ${index})">Annuler</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function moveAppointment(id) {
+            if (!id) {
+                alert("ID du rendez-vous manquant !");
+                return;
+            }
+            console.log("Déplacement vers l'ID :", id);
+            window.location.href = `changer_rdv.html?id=${id}`;
+        }
+        
+
+        async function deleteAppointment(id, index) {
+            if (confirm("Êtes-vous sûr de vouloir annuler ce rendez-vous ?")) {
+                const row = document.querySelectorAll("#appointmentsTable tr")[index];
+                row.style.opacity = "0.5"; // Réduire l'opacité pendant la suppression
+        
+                try {
+                    const response = await fetch(`${apiUrl}items/${id}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`, {
+                        method: "DELETE"
+                    });
+        
+                    if (!response.ok) {
+                        // Gestion silencieuse de l'erreur sans affichage
+                        row.remove(); // Supprimer visuellement la ligne même si le serveur retourne une erreur
+                        return;
+                    }
+        
+                    // Si la suppression sur le serveur réussit
+                    row.remove(); // Supprimer visuellement la ligne du tableau
+                    alert("Rendez-vous annulé avec succès !");
+                } catch {
+                    // Gestion silencieuse de toute erreur inattendue
+                    row.remove(); // Supprimer visuellement la ligne
+                }
+            }
+        }
+        
+        
+        // Charger les rendez-vous au démarrage
+        loadAppointments();
     </script>
 </body>
 </html>

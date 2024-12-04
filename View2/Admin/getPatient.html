@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des Patients</title>
     
-    <!-- Link to Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
@@ -136,52 +135,72 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="patientsTable">
+            <tbody id="patientsList">
                 <!-- Les données seront insérées ici dynamiquement -->
             </tbody>
         </table>
     </div>
 
-    <script>
-        // Exemple de données statiques pour les patients
-        const patients = [
-            { id: 1, name: "Jean Dupont", email: "jean.dupont@example.com", phone: "0612345678" },
-            { id: 2, name: "Marie Curie", email: "marie.curie@example.com", phone: "0712345678" },
-            { id: 3, name: "Albert Einstein", email: "albert.einstein@example.com", phone: "0812345678" }
-        ];
+    <script type="module">
+        import { omkApiHelper } from './omkApiHelper.js';
 
-        // Récupérer le corps du tableau
-        const tableBody = document.getElementById("patientsTable");
+        document.addEventListener('DOMContentLoaded', async () => {
+            const apiHelper = new omkApiHelper({
+                apiOmk: 'http://localhost/Sites/omeka-s/api/',
+                ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+                key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
+            });
 
-        // Injecter les données dans le tableau
-        patients.forEach((patient) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${patient.name}</td>
-                <td>${patient.email}</td>
-                <td>${patient.phone || "Non renseigné"}</td>
-                <td>
-                    <a href="modifier_patient.html?id=${patient.id}" class="btn-modifier btn">
-                        <i class="fas fa-edit"></i> Modifier
-                    </a>
-                    <button class="btn-supprimer btn" onclick="supprimerPatient(${patient.id})">
-                        <i class="fas fa-trash-alt"></i> Supprimer
-                    </button>
-                </td>
-            `;
-            tableBody.appendChild(row);
+            // Correction : Utilisez le bon ID pour cibler le tableau des patients
+            const patientsList = document.getElementById('patientsList');
+
+            try {
+                const usersData = await apiHelper.getItemsByResourceClass(113); 
+                console.log('Utilisateurs récupérés :', usersData);
+
+                const patients = usersData.filter(user => {
+                    const role = user['cabinet_medical:role']?.[0]?.['@value'] || '';
+                    return role.toLowerCase() === 'patient';
+                });
+
+                if (patients.length === 0) {
+                    patientsList.innerHTML = '<tr><td colspan="5" class="no-data">Aucun patient trouvé.</td></tr>';
+                    return;
+                }
+
+                patients.forEach(patient => {
+                    const username = patient['cabinet_medical:username']?.[0]?.['@value'] || 'Non spécifié';
+                    const email = patient['cabinet_medical:mail']?.[0]?.['@value'] || 'Non spécifié';
+                    const telephone = patient['cabinet_medical:telephone']?.[0]?.['@value'] || 'Non spécifié';
+
+                    const row = `
+                        <tr>
+                            <td>${username}</td>
+                            <td>${email}</td>
+                            <td>${telephone}</td>
+                            <td>
+                                <button class="btn btn-modifier" onclick="modifierPatient(${patient['o:id']})">Modifier</button>
+                                <button class="btn btn-supprimer" onclick="supprimerPatient(${patient['o:id']})">Supprimer</button>
+                            </td>
+                        </tr>`;
+                    patientsList.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Erreur lors de la récupération des données :', error);
+                patientsList.innerHTML = '<tr><td colspan="5" class="no-data">Erreur lors de la récupération des données.</td></tr>';
+            }
         });
 
-        // Fonction pour supprimer un patient (simulé)
-        function supprimerPatient(id) {
-            const confirmation = confirm("Êtes-vous sûr de vouloir supprimer ce patient ?");
-            if (confirmation) {
-                alert(`Patient avec l'ID ${id} supprimé.`);
-                // Supprime la ligne du tableau
-                const row = document.querySelector(`button[onclick="supprimerPatient(${id})"]`).parentElement.parentElement;
-                row.remove();
+        // Attacher les fonctions à l'objet window pour qu'elles soient globales
+        window.modifierPatient = function(id) {
+            window.location.href = `./modifier_patient?id=${id}`;
+        };
+
+        window.supprimerPatient = function(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce patient ?')) {
+                alert(`Supprimer le patient avec l'ID ${id}`);
             }
-        }
+        };
     </script>
 </body>
 </html>
