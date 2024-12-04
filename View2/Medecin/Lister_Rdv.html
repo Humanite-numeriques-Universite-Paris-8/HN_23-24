@@ -4,73 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des Rendez-vous</title>
-    
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    
-    <!-- Include jsPDF and jsPDF-AutoTable for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
-
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-image: url('../../images/images1.jpg');
-            background-size: cover;
-            background-position: center;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-        }
-
-        .container {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 1200px;
-            z-index: 1;
-        }
-
-        h2 {
-            text-align: center;
-            color: #007bff;
-            margin-bottom: 20px;
+            background-color: #f4f4f9;
+            padding: 20px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: white;
-            margin-bottom: 20px;
+            margin: 20px 0;
         }
 
         th, td {
-            padding: 12px;
             border: 1px solid #ddd;
+            padding: 10px;
             text-align: left;
         }
 
         th {
             background-color: #007bff;
             color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
         }
 
         .action-buttons button {
@@ -84,122 +41,211 @@
         }
 
         .validate-btn {
-            background-color: #17a2b8;
+            background-color: #28a745;
         }
 
         .cancel-btn {
             background-color: #dc3545;
         }
 
-        .btn-back, .btn-pdf {
-            padding: 10px 20px;
-            border-radius: 5px;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 20px;
+        .check-icon {
+            color: green;
+            font-size: 18px;
+            display: none;
         }
 
-        .btn-back {
-            background-color: #28a745;
-        }
-
-        .btn-pdf {
-            background-color: #007bff;
+        .validated .check-icon {
+            display: inline;
         }
     </style>
 </head>
 <body>
-
-<div class="overlay"></div>
-
-<div class="container">
-    <h2>Liste des Rendez-vous de mes patients</h2>
-
-    <table id="appointmentsTable">
+    <h1>Liste des Rendez-vous</h1>
+    <table>
         <thead>
             <tr>
-                <th>Patient</th>
                 <th>Cabinet</th>
-                <th>Date du Rendez-vous</th>
+                <th>Date et Heure</th>
                 <th>Sécurité Sociale</th>
-                <th>Téléphone</th>
-                <th>Action</th>
+                <th>Numéro de Téléphone</th>
+                <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
-            <!-- Les données seront insérées ici dynamiquement -->
+        <tbody id="appointmentsTable">
+            <!-- Les rendez-vous seront insérés ici -->
         </tbody>
     </table>
 
-    <a href="medecin-dashboard.html" class="btn-back"><i class="fas fa-arrow-left"></i> Retour</a>
-    <button id="download-pdf" class="btn-pdf"><i class="fas fa-file-pdf"></i> Télécharger PDF</button>
-</div>
+    <script>
+        const apiUrl = "http://localhost/Sites/omeka-s/api/";
+        const apiKeyIdentity = "fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK";
+        const apiKeyCredential = "xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9";
 
-<script>
-    // Simulated appointments data
-    let appointments = JSON.parse(localStorage.getItem('appointments')) || [
-        { id: 1, patient: 'Jean Dupont', cabinet: 'Cabinet Paris', date: '2024-12-01 10:00', securiteSociale: '123456789', phone: '0612345678' },
-        { id: 2, patient: 'Marie Durand', cabinet: 'Cabinet Lyon', date: '2024-12-02 14:30', securiteSociale: '987654321', phone: '0712345678' },
-    ];
-
-    // Populate the table with appointments
-    const tableBody = document.querySelector('#appointmentsTable tbody');
-    const renderTable = () => {
-        tableBody.innerHTML = '';
-        appointments.forEach((appointment) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${appointment.patient}</td>
-                <td>${appointment.cabinet}</td>
-                <td>${appointment.date}</td>
-                <td>${appointment.securiteSociale}</td>
-                <td>${appointment.phone}</td>
-                <td class="action-buttons">
-                    <button class="validate-btn" onclick="validateAppointment(${appointment.id})">Valider</button>
-                    <button class="cancel-btn" onclick="cancelAppointment(${appointment.id})">Annuler</button>
-                </td>
-            `;
-            tableBody.appendChild(row);
-        });
-    };
-
-    renderTable();
-
-    // Validate an appointment
-    function validateAppointment(id) {
-        if (confirm('Êtes-vous sûr de vouloir valider ce rendez-vous ?')) {
-            alert(`Rendez-vous ${id} validé.`);
-        }
-    }
-
-    // Cancel an appointment
-    function cancelAppointment(id) {
-        if (confirm('Êtes-vous sûr de vouloir annuler ce rendez-vous ?')) {
-            const index = appointments.findIndex((app) => app.id === id);
-            if (index > -1) {
-                appointments.splice(index, 1);
-                localStorage.setItem('appointments', JSON.stringify(appointments));
-                alert(`Rendez-vous ${id} annulé.`);
-                renderTable(); // Refresh the table without reloading the page
+        // Récupérer les rendez-vous depuis l'API
+        async function fetchAppointments() {
+            try {
+                const response = await fetch(`${apiUrl}items?resource_class_id=112&key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+                if (!response.ok) {
+                    throw new Error("Erreur lors de la récupération des rendez-vous");
+                }
+                const data = await response.json();
+                return data.map(item => ({
+                    id: item["o:id"],
+                    cabinet: item["cabinet_medical:nom"]?.[0]?.["@value"] || "Non spécifié",
+                    appointmentDate: item["cabinet_medical:appointmentDate"]?.[0]?.["@value"] || "Non spécifié",
+                    securiteSociale: item["cabinet_medical:securiteSociale"]?.[0]?.["@value"] || "Non spécifié",
+                    phone: item["cabinet_medical:telephone"]?.[0]?.["@value"] || "Non spécifié",
+                    status: item["cabinet_medical:status"]?.[0]?.["@value"] || "Non spécifié",
+                    isValidated: item["cabinet_medical:isValidated"]?.[0]?.["@value"] || "Non spécifié", // Ajouter le champ isValidated
+                }));
+            } catch (error) {
+                console.error("Erreur lors de la récupération des rendez-vous :", error);
+                return [];
             }
         }
+
+        // Afficher les rendez-vous dans le tableau
+        async function displayAppointments() {
+            const appointments = await fetchAppointments();
+            const tableBody = document.querySelector("#appointmentsTable");
+
+            if (appointments.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Aucun rendez-vous trouvé.</td></tr>`;
+            } else {
+                tableBody.innerHTML = appointments.map((appointment) => {
+                    return `
+                        <tr id="appointment-${appointment.id}" class="${appointment.status === 'validé' ? 'validated' : ''}">
+                            <td>${appointment.cabinet}</td>
+                            <td>${appointment.appointmentDate}</td>
+                            <td>${appointment.securiteSociale}</td>
+                            <td>${appointment.phone}</td>
+                            <td class="action-buttons">
+                                <button class="validate-btn" onclick="validateAppointment(${appointment.id}, '${appointment.status}')">
+                                    ${appointment.status === 'validé' ? 'Validé' : 'Valider'}
+                                    <span class="check-icon"><i class="fas fa-check"></i></span>
+                                </button>
+                                <button class="cancel-btn" onclick="cancelAppointment(${appointment.id})">Annuler</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+            }
+        }
+// Fonction pour récupérer les détails d'un rendez-vous (y compris isValidated)
+async function getAppointmentDetails(id) {
+    try {
+        const response = await fetch(`${apiUrl}items/${id}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+        if (!response.ok) {
+            throw new Error("Erreur lors de la récupération des détails du rendez-vous");
+        }
+        const data = await response.json();
+
+        // Afficher les détails de isValidated
+        const isValidated = data["cabinet_medical:isValidated"] ? data["cabinet_medical:isValidated"][0]["@value"] : "Non spécifié";
+        console.log("isValidated:", isValidated);
+        
+        // Retourner les détails si nécessaire
+        return data;
+    } catch (error) {
+        console.error("Erreur lors de la récupération du rendez-vous :", error);
     }
+}
 
-    // Download appointments as PDF
-    document.getElementById('download-pdf').addEventListener('click', () => {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+async function validateAppointment(id) {
+    const isValidatedValue = 1;  // Valeur pour valider le rendez-vous
 
-        doc.text('Liste des Rendez-vous', 10, 10);
-        doc.autoTable({
-            head: [['Patient', 'Cabinet', 'Date', 'Sécurité Sociale', 'Téléphone']],
-            body: appointments.map((app) => [app.patient, app.cabinet, app.date, app.securiteSociale, app.phone]),
+    try {
+        // 1. Récupérer les données existantes de l'élément (rendez-vous)
+        const getResponse = await fetch(`${apiUrl}items/${id}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+
+        if (!getResponse.ok) {
+            throw new Error("Erreur lors de la récupération de l'élément");
+        }
+
+        const existingData = await getResponse.json();
+        
+        // 2. Créer un objet de mise à jour avec le champ isValidated à 1
+        const updatedAppointment = {
+            "@type": "o:Item",  // Assurez-vous que l'élément est de type Item
+            "o:id": existingData["o:id"],  // Conserver l'ID de l'élément existant
+            "cabinet_medical:isValidated": [
+                { "type": "literal", "property_id": 203, "@value": isValidatedValue }  // Mettre à jour le champ isValidated
+            ]
+        };
+
+        // 3. Conserver les autres champs existants (sans les modifier)
+        Object.keys(existingData).forEach((key) => {
+            if (key !== "cabinet_medical:isValidated") {
+                updatedAppointment[key] = existingData[key];
+            }
         });
 
-        doc.save('rendez-vous.pdf');
-    });
-</script>
+        // 4. Mettre à jour uniquement le champ isValidated avec une requête PUT
+        const putResponse = await fetch(`${apiUrl}items/${id}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`, {
+            method: "PUT",  // Utiliser PUT pour mettre à jour l'élément
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updatedAppointment),
+        });
 
+        if (!putResponse.ok) {
+            throw new Error("Erreur lors de la mise à jour du rendez-vous");
+        }
+
+        const updatedData = await putResponse.json();
+        console.log("Rendez-vous validé avec succès :", updatedData);
+
+        // Mettre à jour l'affichage après la validation
+        displayAppointments();
+
+    } catch (error) {
+        console.error("Erreur lors de la validation du rendez-vous :", error);
+        alert("Erreur lors de la validation du rendez-vous.");
+    }
+}
+
+
+// Récupérer les classes de ressources
+async function getResourceClasses() {
+    const response = await fetch(`${apiUrl}resource_classes?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+    const data = await response.json();
+    console.log(data);
+    // Rechercher l'ID de la resource class correspondant à "appointment"
+}
+
+// Récupérer les templates de ressources
+async function getResourceTemplates() {
+    const response = await fetch(`${apiUrl}resource_templates?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+    const data = await response.json();
+    console.log(data);
+    // Rechercher l'ID du template de ressource correspondant à "appointment"
+}
+
+
+        // Fonction pour annuler un rendez-vous
+        async function cancelAppointment(id) {
+            if (confirm("Êtes-vous sûr de vouloir annuler ce rendez-vous ?")) {
+                try {
+                    const response = await fetch(`${apiUrl}items/${id}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`, {
+                        method: "DELETE",
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Erreur lors de l'annulation du rendez-vous");
+                    }
+
+                    console.log("Rendez-vous annulé avec succès");
+                    displayAppointments(); // Rafraîchir la liste après annulation
+                } catch (error) {
+                    console.error("Erreur lors de l'annulation du rendez-vous :", error);
+                    alert("Erreur lors de l'annulation du rendez-vous.");
+                }
+            }
+        }
+
+        // Initialiser la page en affichant les rendez-vous
+        displayAppointments();
+    </script>
 </body>
 </html>
