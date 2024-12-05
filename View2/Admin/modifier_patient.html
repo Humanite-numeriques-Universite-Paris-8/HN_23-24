@@ -5,182 +5,180 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier Patient</title>
     <style>
-        /* Global styles */
+        /* Vos styles CSS */
         body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: url('../../images/images1.jpg') no-repeat center center fixed;
-            background-size: cover;
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background-color: #f4f4f9;
         }
 
         .container {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
-            max-width: 450px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             width: 100%;
-            text-align: center;
+            max-width: 400px;
         }
 
         h2 {
-            color: #007bff;
-            font-size: 26px;
-            margin-bottom: 20px;
-            font-weight: bold;
+            text-align: center;
         }
 
         label {
             display: block;
-            text-align: left;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: bold;
-            color: #333;
         }
 
-        input[type="text"],
-        input[type="email"] {
+        input {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            box-sizing: border-box;
-            transition: border-color 0.3s ease;
-        }
-
-        input[type="text"]:focus,
-        input[type="email"]:focus {
-            border-color: #007bff;
-            outline: none;
-            box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.25);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            background-color: #28a745;
-            color: white;
+            padding: 10px;
+            background-color: #007bff;
             border: none;
-            border-radius: 6px;
-            font-size: 18px;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #218838;
+            background-color: #0056b3;
         }
 
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 10px;
+        .message {
+            text-align: center;
             margin-bottom: 15px;
-            border: 1px solid #f5c6cb;
-            border-radius: 6px;
         }
 
-        a {
-            color: #007bff;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 20px;
-            font-size: 16px;
+        .message.error {
+            color: red;
         }
 
-        a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-            h2 {
-                font-size: 22px;
-            }
-            input[type="text"], input[type="email"] {
-                font-size: 14px;
-                padding: 10px;
-            }
-            button {
-                padding: 10px;
-                font-size: 16px;
-            }
+        .message.success {
+            color: green;
         }
     </style>
 </head>
 <body>
-
     <div class="container">
         <h2>Modifier Patient</h2>
-
-        <div id="error-message" class="error" style="display: none;"></div>
-
+        <div id="message" class="message" style="display: none;"></div>
         <form id="updateForm">
-            <input type="hidden" id="patient_id" name="patient_id" value="1"> <!-- Remplacez par un ID réel -->
-
-            <label for="patient_name">Nom:</label>
-            <input type="text" id="patient_name" name="patient_name" value="Jean Dupont" required>
+            <label for="patient_name">Nom du Patient:</label>
+            <input type="text" id="patient_name" name="patient_name" required>
 
             <label for="patient_email">Email:</label>
-            <input type="email" id="patient_email" name="patient_email" value="jean.dupont@example.com" required>
+            <input type="email" id="patient_email" name="patient_email" required>
 
             <label for="patient_phone">Numéro de Téléphone:</label>
-            <input type="text" id="patient_phone" name="patient_phone" value="0612345678" required>
+            <input type="tel" id="patient_phone" name="patient_phone" pattern="[0-9]{10}" required>
 
-            <label for="securite_sociale">Sécurité Sociale:</label>
-            <input type="text" id="securite_sociale" name="securite_sociale" maxlength="21" value="1 23 45 67 890 123 45" required>
-
-            <button type="submit">Mettre à Jour</button>
+            <button type="submit">Enregistrer les modifications</button>
         </form>
-
-        <a href="getPatient.html">Retour à la Liste des Patients</a>
     </div>
 
     <script>
-        // Fonction pour formater le numéro de sécurité sociale
-        document.getElementById('securite_sociale').addEventListener('input', function (e) {
-            let value = e.target.value.replace(/\D/g, ''); // Supprime tout sauf les chiffres
-            let formattedValue = '';
+        document.addEventListener('DOMContentLoaded', async () => {
+            const patientId = new URLSearchParams(window.location.search).get('id');
+            const apiBaseUrl = 'http://localhost/Sites/omeka-s/api/';
+            const apiKey = {
+                identity: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+                credential: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
+            };
 
-            // Ajoute des espaces après les groupes spécifiques
-            if (value.length > 0) { formattedValue += value.substring(0, 1) + ' '; }
-            if (value.length > 1) { formattedValue += value.substring(1, 3) + ' '; }
-            if (value.length > 3) { formattedValue += value.substring(3, 5) + ' '; }
-            if (value.length > 5) { formattedValue += value.substring(5, 7) + ' '; }
-            if (value.length > 7) { formattedValue += value.substring(7, 10) + ' '; }
-            if (value.length > 10) { formattedValue += value.substring(10, 13) + ' '; }
-            if (value.length > 13) { formattedValue += value.substring(13, 15); }
+            const messageBox = document.getElementById('message');
 
-            e.target.value = formattedValue.trim(); // Met à jour l'input avec le format appliqué
-        });
+            // Fonction pour afficher un message
+            function showMessage(message, type = 'error') {
+                messageBox.style.display = 'block';
+                messageBox.className = `message ${type}`;
+                messageBox.innerText = message;
+            }
 
-        // Gérer la soumission du formulaire
-        document.getElementById('updateForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const patientName = document.getElementById('patient_name').value;
-            const patientEmail = document.getElementById('patient_email').value;
-            const patientPhone = document.getElementById('patient_phone').value;
-            const securiteSociale = document.getElementById('securite_sociale').value;
+            // Récupérer les données actuelles du patient
+            let patientData;
+            try {
+                const response = await fetch(`${apiBaseUrl}items/${patientId}?key_identity=${apiKey.identity}&key_credential=${apiKey.credential}`);
+                if (!response.ok) throw new Error('Erreur lors de la récupération des données');
+                patientData = await response.json();
 
-            if (!patientName || !patientEmail || !patientPhone || !securiteSociale) {
-                const errorMessage = document.getElementById('error-message');
-                errorMessage.textContent = "Tous les champs sont obligatoires.";
-                errorMessage.style.display = "block";
+                // Pré-remplir les champs avec les données actuelles
+                document.getElementById('patient_name').value = patientData['cabinet_medical:username']?.[0]?.['@value'] || '';
+                document.getElementById('patient_email').value = patientData['cabinet_medical:mail']?.[0]?.['@value'] || '';
+                document.getElementById('patient_phone').value = patientData['cabinet_medical:telephone']?.[0]?.['@value'] || '';
+              
+            } catch (error) {
+                showMessage(error.message);
                 return;
             }
 
-            alert("Les informations du patient ont été mises à jour avec succès !");
-            console.log({ patientName, patientEmail, patientPhone, securiteSociale });
-            window.location.href = "getPatient.html";
+            // Soumission du formulaire
+            document.getElementById('updateForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                // Récupérer les valeurs modifiées
+                const updatedFields = {
+                    "cabinet_medical:username": [
+                        { "type": "literal", "property_id": 205, "@value": document.getElementById('patient_name').value }
+                    ],
+                    "cabinet_medical:mail": [
+                        { "type": "literal", "property_id": 197, "@value": document.getElementById('patient_email').value }
+                    ],
+                    "cabinet_medical:telephone": [
+                        { "type": "literal", "property_id": 208, "@value": document.getElementById('patient_phone').value }
+                    ]
+                };
+
+                // Vérification des données avant l'envoi
+                console.log("Données mises à jour :");
+                console.log(updatedFields);
+
+                // Fusionner les données existantes avec les nouvelles
+                const mergedData = { ...patientData };
+
+                if (updatedFields['cabinet_medical:username']) {
+                    mergedData['cabinet_medical:username'] = updatedFields['cabinet_medical:username'];
+                }
+                if (updatedFields['cabinet_medical:mail']) {
+                    mergedData['cabinet_medical:mail'] = updatedFields['cabinet_medical:mail'];
+                }
+                if (updatedFields['cabinet_medical:telephone']) {
+                    mergedData['cabinet_medical:telephone'] = updatedFields['cabinet_medical:telephone'];
+                }
+
+                // Afficher la structure finale avant d'envoyer
+                console.log("Données envoyées à l'API :");
+                console.log(mergedData);
+
+                try {
+                    const response = await fetch(`${apiBaseUrl}items/${patientId}?key_identity=${apiKey.identity}&key_credential=${apiKey.credential}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(mergedData)
+                    });
+
+                    if (!response.ok) throw new Error('Erreur lors de la mise à jour des données');
+                    showMessage('Modification réussie', 'success');
+
+                    // Redirection vers la page getPatient.html
+                    window.location.href = 'getPatient.html';  // Redirection après succès
+
+                } catch (error) {
+                    showMessage(`Erreur lors de la modification : ${error.message}`);
+                }
+            });
         });
     </script>
 </body>

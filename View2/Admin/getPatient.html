@@ -151,7 +151,6 @@
                 key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
             });
 
-            // Correction : Utilisez le bon ID pour cibler le tableau des patients
             const patientsList = document.getElementById('patientsList');
 
             try {
@@ -174,13 +173,13 @@
                     const telephone = patient['cabinet_medical:telephone']?.[0]?.['@value'] || 'Non spécifié';
 
                     const row = `
-                        <tr>
+                        <tr id="patient-${patient['o:id']}">
                             <td>${username}</td>
                             <td>${email}</td>
                             <td>${telephone}</td>
                             <td>
                                 <button class="btn btn-modifier" onclick="modifierPatient(${patient['o:id']})">Modifier</button>
-                                <button class="btn btn-supprimer" onclick="supprimerPatient(${patient['o:id']})">Supprimer</button>
+                                <button class="btn btn-supprimer" onclick="supprimerPatient(${patient['o:id']}, this.closest('tr'))">Supprimer</button>
                             </td>
                         </tr>`;
                     patientsList.innerHTML += row;
@@ -191,14 +190,46 @@
             }
         });
 
-        // Attacher les fonctions à l'objet window pour qu'elles soient globales
         window.modifierPatient = function(id) {
             window.location.href = `./modifier_patient?id=${id}`;
         };
 
-        window.supprimerPatient = function(id) {
+        window.supprimerPatient = async function(id, rowElement) {
             if (confirm('Êtes-vous sûr de vouloir supprimer ce patient ?')) {
-                alert(`Supprimer le patient avec l'ID ${id}`);
+                try {
+                    // Ajouter une animation de disparition pour une suppression fluide
+                    rowElement.style.transition = 'opacity 0.3s ease';
+                    rowElement.style.opacity = '0';
+        
+                    // Attendre que l'animation se termine avant de supprimer la ligne
+                    setTimeout(async () => {
+                        try {
+                            const response = await fetch(`http://localhost/Sites/omeka-s/api/items/${id}?key_identity=fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK&key_credential=xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9`, {
+                                method: 'DELETE'
+                            });
+        
+                            if (!response.ok) {
+                                console.warn(`Erreur lors de la suppression : ${response.statusText}`);
+                                rowElement.style.opacity = '1';  // Réinitialiser l'opacité si échec
+                                return;
+                            }
+        
+                            console.log('Patient supprimé avec succès.');
+        
+                        } catch (error) {
+                            console.warn('Erreur lors de la suppression :', error);
+                            rowElement.style.opacity = '1';  // Réinitialiser l'opacité si erreur réseau
+                        }
+                    }, 300); // Attendre 300ms pour que l'animation se termine
+        
+                    // La ligne sera supprimée du DOM après l'animation
+                    setTimeout(() => {
+                        rowElement.remove();
+                    }, 60); // Suppression après 600ms (fin de l'animation)
+        
+                } catch (error) {
+                    console.warn('Erreur lors de la suppression :', error);
+                }
             }
         };
     </script>

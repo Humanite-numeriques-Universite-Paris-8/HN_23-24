@@ -5,101 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier Médecin</title>
     <style>
+        /* Vos styles CSS */
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-image: url('../../images/cabinet.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
         }
 
         .container {
-            width: 100%;
-            max-width: 450px;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 30px;
+            background: white;
+            padding: 20px;
             border-radius: 10px;
-            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
-            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
         }
 
         h2 {
-            color: #007bff;
-            font-size: 24px;
-            margin-bottom: 20px;
+            text-align: center;
         }
 
         label {
             display: block;
-            text-align: left;
             margin-bottom: 8px;
             font-weight: bold;
-            color: #333;
         }
 
-        input[type="text"],
-        input[type="email"],
-        input[type="tel"] {
+        input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 16px;
-            box-sizing: border-box;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            background-color: #28a745;
-            color: white;
+            padding: 10px;
+            background-color: #007bff;
             border: none;
-            border-radius: 6px;
-            font-size: 18px;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #218838;
+            background-color: #0056b3;
         }
 
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #f5c6cb;
-            border-radius: 6px;
+        .message {
+            text-align: center;
+            margin-bottom: 15px;
         }
 
-        a {
-            color: #007bff;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 20px;
-            font-size: 16px;
+        .message.error {
+            color: red;
         }
 
-        a:hover {
-            text-decoration: underline;
+        .message.success {
+            color: green;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Modifier Médecin</h2>
-
-        <!-- Zone d'erreur pour afficher les messages -->
-        <div id="error-message" class="error" style="display: none;"></div>
-
+        <div id="message" class="message" style="display: none;"></div>
         <form id="updateForm">
             <label for="medecin_name">Nom du Médecin:</label>
             <input type="text" id="medecin_name" name="medecin_name" required>
@@ -108,53 +83,96 @@
             <input type="email" id="medecin_email" name="medecin_email" required>
 
             <label for="medecin_phone">Numéro de Téléphone:</label>
-            <input type="tel" id="medecin_phone" name="medecin_phone" required>
+            <input type="tel" id="medecin_phone" name="medecin_phone" pattern="[0-9]{10}" required>
 
             <button type="submit">Enregistrer les modifications</button>
         </form>
     </div>
 
-    <script type="module">
-        import { omkApiHelper } from './omkApiHelper.js';
-
+    <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const medecinId = new URLSearchParams(window.location.search).get('id');
-            if (!medecinId) {
-                alert('ID du médecin non trouvé dans l\'URL.');
+            const apiBaseUrl = 'http://localhost/Sites/omeka-s/api/';
+            const apiKey = {
+                identity: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+                credential: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
+            };
+
+            const messageBox = document.getElementById('message');
+
+            // Fonction pour afficher un message
+            function showMessage(message, type = 'error') {
+                messageBox.style.display = 'block';
+                messageBox.className = `message ${type}`;
+                messageBox.innerText = message;
+            }
+
+            // Récupérer les données actuelles du médecin
+            let medecinData;
+            try {
+                const response = await fetch(`${apiBaseUrl}items/${medecinId}?key_identity=${apiKey.identity}&key_credential=${apiKey.credential}`);
+                if (!response.ok) throw new Error('Erreur lors de la récupération des données');
+                medecinData = await response.json();
+
+                // Pré-remplir les champs avec les données actuelles
+                document.getElementById('medecin_name').value = medecinData['cabinet_medical:username']?.[0]?.['@value'] || '';
+                document.getElementById('medecin_email').value = medecinData['cabinet_medical:mail']?.[0]?.['@value'] || '';
+                document.getElementById('medecin_phone').value = medecinData['cabinet_medical:telephone']?.[0]?.['@value'] || '';
+            } catch (error) {
+                showMessage(error.message);
                 return;
             }
 
-            const apiHelper = new omkApiHelper({
-                apiOmk: 'http://localhost/Sites/omeka-s/api/',
-                ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
-                key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
-            });
-
-            try {
-                // Récupération des données du médecin à partir de l'API
-                const medecinData = await apiHelper.getItem(medecinId);
-                document.getElementById('medecin_name').value = medecinData['medecin:nom']?.[0]?.['@value'] || '';
-                document.getElementById('medecin_email').value = medecinData['medecin:email']?.[0]?.['@value'] || '';
-                document.getElementById('medecin_phone').value = medecinData['medecin:telephone']?.[0]?.['@value'] || '';
-            } catch (error) {
-                alert(`Erreur lors du chargement des données du médecin : ${error.message}`);
-            }
-
+            // Soumission du formulaire
             document.getElementById('updateForm').addEventListener('submit', async (event) => {
                 event.preventDefault();
 
-                const updatedData = {
-                    nom: document.getElementById('medecin_name').value,
-                    email: document.getElementById('medecin_email').value,
-                    telephone: document.getElementById('medecin_phone').value
+                // Récupérer les valeurs modifiées
+                const updatedFields = {
+                    "cabinet_medical:username": [
+                        { "type": "literal", "property_id": 205, "@value": document.getElementById('medecin_name').value }
+                    ],
+                    "cabinet_medical:mail": [
+                        { "type": "literal", "property_id": 197, "@value": document.getElementById('medecin_email').value }
+                    ],
+                    "cabinet_medical:telephone": [
+                        { "type": "literal", "property_id": 208, "@value": document.getElementById('medecin_phone').value }
+                    ]
                 };
 
+                // Vérification des données avant l'envoi
+                console.log("Données mises à jour :");
+                console.log(updatedFields);
+
+                // Fusionner les données existantes avec les nouvelles
+                const mergedData = { ...medecinData };
+
+                // Ajouter les nouvelles valeurs mises à jour dans mergedData
+                if (updatedFields['cabinet_medical:username']) {
+                    mergedData['cabinet_medical:username'] = updatedFields['cabinet_medical:username'];
+                }
+                if (updatedFields['cabinet_medical:mail']) {
+                    mergedData['cabinet_medical:mail'] = updatedFields['cabinet_medical:mail'];
+                }
+                if (updatedFields['cabinet_medical:telephone']) {
+                    mergedData['cabinet_medical:telephone'] = updatedFields['cabinet_medical:telephone'];
+                }
+
+                // Afficher la structure finale avant d'envoyer
+                console.log("Données envoyées à l'API :");
+                console.log(mergedData);
+
                 try {
-                    await apiHelper.updateMedecinItem(medecinId, updatedData);
-                    alert('Médecin modifié avec succès !');
-                    window.location.href = './getMedecin.html'; // Redirection vers la liste des médecins
+                    const response = await fetch(`${apiBaseUrl}items/${medecinId}?key_identity=${apiKey.identity}&key_credential=${apiKey.credential}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(mergedData)
+                    });
+
+                    if (!response.ok) throw new Error('Erreur lors de la mise à jour des données');
+                    showMessage('Modification réussie', 'success');
                 } catch (error) {
-                    alert(`Erreur lors de la modification : ${error.message}`);
+                    showMessage(error.message);
                 }
             });
         });
