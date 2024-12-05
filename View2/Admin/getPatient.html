@@ -143,95 +143,106 @@
 
     <script type="module">
         import { omkApiHelper } from './omkApiHelper.js';
-
+    
         document.addEventListener('DOMContentLoaded', async () => {
             const apiHelper = new omkApiHelper({
                 apiOmk: 'http://localhost/Sites/omeka-s/api/',
                 ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
                 key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
             });
-
+    
             const patientsList = document.getElementById('patientsList');
-
+    
             try {
-                const usersData = await apiHelper.getItemsByResourceClass(113); 
-                console.log('Utilisateurs récupérés :', usersData);
-
-                const patients = usersData.filter(user => {
-                    const role = user['cabinet_medical:role']?.[0]?.['@value'] || '';
-                    return role.toLowerCase() === 'patient';
-                });
-
-                if (patients.length === 0) {
-                    patientsList.innerHTML = '<tr><td colspan="5" class="no-data">Aucun patient trouvé.</td></tr>';
+                // Récupérer les données des classes 110 et 113
+                const patientsData110 = await apiHelper.getItemsByResourceClass(110);
+                const patientsData113 = await apiHelper.getItemsByResourceClass(113);
+                console.log('Patients récupérés de la classe 110:', patientsData110);
+                console.log('Patients récupérés de la classe 113:', patientsData113);
+    
+                // Fusionner les deux ensembles de données si nécessaire
+                const allPatients = [...patientsData110, ...patientsData113];
+    
+                if (allPatients.length === 0) {
+                    patientsList.innerHTML = '<tr><td colspan="4">Aucun patient trouvé.</td></tr>';
                     return;
                 }
-
-                patients.forEach(patient => {
-                    const username = patient['cabinet_medical:username']?.[0]?.['@value'] || 'Non spécifié';
-                    const email = patient['cabinet_medical:mail']?.[0]?.['@value'] || 'Non spécifié';
-                    const telephone = patient['cabinet_medical:telephone']?.[0]?.['@value'] || 'Non spécifié';
-
-                    const row = `
-                        <tr id="patient-${patient['o:id']}">
-                            <td>${username}</td>
-                            <td>${email}</td>
-                            <td>${telephone}</td>
-                            <td>
-                                <button class="btn btn-modifier" onclick="modifierPatient(${patient['o:id']})">Modifier</button>
-                                <button class="btn btn-supprimer" onclick="supprimerPatient(${patient['o:id']}, this.closest('tr'))">Supprimer</button>
-                            </td>
-                        </tr>`;
-                    patientsList.innerHTML += row;
+    
+                // Ajouter chaque patient au tableau
+                allPatients.forEach(patient => {
+                    // Affichage des rôles pour débogage
+                    console.log('Rôle du patient :', patient['cabinet_medical:role']);
+                    
+                    // Si c'est un utilisateur de la classe 113, on vérifie s'il a un rôle de "patient"
+                    const isPatient = patient['cabinet_medical:role']?.[0]?.['@value'].toLowerCase() === 'patient';
+                    
+                    // Afficher un message si un patient ne correspond pas au rôle "patient"
+                    if (!isPatient) {
+                        console.log(`Patient ${patient['o:id']} n'a pas le rôle "patient".`);
+                    }
+    
+                    if (isPatient) {
+                        const username = patient['cabinet_medical:username']?.[0]?.['@value'] || 'Non spécifié';
+                        const email = patient['cabinet_medical:mail']?.[0]?.['@value'] || 'Non spécifié';
+                        const telephone = patient['cabinet_medical:telephone']?.[0]?.['@value'] || 'Non spécifié';
+    
+                        const row = `
+                            <tr id="patient-${patient['o:id']}">
+                                <td>${username}</td>
+                                <td>${email}</td>
+                                <td>${telephone}</td>
+                                <td>
+                                    <button class="btn btn-modifier" onclick="modifierPatient(${patient['o:id']})">Modifier</button>
+                                    <button class="btn btn-supprimer" onclick="supprimerPatient(${patient['o:id']}, this.closest('tr'))">Supprimer</button>
+                                </td>
+                            </tr>`;
+                        patientsList.innerHTML += row;
+                    }
                 });
             } catch (error) {
                 console.error('Erreur lors de la récupération des données :', error);
-                patientsList.innerHTML = '<tr><td colspan="5" class="no-data">Erreur lors de la récupération des données.</td></tr>';
+                patientsList.innerHTML = '<tr><td colspan="4">Erreur lors de la récupération des données.</td></tr>';
             }
         });
-
+    
         window.modifierPatient = function(id) {
             window.location.href = `./modifier_patient?id=${id}`;
         };
-
+    
         window.supprimerPatient = async function(id, rowElement) {
             if (confirm('Êtes-vous sûr de vouloir supprimer ce patient ?')) {
                 try {
-                    // Ajouter une animation de disparition pour une suppression fluide
                     rowElement.style.transition = 'opacity 0.3s ease';
                     rowElement.style.opacity = '0';
-        
-                    // Attendre que l'animation se termine avant de supprimer la ligne
+    
                     setTimeout(async () => {
                         try {
                             const response = await fetch(`http://localhost/Sites/omeka-s/api/items/${id}?key_identity=fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK&key_credential=xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9`, {
                                 method: 'DELETE'
                             });
-        
+    
                             if (!response.ok) {
                                 console.warn(`Erreur lors de la suppression : ${response.statusText}`);
-                                rowElement.style.opacity = '1';  // Réinitialiser l'opacité si échec
+                                rowElement.style.opacity = '1';
                                 return;
                             }
-        
+    
                             console.log('Patient supprimé avec succès.');
-        
                         } catch (error) {
                             console.warn('Erreur lors de la suppression :', error);
-                            rowElement.style.opacity = '1';  // Réinitialiser l'opacité si erreur réseau
+                            rowElement.style.opacity = '1';
                         }
-                    }, 300); // Attendre 300ms pour que l'animation se termine
-        
-                    // La ligne sera supprimée du DOM après l'animation
+                    }, 300);
+    
                     setTimeout(() => {
                         rowElement.remove();
-                    }, 60); // Suppression après 600ms (fin de l'animation)
-        
+                    }, 10);
                 } catch (error) {
                     console.warn('Erreur lors de la suppression :', error);
                 }
             }
         };
     </script>
+    
 </body>
 </html>

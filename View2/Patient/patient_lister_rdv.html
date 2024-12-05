@@ -75,6 +75,7 @@
                 <th>Date et Heure</th>
                 <th>Sécurité Sociale</th>
                 <th>Numéro de Téléphone</th>
+                <!-- <th>Email</th> -->
                 <th>Actions</th>
             </tr>
         </thead>
@@ -102,35 +103,94 @@
                     appointmentDate: item["cabinet_medical:appointmentDate"]?.[0]?.["@value"] || "Non spécifié",
                     securiteSociale: item["cabinet_medical:securiteSociale"]?.[0]?.["@value"] || "Non spécifié",
                     phone: item["cabinet_medical:telephone"]?.[0]?.["@value"] || "Non spécifié",
-                    id: item["o:id"] // Pour identifier chaque rendez-vous
+                    id: item["o:id"], // Pour identifier chaque rendez-vous
+                    email: "Non spécifié"  // Par défaut, email à "Non spécifié"
                 }));
             } catch (error) {
-                console.error("Erreur lors de la récupération du rendez-vous :", error);
+                console.error("Erreur lors de la récupération des rendez-vous :", error);
                 alert("Rendez-vous introuvable !");
                 window.location.href = "./patient_lister_rdv.html";
             }
         }
 
-        async function loadAppointments() {
-            const appointments = await fetchAppointments();
-            const tableBody = document.getElementById("appointmentsTable");
+        // Récupérer les emails associés à resource_class_id=113
+        async function fetchEmails() {
+            try {
+                // Requête pour récupérer les éléments avec le resource_class_id de 113
+                const response = await fetch(`${apiUrl}items?resource_class_id=113&key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+                if (!response.ok) {
+                    throw new Error("Erreur lors de la récupération des éléments avec resource_class_id=113");
+                }
 
-            // Insérer les rendez-vous dans le tableau
-            appointments.forEach((appointment, index) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${appointment.cabinet}</td>
-                    <td>${appointment.appointmentDate.replace("T", " ")}</td>
-                    <td>${appointment.securiteSociale}</td>
-                    <td>${appointment.phone}</td>
-                    <td class="actions">
-                        <button class="btn-deplacer" onclick="moveAppointment(${appointment.id})">Déplacer</button>
-                        <button class="btn-annuler" onclick="deleteAppointment(${appointment.id}, ${index})">Annuler</button>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
+                const data = await response.json();
+
+                // Extraire l'email de chaque élément
+                const emails = data.map(item => item["cabinet_medical:mail"]?.[0]?.["@value"]).filter(email => email);
+                return emails; // Retourner la liste des emails trouvés
+            } catch (error) {
+                console.error("Erreur lors de la récupération des emails :", error);
+                alert("Impossible de récupérer les emails pour la resource_class_id=113");
+                return [];
+            }
         }
+
+        async function loadAppointments() {
+            const userEmail = localStorage.getItem('userEmail');
+            if (!userEmail) {
+                alert("Utilisateur non connecté !");
+                window.location.href = "login.html";
+                return;
+            }
+        
+            // Récupérer les rendez-vous et les emails
+            const appointments = await fetchAppointments();
+            const emails = await fetchEmails();
+            const tableBody = document.getElementById("appointmentsTable");
+        
+            // Assurez-vous d'avoir une clé unique pour chaque rendez-vous
+            // Si vous avez un champ d'identifiant dans les données de rendez-vous (par exemple `patientId` ou `userId`), utilisez-le pour associer les emails.
+        
+            // Créer un objet de correspondance entre l'ID du rendez-vous et l'email
+            const emailMapping = {};  // Clé : ID du rendez-vous, Valeur : email
+        
+            // Associez les emails aux rendez-vous en utilisant un identifiant unique
+            appointments.forEach((appointment, index) => {
+                const appointmentId = appointment.id;  // Utilisez l'ID du rendez-vous ou tout autre identifiant unique
+                const email = emails[index] || "Non spécifié";  // Associez les emails à l'index des rendez-vous
+                emailMapping[appointmentId] = email;
+            });
+        
+            // Filtrer les rendez-vous de l'utilisateur connecté
+            const filteredAppointments = appointments.filter(appointment => {
+                const appointmentEmail = emailMapping[appointment.id] || "Non spécifié";  // Trouver l'email lié au rendez-vous
+                return appointmentEmail.toLowerCase() === userEmail.toLowerCase();
+            });
+        
+            // Si aucun rendez-vous trouvé
+            if (filteredAppointments.length === 0) {
+                tableBody.innerHTML = "<tr><td colspan='6'>Aucun rendez-vous trouvé pour cet utilisateur.</td></tr>";
+            } else {
+                // Insérer les rendez-vous filtrés dans le tableau
+                filteredAppointments.forEach((appointment) => {
+                    const appointmentEmail = emailMapping[appointment.id] || "Non spécifié";  // Utiliser l'email associé
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${appointment.cabinet}</td>
+                        <td>${appointment.appointmentDate.replace("T", " ")}</td>
+                        <td>${appointment.securiteSociale}</td>
+                        <td>${appointment.phone}</td>
+                        <!-- <td>${appointmentEmail}</td> -->
+                        <td class="actions">
+                            <button class="btn-deplacer" onclick="moveAppointment(${appointment.id})">Déplacer</button>
+                            <button class="btn-annuler" onclick="deleteAppointment(${appointment.id})">Annuler</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+        
+        
 
         function moveAppointment(id) {
             if (!id) {
@@ -140,24 +200,23 @@
             console.log("Déplacement vers l'ID :", id);
             window.location.href = `changer_rdv.html?id=${id}`;
         }
-        
 
         async function deleteAppointment(id, index) {
             if (confirm("Êtes-vous sûr de vouloir annuler ce rendez-vous ?")) {
                 const row = document.querySelectorAll("#appointmentsTable tr")[index];
                 row.style.opacity = "0.5"; // Réduire l'opacité pendant la suppression
-        
+
                 try {
                     const response = await fetch(`${apiUrl}items/${id}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`, {
                         method: "DELETE"
                     });
-        
+
                     if (!response.ok) {
                         // Gestion silencieuse de l'erreur sans affichage
                         row.remove(); // Supprimer visuellement la ligne même si le serveur retourne une erreur
                         return;
                     }
-        
+
                     // Si la suppression sur le serveur réussit
                     row.remove(); // Supprimer visuellement la ligne du tableau
                     alert("Rendez-vous annulé avec succès !");
@@ -167,8 +226,7 @@
                 }
             }
         }
-        
-        
+
         // Charger les rendez-vous au démarrage
         loadAppointments();
     </script>

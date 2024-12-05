@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -116,10 +115,10 @@
             <label for="phone">Numéro de Téléphone:</label>
             <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required>
 
-            <button style="width:80%" type="submit" class="btn">Mettre à Jour</button>
+            <button type="submit" class="btn">Mettre à Jour</button>
         </form>
 
-        <a style="width:70%" href="medecin-dashboard.html" class="btn">Retour au Tableau de Bord</a>
+        <a href="medecin-dashboard.html" class="btn">Retour au Tableau de Bord</a>
     </div>
 
     <script>
@@ -129,32 +128,46 @@
             credential: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
         };
 
-        const userEmail = 'omeka2@gmail.com'; // Remplacez par l'email de l'utilisateur connecté
-        let medecinData = null;
+        // Récupérer l'email de l'utilisateur connecté depuis localStorage
+        const userEmail = localStorage.getItem('userEmail'); // Vous devez stocker cet email lors de la connexion
 
+        // Fonction pour récupérer les données du médecin
         async function fetchMedecinData() {
             try {
                 const response = await fetch(`${omekaApiUrl}items?key_identity=${apiKey.identity}&key_credential=${apiKey.credential}`);
-                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP : ${response.status}`);
+                }
 
-                medecinData = data.find(item => {
+                const data = await response.json();
+                console.log(data); // Afficher les données pour vérifier la structure
+                
+                // Vérification de la structure des données
+                if (!data || !Array.isArray(data)) {
+                    throw new Error('Données non valides ou vides reçues.');
+                }
+
+                // Chercher le médecin correspondant à l'email
+                const medecinData = data.find(item => {
                     const email = item['cabinet_medical:mail']?.[0]?.['@value'] || '';
                     const role = item['cabinet_medical:role']?.[0]?.['@value'] || '';
                     return email.toLowerCase() === userEmail.toLowerCase() && role.toLowerCase() === 'medecin';
                 });
 
                 if (medecinData) {
-                    document.getElementById('phone').value = medecinData['cabinet_medical:telephone']?.[0]?.['@value'] || '';
+                    return medecinData;
                 } else {
-                    throw new Error('Médecin non trouvé.');
+                    throw new Error('Aucun médecin trouvé avec cet email et ce rôle.');
                 }
             } catch (error) {
                 console.error('Erreur lors de la récupération des données du médecin:', error);
-                showMessage('Erreur lors de la récupération des données.', 'error');
+                showMessage(`Erreur lors de la récupération des données: ${error.message}`, 'error');
             }
         }
 
-        async function updateMedecinPhone(newPhone) {
+        // Fonction pour mettre à jour le téléphone
+        async function updateMedecinPhone(medecinData, newPhone) {
             try {
                 const body = {
                     ...medecinData,
@@ -186,26 +199,45 @@
             }
         }
 
+        // Lorsque le DOM est chargé
         document.addEventListener('DOMContentLoaded', async () => {
-            await fetchMedecinData();
+            if (!userEmail) {
+                showMessage('Utilisateur non connecté. Veuillez vous connecter.', 'error');
+                return;
+            }
 
+            // Récupérer les données du médecin connecté
+            const medecinData = await fetchMedecinData();
+            if (medecinData) {
+                // Afficher le numéro de téléphone actuel
+                document.getElementById('phone').value = medecinData['cabinet_medical:telephone']?.[0]?.['@value'] || '';
+            }
+
+            // Événement lors de la soumission du formulaire
             document.getElementById('updateProfileForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
+
                 const phoneInput = document.getElementById('phone').value.trim();
+
+                if (!phoneInput) {
+                    showMessage('Veuillez saisir un numéro de téléphone.', 'error');
+                    return;
+                }
 
                 if (!/^[0-9]{10}$/.test(phoneInput)) {
                     showMessage('Numéro de téléphone invalide.', 'error');
                     return;
                 }
 
-                const updatedData = await updateMedecinPhone(phoneInput);
-
+                // Mettre à jour le numéro de téléphone du médecin
+                const updatedData = await updateMedecinPhone(medecinData, phoneInput);
                 if (updatedData) {
                     showMessage('Votre profil a été mis à jour avec succès.', 'success');
                 }
             });
         });
 
+        // Fonction pour afficher les messages
         function showMessage(message, type) {
             const feedbackMessage = document.getElementById('feedbackMessage');
             feedbackMessage.textContent = message;
@@ -214,5 +246,4 @@
         }
     </script>
 </body>
-
 </html>
