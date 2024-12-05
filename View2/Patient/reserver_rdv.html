@@ -90,9 +90,6 @@
             <label for="securiteSociale">Numéro de Sécurité Sociale:</label>
             <input type="text" id="securiteSociale" required>
 
-            <label for="phone">Numéro de Téléphone:</label>
-            <input type="tel" id="phone" pattern="[0-9]{10}" required>
-
             <button type="submit" class="btn">Réserver</button>
         </form>
     </div>
@@ -110,8 +107,6 @@
                 this.apiKeyCredential = apiKeyCredential;
             }
 
-
-            
             async fetchItems(resourceClassId) {
                 const url = `${this.apiUrl}items?resource_class_id=${resourceClassId}&key_identity=${this.apiKeyIdentity}&key_credential=${this.apiKeyCredential}`;
                 const response = await fetch(url, {
@@ -162,18 +157,16 @@
             }
 
             // Soumettre le formulaire
-      
             async function submitForm(event) {
                 event.preventDefault();
-            
+
                 const cabinet = document.getElementById("cabinet").value;
                 let appointmentDate = document.getElementById("appointmentDate").value;
                 const securiteSociale = document.getElementById("securiteSociale").value;
-                const phone = document.getElementById("phone").value;
-            
+
                 // Formatter la date : supprimer le "T" et ajouter un espace
                 appointmentDate = appointmentDate.replace("T", " ");
-            
+
                 const requestData = {
                     "@type": "o:Item",
                     "o:resource_class": { "o:id": 112 }, // ID de la classe "Rendez-vous"
@@ -187,16 +180,10 @@
                     "cabinet_medical:securiteSociale": [
                         { "type": "literal", "property_id": 204, "@value": securiteSociale }
                     ],
-                    "cabinet_medical:telephone": [
-                        { "type": "literal", "property_id": 208, "@value": phone }
-                    ],
-                    "cabinet_medical:isValidated": [
-                    { "type": "literal", "property_id": 203, "@value": phone }
-                ],
                 };
-            
+
                 console.log("Données envoyées :", requestData);
-            
+
                 try {
                     const response = await fetch(`${apiUrl}items?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`, {
                         method: "POST",
@@ -204,16 +191,15 @@
                         body: JSON.stringify(requestData),
                     });
                     if (!response.ok) throw new Error("Erreur lors de l'enregistrement");
-            
+
                     alert("Rendez-vous enregistré avec succès !");
                 } catch (error) {
                     console.error("Erreur :", error);
                     alert("Une erreur est survenue lors de l'enregistrement.");
                 }
             }
-            
+
             document.getElementById("reservationForm").addEventListener("submit", submitForm);
-            
         });
     </script>
 </body>

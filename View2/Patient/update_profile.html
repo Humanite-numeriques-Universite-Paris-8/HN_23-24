@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mettre à Jour Mon Profil (Médecin)</title>
+    <title>Mettre à Jour Mon Profil (Patient)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -107,7 +107,7 @@
 
 <body>
     <div class="container">
-        <h2>Mettre à Jour Mon Profil (Médecin)</h2>
+        <h2>Mettre à Jour Mon Profil (Patient)</h2>
 
         <div id="feedbackMessage" style="display: none;"></div>
 
@@ -118,7 +118,7 @@
             <button type="submit" class="btn">Mettre à Jour</button>
         </form>
 
-        <a href="medecin-dashboard.html" class="btn">Retour au Tableau de Bord</a>
+        <a href="patient-dashboard.html" class="btn">Retour au Tableau de Bord</a>
     </div>
 
     <script>
@@ -131,8 +131,8 @@
         // Récupérer l'email de l'utilisateur connecté depuis localStorage
         const userEmail = localStorage.getItem('userEmail'); // Vous devez stocker cet email lors de la connexion
 
-        // Fonction pour récupérer les données du médecin
-        async function fetchMedecinData() {
+        // Fonction pour récupérer les données du patient
+        async function fetchPatientData() {
             try {
                 const response = await fetch(`${omekaApiUrl}items?key_identity=${apiKey.identity}&key_credential=${apiKey.credential}`);
                 
@@ -148,29 +148,29 @@
                     throw new Error('Données non valides ou vides reçues.');
                 }
 
-                // Chercher le médecin correspondant à l'email
-                const medecinData = data.find(item => {
+                // Chercher le patient correspondant à l'email
+                const patientData = data.find(item => {
                     const email = item['cabinet_medical:mail']?.[0]?.['@value'] || '';
                     const role = item['cabinet_medical:role']?.[0]?.['@value'] || '';
-                    return email.toLowerCase() === userEmail.toLowerCase() && role.toLowerCase() === 'medecin';
+                    return email.toLowerCase() === userEmail.toLowerCase() && role.toLowerCase() === 'patient';
                 });
 
-                if (medecinData) {
-                    return medecinData;
+                if (patientData) {
+                    return patientData;
                 } else {
-                    throw new Error('Aucun médecin trouvé avec cet email et ce rôle.');
+                    throw new Error('Aucun patient trouvé avec cet email et ce rôle.');
                 }
             } catch (error) {
-                console.error('Erreur lors de la récupération des données du médecin:', error);
+                console.error('Erreur lors de la récupération des données du patient:', error);
                 showMessage(`Erreur lors de la récupération des données: ${error.message}`, 'error');
             }
         }
 
         // Fonction pour mettre à jour le téléphone
-        async function updateMedecinPhone(medecinData, newPhone) {
+        async function updatePatientPhone(patientData, newPhone) {
             try {
                 const body = {
-                    ...medecinData,
+                    ...patientData,
                     "cabinet_medical:telephone": [
                         {
                             "type": "literal",
@@ -180,7 +180,7 @@
                     ]
                 };
 
-                const response = await fetch(`${omekaApiUrl}items/${medecinData['o:id']}?key_identity=${apiKey.identity}&key_credential=${apiKey.credential}`, {
+                const response = await fetch(`${omekaApiUrl}items/${patientData['o:id']}?key_identity=${apiKey.identity}&key_credential=${apiKey.credential}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -206,11 +206,11 @@
                 return;
             }
 
-            // Récupérer les données du médecin connecté
-            const medecinData = await fetchMedecinData();
-            if (medecinData) {
+            // Récupérer les données du patient connecté
+            const patientData = await fetchPatientData();
+            if (patientData) {
                 // Afficher le numéro de téléphone actuel
-                document.getElementById('phone').value = medecinData['cabinet_medical:telephone']?.[0]?.['@value'] || '';
+                document.getElementById('phone').value = patientData['cabinet_medical:telephone']?.[0]?.['@value'] || '';
             }
 
             // Événement lors de la soumission du formulaire
@@ -229,8 +229,8 @@
                     return;
                 }
 
-                // Mettre à jour le numéro de téléphone du médecin
-                const updatedData = await updateMedecinPhone(medecinData, phoneInput);
+                // Mettre à jour le numéro de téléphone du patient
+                const updatedData = await updatePatientPhone(patientData, phoneInput);
                 if (updatedData) {
                     showMessage('Votre profil a été mis à jour avec succès.', 'success');
                 }
