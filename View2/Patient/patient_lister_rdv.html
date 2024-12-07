@@ -10,60 +10,80 @@
             background-color: #f4f4f9;
             padding: 20px;
         }
-
+        
         h1 {
             text-align: center;
             color: #007bff;
             margin-bottom: 20px;
         }
-
+        
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
+            background-color: #ffffff;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
         }
-
+        
         th, td {
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 15px;
             text-align: left;
+            font-size: 14px;
         }
-
+        
         th {
             background-color: #007bff;
             color: white;
+            text-transform: uppercase;
         }
-
+        
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-
+        
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .actions {
+            text-align: center; /* Centre les boutons dans la cellule */
+        }
+        
         .actions button {
-            padding: 6px 10px;
+            padding: 10px 15px;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
-            margin-right: 5px;
+            margin: 5px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
-
-        .btn-annuler {
-            background-color: #dc3545;
-            color: white;
-        }
-
+        
         .btn-deplacer {
             background-color: #28a745;
             color: white;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
         }
-
-        .btn-annuler:hover {
-            background-color: #b02a37;
-        }
-
+        
         .btn-deplacer:hover {
             background-color: #218838;
+            transform: scale(1.05);
         }
+        
+        .btn-annuler {
+            background-color: #dc3545;
+            color: white;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-annuler:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
+        
     </style>
 </head>
 <body>
@@ -89,163 +109,133 @@
         const apiKeyIdentity = "fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK";
         const apiKeyCredential = "xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9";
 
-        // Récupérer les rendez-vous
-        async function fetchAppointments() {
-            try {
-                const response = await fetch(`${apiUrl}items?resource_class_id=112&key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
-                if (!response.ok) {
-                    throw new Error("Erreur lors de la récupération des rendez-vous");
-                }
+        const userEmail = localStorage.getItem('userEmail');
+        if (!userEmail) {
+            alert("Vous devez être connecté pour voir vos rendez-vous.");
+            window.location.href = 'login.html';
+        }
+    
+        document.addEventListener("DOMContentLoaded", function () {
+            loadAppointments();
+        });
 
-                const data = await response.json();
-                return data.map(item => ({
-                    cabinet: item["cabinet_medical:nom"]?.[0]?.["@value"] || "Non spécifié",
-                    appointmentDate: item["cabinet_medical:appointmentDate"]?.[0]?.["@value"] || "Non spécifié",
-                    securiteSociale: item["cabinet_medical:securiteSociale"]?.[0]?.["@value"] || "Non spécifié",
-                    id: item["o:id"], // Pour identifier chaque rendez-vous
-                    email: "Non spécifié"  // Par défaut, email à "Non spécifié"
-                }));
+        async function fetchUserPhoneByEmail(email) {
+            try {
+                const response = await fetch(`${apiUrl}items?resource_template_id=7`, {
+                    headers: {
+                        "Identity": apiKeyIdentity,
+                        "Credential": apiKeyCredential
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error("Erreur lors de la récupération des utilisateurs");
+                }
+                const users = await response.json();
+                const user = users.find(user =>
+                    user["cabinet_medical:mail"]?.[0]?.["@value"]?.toLowerCase() === email.toLowerCase()
+                );
+                return user
+                    ? user["cabinet_medical:telephone"]?.[0]?.["@value"] || "Non disponible"
+                    : "Non disponible";
+            } catch (error) {
+                console.error("Erreur lors de la récupération du numéro de téléphone :", error);
+                return "Non disponible";
+            }
+        }
+
+        async function loadAppointments() {
+            try {
+                const response = await fetch(`${apiUrl}items?resource_template_id=12`, {
+                    headers: {
+                        "Identity": apiKeyIdentity,
+                        "Credential": apiKeyCredential
+                    }
+                });
+                const appointments = await response.json();
+                const appointmentsTable = document.getElementById("appointmentsTable");
+                appointmentsTable.innerHTML = ""; // Réinitialiser le tableau
+
+                const userPhone = await fetchUserPhoneByEmail(userEmail);
+
+                for (const appointment of appointments) {
+                    const appointmentEmail = appointment["cabinet_medical:mail"]?.[0]?.["@value"];
+
+                    if (appointmentEmail === userEmail) {
+                        const row = document.createElement("tr");
+
+                        const cabinetCell = document.createElement("td");
+                        cabinetCell.textContent = appointment["cabinet_medical:nom"]?.[0]?.["@value"] || "Non spécifié";
+                        row.appendChild(cabinetCell);
+
+                        const dateCell = document.createElement("td");
+                        dateCell.textContent = appointment["cabinet_medical:appointmentDate"]?.[0]?.["@value"] || "Non spécifié";
+                        row.appendChild(dateCell);
+
+                        const securiteSocialeCell = document.createElement("td");
+                        securiteSocialeCell.textContent = appointment["cabinet_medical:securiteSociale"]?.[0]?.["@value"] || "Non spécifié";
+                        row.appendChild(securiteSocialeCell);
+
+                        const phoneCell = document.createElement("td");
+                        phoneCell.textContent = userPhone;
+                        row.appendChild(phoneCell);
+
+                        const emailCell = document.createElement("td");
+                        emailCell.textContent = appointmentEmail || "Non spécifié";
+                        row.appendChild(emailCell);
+
+                        const actionsCell = document.createElement("td");
+                        actionsCell.classList.add("actions");
+                        const cancelButton = document.createElement("button");
+                        cancelButton.textContent = "Annuler";
+                        cancelButton.classList.add("btn-annuler");
+                        cancelButton.addEventListener("click", () => deleteAppointment(row, appointment["o:id"]));
+
+                        const rescheduleButton = document.createElement("button");
+                        rescheduleButton.textContent = "Déplacer";
+                        rescheduleButton.classList.add("btn-deplacer");
+                        rescheduleButton.addEventListener("click", () => moveAppointment(appointment["o:id"]));
+
+                        actionsCell.appendChild(rescheduleButton);
+                        actionsCell.appendChild(cancelButton);
+                        row.appendChild(actionsCell);
+
+                        appointmentsTable.appendChild(row);
+                    }
+                }
             } catch (error) {
                 console.error("Erreur lors de la récupération des rendez-vous :", error);
-                alert("Rendez-vous introuvable !");
-                window.location.href = "./patient_lister_rdv.html";
             }
         }
 
-        // Récupérer les emails associés à resource_class_id=113
-        async function fetchEmails() {
-            try {
-                const response = await fetch(`${apiUrl}items?resource_class_id=113&key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
-                if (!response.ok) {
-                    throw new Error("Erreur lors de la récupération des éléments avec resource_class_id=113");
-                }
-
-                const data = await response.json();
-                const emails = data.map(item => item["cabinet_medical:mail"]?.[0]?.["@value"]).filter(email => email);
-                return emails; // Retourner la liste des emails trouvés
-            } catch (error) {
-                console.error("Erreur lors de la récupération des emails :", error);
-                alert("Impossible de récupérer les emails pour la resource_class_id=113");
-                return [];
-            }
-        }
-
-        // Fonction pour récupérer le numéro de téléphone de l'utilisateur connecté
-        async function fetchUserData(userEmail) {
-            try {
-                const response = await fetch(`${apiUrl}items?resource_class_id=113&key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
-                if (!response.ok) {
-                    throw new Error("Erreur lors de la récupération des informations de l'utilisateur");
-                }
-
-                const data = await response.json();
-                const user = data.find(item => item["cabinet_medical:mail"]?.[0]?.["@value"].toLowerCase() === userEmail.toLowerCase());
-
-                if (user) {
-                    const phone = user["cabinet_medical:telephone"]?.[0]?.["@value"] || "Non spécifié";
-                    return phone;
-                }
-                return "Non spécifié";
-            } catch (error) {
-                console.error("Erreur lors de la récupération des informations de l'utilisateur :", error);
-                alert("Impossible de récupérer les informations de l'utilisateur");
-                return "Non spécifié";
-            }
-        }
-
-        // Charger les rendez-vous
-        async function loadAppointments() {
-            const userEmail = localStorage.getItem('userEmail');
-            if (!userEmail) {
-                alert("Utilisateur non connecté !");
-                window.location.href = "login.html";
-                return;
-            }
-
-            const appointments = await fetchAppointments();
-            const emails = await fetchEmails();
-            const tableBody = document.getElementById("appointmentsTable");
-
-            const emailMapping = {};  // Clé : ID du rendez-vous, Valeur : email
-
-            // Associer les emails aux rendez-vous
-            appointments.forEach((appointment, index) => {
-                const appointmentId = appointment.id;
-                const email = emails[index] || "Non spécifié";
-                emailMapping[appointmentId] = email;
-            });
-
-            // Filtrer les rendez-vous de l'utilisateur connecté
-            const filteredAppointments = appointments.filter(appointment => {
-                const appointmentEmail = emailMapping[appointment.id] || "Non spécifié";
-                return appointmentEmail.toLowerCase() === userEmail.toLowerCase();
-            });
-
-            // Si aucun rendez-vous trouvé
-            if (filteredAppointments.length === 0) {
-                tableBody.innerHTML = "<tr><td colspan='6'>Aucun rendez-vous trouvé pour cet utilisateur.</td></tr>";
-            } else {
-                // Insérer les rendez-vous filtrés dans le tableau
-                for (const appointment of filteredAppointments) {
-                    const appointmentEmail = emailMapping[appointment.id] || "Non spécifié";
-                    const phone = await fetchUserData(userEmail); // Récupérer le téléphone
-
-                    const row = document.createElement("tr");
-                    row.setAttribute("data-id", appointment.id); // Ajouter l'attribut data-id
-                    row.innerHTML = `
-                        <td>${appointment.cabinet}</td>
-                        <td>${appointment.appointmentDate.replace("T", " ")}</td>
-                        <td>${appointment.securiteSociale}</td>
-                        <td>${phone}</td> <!-- Affichage du numéro de téléphone -->
-                        <td>${appointmentEmail}</td>
-                        <td class="actions">
-                            <button class="btn-deplacer" onclick="moveAppointment(${appointment.id})">Déplacer</button>
-                            <button class="btn-annuler" onclick="deleteAppointment(this.closest('tr'))">Annuler</button> <!-- Passer la ligne -->
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                }
-            }
-        }
-
-        // Fonction pour déplacer le rendez-vous
         function moveAppointment(id) {
             if (!id) {
                 alert("ID du rendez-vous manquant !");
                 return;
             }
-            console.log("Déplacement vers l'ID :", id);
             window.location.href = `changer_rdv.html?id=${id}`;
         }
 
-        // Fonction pour annuler le rendez-vous
-        async function deleteAppointment(row) {
+        async function deleteAppointment(row, id) {
             if (confirm("Êtes-vous sûr de vouloir annuler ce rendez-vous ?")) {
-                row.style.opacity = "0.5"; // Réduire l'opacité pendant la suppression
-
-                const id = row.getAttribute("data-id"); // Récupérer l'ID du rendez-vous à partir de data-id
+                row.style.opacity = "0.5";
+                row.style.pointerEvents = "none";
 
                 try {
                     const response = await fetch(`${apiUrl}items/${id}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`, {
-                        method: "DELETE"
+                        method: "DELETE",
                     });
 
-                    if (!response.ok) {
-                        row.remove(); // Supprimer visuellement la ligne même si le serveur retourne une erreur
-                        return;
+                    if (response.ok) {
+                        row.remove();
                     }
-
-                    row.remove(); // Supprimer visuellement la ligne du tableau
-                    alert("Rendez-vous annulé avec succès !");
                 } catch (error) {
-                    row.remove(); // Supprimer visuellement la ligne en cas d'erreur
-                    alert("Erreur lors de l'annulation du rendez-vous");
+                    console.warn("Erreur lors de la suppression :", error);
+                } finally {
+                    row.style.opacity = "1";
+                    row.style.pointerEvents = "auto";
                 }
             }
         }
-
-        // Charger les rendez-vous au démarrage
-        loadAppointments();
     </script>
 </body>
 </html>

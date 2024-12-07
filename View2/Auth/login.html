@@ -125,70 +125,62 @@
     </div>
 
     <script type="module">
-      document.getElementById('loginForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value.trim();
-
-        // Vérifier si l'email est celui de l'administrateur
-        const adminEmail = 'a.hef2000@gmail.com'; // Remplacez par l'email réel de l'admin
-        if (email.toLowerCase() === adminEmail.toLowerCase()) {
-            alert('Bienvenue, Administrateur !');
-            window.location.href = '../Admin/admin_dashboard.html';
-            return;
-        }
-
-        if (!email || !password) {
-            document.getElementById('error-message').innerText = 'Tous les champs doivent être remplis.';
-            return;
-        }
-
-        try {
-            const response = await fetch('http://localhost/sites/omeka-s/api/items?key_identity=fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK&key_credential=xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9');
-            const data = await response.json();
-
-            if (response.ok) {
-                console.log('Données API récupérées :', data);
-
-                // Rechercher l'utilisateur correspondant
-                const user = data.find(item => {
-                    const userEmail = item['cabinet_medical:mail']?.[0]?.['@value']?.trim().toLowerCase();
-                    const userPassword = item['cabinet_medical:password']?.[0]?.['@value'];
-                    return userEmail === email.toLowerCase() && userPassword === password;
-                });
-
-                if (user) {
-                    // Sauvegarder l'email de l'utilisateur connecté
-                    localStorage.setItem('userEmail', email);
-
-                    const role = user['cabinet_medical:role']?.[0]?.['@value']?.toLowerCase();
-
-                    if (role === 'admin') {
-                        alert('Bienvenue, Administrateur !');
-                        window.location.href = '../Admin/admin_dashboard.html';
-                    } else if (role === 'medecin') {
-                        alert('Bienvenue, Médecin !');
-                        window.location.href = '../Medecin/medecin-dashboard.html';
-                    } else if (role === 'patient') {
-                        alert('Bienvenue, Patient !');
-                        window.location.href = '../Patient/patient-dashboard.html';
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+          /*  const adminEmail = 'a.hef2000@gmail.com'; 
+            if (email.toLowerCase() === adminEmail.toLowerCase()) {
+                alert('Bienvenue, Administrateur !');
+                window.location.href = '../Admin/admin_dashboard.html';
+                return;
+            }*/
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+    
+            // Vérification de l'email et du mot de passe
+            if (!email || !password) {
+                document.getElementById('error-message').innerText = 'Tous les champs doivent être remplis.';
+                return;
+            }
+    
+            try {
+                const response = await fetch('http://localhost/sites/omeka-s/api/items?key_identity=fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK&key_credential=xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9');
+                const data = await response.json();
+    
+                if (response.ok) {
+                    const user = data.find(item => {
+                        const userEmail = item['cabinet_medical:mail']?.[0]?.['@value']?.trim().toLowerCase();
+                        const userPassword = item['cabinet_medical:password']?.[0]?.['@value'];
+                        return userEmail === email.toLowerCase() && userPassword === password;
+                    });
+    
+                    if (user) {
+                        // Enregistrer l'email de l'utilisateur connecté dans le localStorage
+                        localStorage.setItem('userEmail', email);
+    
+                        // Vérifier le rôle et rediriger
+                        const role = user['cabinet_medical:role']?.[0]?.['@value']?.toLowerCase();
+                        if (role === 'admin') {
+                            alert('Bienvenue, Administrateur !');
+                            window.location.href = '../Admin/admin_dashboard.html';
+                        } else if (role === 'medecin') {
+                            alert('Bienvenue, Médecin !');
+                            window.location.href = '../Medecin/medecin-dashboard.html';
+                        } else if (role === 'patient') {
+                            alert('Bienvenue, Patient !');
+                            window.location.href = '../Patient/patient-dashboard.html';
+                        }
                     } else {
-                        document.getElementById('error-message').innerText = 'Rôle inconnu. Contactez l\'administrateur.';
+                        document.getElementById('error-message').innerText = 'Identifiant ou mot de passe incorrect.';
                     }
                 } else {
-                    document.getElementById('error-message').innerText = 'Identifiant ou mot de passe incorrect.';
+                    throw new Error('Impossible de récupérer les utilisateurs.');
                 }
-            } else {
-                throw new Error('Impossible de récupérer les utilisateurs.');
+            } catch (error) {
+                document.getElementById('error-message').innerText = 'Une erreur est survenue. Veuillez réessayer.';
             }
-        } catch (error) {
-            console.error('Erreur lors de la connexion :', error);
-            document.getElementById('error-message').innerText = 'Une erreur est survenue. Veuillez réessayer.';
-        }
-    });
-
+        });
     </script>
+    
 
 </body>
 </html>
