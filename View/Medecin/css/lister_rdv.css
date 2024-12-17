@@ -1,0 +1,115 @@
+/* General Table Settings */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Merge borders for a cleaner look */
+    margin-top: 20px;
+    background-color: white; /* Ensure the table has a white background */
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px 15px; /* Balanced padding for better readability */
+    text-align: center; /* Center-align all cells */
+    vertical-align: middle; /* Align text vertically in the middle */
+    word-wrap: break-word; /* Ensure content wraps within cells */
+}
+
+/* Header Styling */
+th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    color: #333;
+    border-bottom: 2px solid #ddd; /* Thicker border for header */
+}
+
+/* Action buttons */
+.action-buttons {
+    display: flex;
+    gap: 10px; /* Space between action buttons */
+    justify-content: center; /* Center the action buttons */
+}
+
+.validate-btn, .cancel-btn {
+    padding: 8px 12px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    color: white;
+    border: 1px solid transparent;
+    transition: background-color 0.3s ease;
+}
+
+.validate-btn {
+    background-color: teal;
+    border-color: teal;
+}
+
+.cancel-btn {
+    background-color: red;
+    border-color: red;
+}
+
+/* Hover effect on buttons */
+.validate-btn:hover, .cancel-btn:hover {
+    opacity: 0.9; /* Slight hover effect */
+}
+
+/* Back button styling */
+.btn-back {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    margin-top: 20px;
+    border: 1px solid #28a745;
+}
+
+.btn-back:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+/* PDF Button styling */
+.btn-pdf {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    margin-top: 20px;
+    border: 1px solid #007bff;
+}
+
+.btn-pdf:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Background for the container */
+.container {
+    width: 100%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white; /* White background for the container */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+    text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    th, td {
+        font-size: 14px; /* Adjust font size for smaller screens */
+        padding: 10px; /* Adjust padding for mobile */
+    }
+
+    .btn-back, .btn-pdf {
+        padding: 8px 12px; /* Reduce padding for smaller screens */
+    }
+
+    .action-buttons {
+        flex-direction: column; /* Stack action buttons vertically */
+        gap: 10px; /* Add space between buttons */
+    }
+}

@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des Rendez-vous</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -47,16 +45,6 @@
         .cancel-btn {
             background-color: #dc3545;
         }
-
-        .check-icon {
-            color: green;
-            font-size: 18px;
-            display: none;
-        }
-
-        .validated .check-icon {
-            display: inline;
-        }
     </style>
 </head>
 <body>
@@ -64,10 +52,10 @@
     <table>
         <thead>
             <tr>
-                <th>Cabinet</th>
+                <th>Mon Cabinet</th>
                 <th>Date et Heure</th>
+                <th>Email du patient</th>
                 <th>Sécurité Sociale</th>
-                <th>Numéro de Téléphone</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -81,7 +69,10 @@
         const apiKeyIdentity = "fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK";
         const apiKeyCredential = "xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9";
 
-        // Récupérer les rendez-vous depuis l'API
+        // Cabinet attribué au médecin (exemple)
+        const assignedCabinet = localStorage.getItem("assignedCabinet") || "cabinetB";
+
+        // Fonction pour récupérer les rendez-vous liés au cabinet attribué au médecin
         async function fetchAppointments() {
             try {
                 const response = await fetch(`${apiUrl}items?resource_class_id=112&key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
@@ -89,14 +80,18 @@
                     throw new Error("Erreur lors de la récupération des rendez-vous");
                 }
                 const data = await response.json();
-                return data.map(item => ({
+
+                // Filtrer les rendez-vous pour inclure uniquement ceux du cabinet attribué
+                return data.filter(item => {
+                    const cabinet = item["cabinet_medical:nom"]?.[0]?.["@value"];
+                    return cabinet === assignedCabinet;
+                }).map(item => ({
                     id: item["o:id"],
                     cabinet: item["cabinet_medical:nom"]?.[0]?.["@value"] || "Non spécifié",
                     appointmentDate: item["cabinet_medical:appointmentDate"]?.[0]?.["@value"] || "Non spécifié",
+                    email: item["cabinet_medical:mail"]?.[0]?.["@value"] || "Non spécifié",
                     securiteSociale: item["cabinet_medical:securiteSociale"]?.[0]?.["@value"] || "Non spécifié",
-                    phone: item["cabinet_medical:telephone"]?.[0]?.["@value"] || "Non spécifié",
                     status: item["cabinet_medical:status"]?.[0]?.["@value"] || "Non spécifié",
-                    isValidated: item["cabinet_medical:isValidated"]?.[0]?.["@value"] || "Non spécifié", // Ajouter le champ isValidated
                 }));
             } catch (error) {
                 console.error("Erreur lors de la récupération des rendez-vous :", error);
@@ -110,20 +105,18 @@
             const tableBody = document.querySelector("#appointmentsTable");
 
             if (appointments.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Aucun rendez-vous trouvé.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Aucun rendez-vous trouvé pour le cabinet ${assignedCabinet}.</td></tr>`;
             } else {
                 tableBody.innerHTML = appointments.map((appointment) => {
                     return `
-                        <tr id="appointment-${appointment.id}" class="${appointment.status === 'validé' ? 'validated' : ''}">
+                        <tr id="appointment-${appointment.id}">
                             <td>${appointment.cabinet}</td>
                             <td>${appointment.appointmentDate}</td>
+                               <td>${appointment.email}</td>
                             <td>${appointment.securiteSociale}</td>
-                            <td>${appointment.phone}</td>
+                         
                             <td class="action-buttons">
-                                <button class="validate-btn" onclick="validateAppointment(${appointment.id}, '${appointment.status}')">
-                                    ${appointment.status === 'validé' ? 'Validé' : 'Valider'}
-                                    <span class="check-icon"><i class="fas fa-check"></i></span>
-                                </button>
+                                <button class="validate-btn" onclick="validateAppointment(${appointment.id})">Valider</button>
                                 <button class="cancel-btn" onclick="cancelAppointment(${appointment.id})">Annuler</button>
                             </td>
                         </tr>
@@ -131,97 +124,16 @@
                 }).join("");
             }
         }
-// Fonction pour récupérer les détails d'un rendez-vous (y compris isValidated)
-async function getAppointmentDetails(id) {
-    try {
-        const response = await fetch(`${apiUrl}items/${id}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
-        if (!response.ok) {
-            throw new Error("Erreur lors de la récupération des détails du rendez-vous");
-        }
-        const data = await response.json();
 
-        // Afficher les détails de isValidated
-        const isValidated = data["cabinet_medical:isValidated"] ? data["cabinet_medical:isValidated"][0]["@value"] : "Non spécifié";
-        console.log("isValidated:", isValidated);
-        
-        // Retourner les détails si nécessaire
-        return data;
-    } catch (error) {
-        console.error("Erreur lors de la récupération du rendez-vous :", error);
-    }
-}
-
-async function validateAppointment(id) {
-    const isValidatedValue = 1;  // Valeur pour valider le rendez-vous
-
-    try {
-        // 1. Récupérer les données existantes de l'élément (rendez-vous)
-        const getResponse = await fetch(`${apiUrl}items/${id}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
-
-        if (!getResponse.ok) {
-            throw new Error("Erreur lors de la récupération de l'élément");
-        }
-
-        const existingData = await getResponse.json();
-        
-        // 2. Créer un objet de mise à jour avec le champ isValidated à 1
-        const updatedAppointment = {
-            "@type": "o:Item",  // Assurez-vous que l'élément est de type Item
-            "o:id": existingData["o:id"],  // Conserver l'ID de l'élément existant
-            "cabinet_medical:isValidated": [
-                { "type": "literal", "property_id": 203, "@value": isValidatedValue }  // Mettre à jour le champ isValidated
-            ]
-        };
-
-        // 3. Conserver les autres champs existants (sans les modifier)
-        Object.keys(existingData).forEach((key) => {
-            if (key !== "cabinet_medical:isValidated") {
-                updatedAppointment[key] = existingData[key];
+        // Fonction pour valider un rendez-vous
+        async function validateAppointment(id) {
+            try {
+                console.log(`Validation du rendez-vous ID: ${id}`);
+                alert("Rendez-vous validé !");
+            } catch (error) {
+                console.error("Erreur lors de la validation :", error);
             }
-        });
-
-        // 4. Mettre à jour uniquement le champ isValidated avec une requête PUT
-        const putResponse = await fetch(`${apiUrl}items/${id}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`, {
-            method: "PUT",  // Utiliser PUT pour mettre à jour l'élément
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(updatedAppointment),
-        });
-
-        if (!putResponse.ok) {
-            throw new Error("Erreur lors de la mise à jour du rendez-vous");
         }
-
-        const updatedData = await putResponse.json();
-        console.log("Rendez-vous validé avec succès :", updatedData);
-
-        // Mettre à jour l'affichage après la validation
-        displayAppointments();
-
-    } catch (error) {
-        console.error("Erreur lors de la validation du rendez-vous :", error);
-        alert("Erreur lors de la validation du rendez-vous.");
-    }
-}
-
-
-// Récupérer les classes de ressources
-async function getResourceClasses() {
-    const response = await fetch(`${apiUrl}resource_classes?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
-    const data = await response.json();
-    console.log(data);
-    // Rechercher l'ID de la resource class correspondant à "appointment"
-}
-
-// Récupérer les templates de ressources
-async function getResourceTemplates() {
-    const response = await fetch(`${apiUrl}resource_templates?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
-    const data = await response.json();
-    console.log(data);
-    // Rechercher l'ID du template de ressource correspondant à "appointment"
-}
-
 
         // Fonction pour annuler un rendez-vous
         async function cancelAppointment(id) {

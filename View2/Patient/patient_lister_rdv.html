@@ -94,7 +94,7 @@
                 <th>Cabinet</th>
                 <th>Date et Heure</th>
                 <th>Sécurité Sociale</th>
-                <th>Numéro de Téléphone</th>
+                <!-- <th>Numéro de Téléphone</th> -->
                 <th>Email</th>
                 <th>Actions</th>
             </tr>
@@ -175,9 +175,9 @@
                         securiteSocialeCell.textContent = appointment["cabinet_medical:securiteSociale"]?.[0]?.["@value"] || "Non spécifié";
                         row.appendChild(securiteSocialeCell);
 
-                        const phoneCell = document.createElement("td");
+                        /*const phoneCell = document.createElement("td");
                         phoneCell.textContent = userPhone;
-                        row.appendChild(phoneCell);
+                        row.appendChild(phoneCell);*/
 
                         const emailCell = document.createElement("td");
                         emailCell.textContent = appointmentEmail || "Non spécifié";
