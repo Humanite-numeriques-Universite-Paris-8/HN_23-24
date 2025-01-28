@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mettre à Jour Mon Profil (Admin)</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-image: url('../../images/images1.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+            margin: 20px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #007bff;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            text-align: left;
+        }
+
+        input[type="tel"] {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="tel"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button.btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 14px 0;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            font-weight: 500;
+        }
+
+        button.btn:hover {
+            background-color: #0056b3;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .error, .success {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        a.btn {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 14px 0;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 6px;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            font-weight: 500;
+        }
+
+        a.btn:hover {
+            background-color: #218838;
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            input[type="tel"], button.btn, a.btn {
+                font-size: 14px;
+                padding: 12px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Mettre à Jour Mon Profil (Admin)</h2>
+        
+        <!-- Messages de succès ou d'erreur -->
+        <div id="error-message" class="error" style="display: none;"></div>
+        <div id="success-message" class="success" style="display: none;"></div>
+
+        <!-- Formulaire -->
+        <form id="update-profile-form">
+            <label for="phone">Numéro de Téléphone:</label>
+            <input type="tel" id="phone" pattern="[0-9]{10}" placeholder="Exemple: 0612345678" required>
+            <button type="submit" class="btn">Mettre à Jour</button>
+        </form>
+
+        <a href="./admin_dashboard.html" class="btn">Retour au Tableau de Bord</a>
+    </div>
+
+    <script type="module">
+        const omekaApiUrl = 'http://localhost/Sites/omeka-s/api/';
+        const apiKey = {
+            identity: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+            credential: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
+        };
+    
+        let adminData = null;
+    
+        // Récupérer les données de l'admin
+        async function fetchAdminData() {
+            try {
+                const response = await fetch(`${omekaApiUrl}items?key_identity=${apiKey.identity}&key_credential=${apiKey.credential}`);
+                const data = await response.json();
+    
+                adminData = data.find(item => {
+                    const role = item['cabinet_medical:role']?.[0]?.['@value'] || '';
+                    return role.toLowerCase() === 'admin';
+                });
+    
+                if (!adminData) throw new Error('Aucun utilisateur admin trouvé.');
+            } catch (error) {
+                console.error('Erreur lors de la récupération des données Admin:', error);
+                showMessage('Erreur lors de la récupération des données.', 'error');
+            }
+        }
+    
+        // Mettre à jour les données complètes de l'admin avec PUT
+        async function updateAdminPhone(newPhone) {
+            try {
+                // Inclure toutes les données existantes et mettre à jour uniquement le téléphone
+                adminData['cabinet_medical:telephone'] = [
+                    {
+                        "type": "literal",
+                        "property_id": 208, // ID de la propriété téléphone
+                        "@value": newPhone
+                    }
+                ];
+    
+                const response = await fetch(`${omekaApiUrl}items/${adminData['o:id']}?key_identity=${apiKey.identity}&key_credential=${apiKey.credential}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(adminData) // Envoyer toutes les données mises à jour
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la mise à jour du téléphone.');
+                }
+    
+                return await response.json();
+            } catch (error) {
+                console.error('Erreur lors de la mise à jour des données:', error);
+            }
+        }
+    
+        document.addEventListener('DOMContentLoaded', async () => {
+            await fetchAdminData();
+    
+            if (adminData) {
+                const phoneInput = document.getElementById('phone');
+                phoneInput.value = adminData['cabinet_medical:telephone']?.[0]?.['@value'] || '';
+    
+                document.getElementById('update-profile-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const newPhone = phoneInput.value.trim();
+    
+                    if (!/^[0-9]{10}$/.test(newPhone)) {
+                        showMessage('Numéro de téléphone invalide.', 'error');
+                        return;
+                    }
+    
+                    const updatedData = await updateAdminPhone(newPhone);
+    
+                    if (updatedData) {
+                        showMessage('Votre profil a été mis à jour avec succès.', 'success');
+                    } else {
+                        showMessage('Une erreur est survenue lors de la mise à jour.', 'error');
+                    }
+                });
+            }
+        });
+    
+        // Afficher les messages de succès ou d'erreur
+        function showMessage(message, type) {
+            const messageBox = document.getElementById(`${type}-message`);
+            const otherBox = document.getElementById(type === 'error' ? 'success-message' : 'error-message');
+    
+            otherBox.style.display = 'none';
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+        }
+    </script>
+    
+</body>
+</html>

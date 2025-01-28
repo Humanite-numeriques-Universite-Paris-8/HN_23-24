@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Rendez-vous</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #ffffff;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: left;
+            font-size: 14px;
+        }
+        
+        th {
+            background-color: #007bff;
+            color: white;
+            text-transform: uppercase;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .actions {
+            text-align: center; /* Centre les boutons dans la cellule */
+        }
+        
+        .actions button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        
+        .btn-deplacer {
+            background-color: #28a745;
+            color: white;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-deplacer:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+        
+        .btn-annuler {
+            background-color: #dc3545;
+            color: white;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-annuler:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
+        
+    </style>
+</head>
+<body>
+    <h1>Mes Rendez-vous</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Cabinet</th>
+                <th>Date et Heure</th>
+                <th>Sécurité Sociale</th>
+                <!-- <th>Numéro de Téléphone</th> -->
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="appointmentsTable">
+            <!-- Les rendez-vous seront insérés ici -->
+        </tbody>
+    </table>
+
+    <script>
+        const apiUrl = "http://localhost/Sites/omeka-s/api/";
+        const apiKeyIdentity = "fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK";
+        const apiKeyCredential = "xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9";
+
+        const userEmail = localStorage.getItem('userEmail');
+        if (!userEmail) {
+            alert("Vous devez être connecté pour voir vos rendez-vous.");
+            window.location.href = 'login.html';
+        }
+    
+        document.addEventListener("DOMContentLoaded", function () {
+            loadAppointments();
+        });
+
+        async function fetchUserPhoneByEmail(email) {
+            try {
+                const response = await fetch(`${apiUrl}items?resource_template_id=7`, {
+                    headers: {
+                        "Identity": apiKeyIdentity,
+                        "Credential": apiKeyCredential
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error("Erreur lors de la récupération des utilisateurs");
+                }
+                const users = await response.json();
+                const user = users.find(user =>
+                    user["cabinet_medical:mail"]?.[0]?.["@value"]?.toLowerCase() === email.toLowerCase()
+                );
+                return user
+                    ? user["cabinet_medical:telephone"]?.[0]?.["@value"] || "Non disponible"
+                    : "Non disponible";
+            } catch (error) {
+                console.error("Erreur lors de la récupération du numéro de téléphone :", error);
+                return "Non disponible";
+            }
+        }
+
+        async function loadAppointments() {
+            try {
+                const response = await fetch(`${apiUrl}items?resource_template_id=12`, {
+                    headers: {
+                        "Identity": apiKeyIdentity,
+                        "Credential": apiKeyCredential
+                    }
+                });
+                const appointments = await response.json();
+                const appointmentsTable = document.getElementById("appointmentsTable");
+                appointmentsTable.innerHTML = ""; // Réinitialiser le tableau
+
+                const userPhone = await fetchUserPhoneByEmail(userEmail);
+
+                for (const appointment of appointments) {
+                    const appointmentEmail = appointment["cabinet_medical:mail"]?.[0]?.["@value"];
+
+                    if (appointmentEmail === userEmail) {
+                        const row = document.createElement("tr");
+
+                        const cabinetCell = document.createElement("td");
+                        cabinetCell.textContent = appointment["cabinet_medical:nom"]?.[0]?.["@value"] || "Non spécifié";
+                        row.appendChild(cabinetCell);
+
+                        const dateCell = document.createElement("td");
+                        dateCell.textContent = appointment["cabinet_medical:appointmentDate"]?.[0]?.["@value"] || "Non spécifié";
+                        row.appendChild(dateCell);
+
+                        const securiteSocialeCell = document.createElement("td");
+                        securiteSocialeCell.textContent = appointment["cabinet_medical:securiteSociale"]?.[0]?.["@value"] || "Non spécifié";
+                        row.appendChild(securiteSocialeCell);
+
+                        /*const phoneCell = document.createElement("td");
+                        phoneCell.textContent = userPhone;
+                        row.appendChild(phoneCell);*/
+
+                        const emailCell = document.createElement("td");
+                        emailCell.textContent = appointmentEmail || "Non spécifié";
+                        row.appendChild(emailCell);
+
+                        const actionsCell = document.createElement("td");
+                        actionsCell.classList.add("actions");
+                        const cancelButton = document.createElement("button");
+                        cancelButton.textContent = "Annuler";
+                        cancelButton.classList.add("btn-annuler");
+                        cancelButton.addEventListener("click", () => deleteAppointment(row, appointment["o:id"]));
+
+                        const rescheduleButton = document.createElement("button");
+                        rescheduleButton.textContent = "Déplacer";
+                        rescheduleButton.classList.add("btn-deplacer");
+                        rescheduleButton.addEventListener("click", () => moveAppointment(appointment["o:id"]));
+
+                        actionsCell.appendChild(rescheduleButton);
+                        actionsCell.appendChild(cancelButton);
+                        row.appendChild(actionsCell);
+
+                        appointmentsTable.appendChild(row);
+                    }
+                }
+            } catch (error) {
+                console.error("Erreur lors de la récupération des rendez-vous :", error);
+            }
+        }
+
+        function moveAppointment(id) {
+            if (!id) {
+                alert("ID du rendez-vous manquant !");
+                return;
+            }
+            window.location.href = `changer_rdv.html?id=${id}`;
+        }
+
+        async function deleteAppointment(row, id) {
+            if (confirm("Êtes-vous sûr de vouloir annuler ce rendez-vous ?")) {
+                row.style.opacity = "0.5";
+                row.style.pointerEvents = "none";
+
+                try {
+                    const response = await fetch(`${apiUrl}items/${id}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`, {
+                        method: "DELETE",
+                    });
+
+                    if (response.ok) {
+                        row.remove();
+                    }
+                } catch (error) {
+                    console.warn("Erreur lors de la suppression :", error);
+                } finally {
+                    row.style.opacity = "1";
+                    row.style.pointerEvents = "auto";
+                }
+            }
+        }
+    </script>
+</body>
+</html>

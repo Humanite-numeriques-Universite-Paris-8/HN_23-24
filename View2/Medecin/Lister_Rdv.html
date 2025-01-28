@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Rendez-vous</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .action-buttons button {
+            margin-right: 10px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .validate-btn {
+            background-color: #28a745;
+        }
+
+        .cancel-btn {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <h1>Liste des Rendez-vous</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Mon Cabinet</th>
+                <th>Date et Heure</th>
+                <th>Email du patient</th>
+                <th>Sécurité Sociale</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="appointmentsTable">
+            <!-- Les rendez-vous seront insérés ici -->
+        </tbody>
+    </table>
+
+    <script>
+        const apiUrl = "http://localhost/Sites/omeka-s/api/";
+        const apiKeyIdentity = "fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK";
+        const apiKeyCredential = "xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9";
+
+        // Cabinet attribué au médecin (exemple)
+        const assignedCabinet = localStorage.getItem("assignedCabinet") || "cabinetB";
+
+        // Fonction pour récupérer les rendez-vous liés au cabinet attribué au médecin
+        async function fetchAppointments() {
+            try {
+                const response = await fetch(`${apiUrl}items?resource_class_id=112&key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+                if (!response.ok) {
+                    throw new Error("Erreur lors de la récupération des rendez-vous");
+                }
+                const data = await response.json();
+
+                // Filtrer les rendez-vous pour inclure uniquement ceux du cabinet attribué
+                return data.filter(item => {
+                    const cabinet = item["cabinet_medical:nom"]?.[0]?.["@value"];
+                    return cabinet === assignedCabinet;
+                }).map(item => ({
+                    id: item["o:id"],
+                    cabinet: item["cabinet_medical:nom"]?.[0]?.["@value"] || "Non spécifié",
+                    appointmentDate: item["cabinet_medical:appointmentDate"]?.[0]?.["@value"] || "Non spécifié",
+                    email: item["cabinet_medical:mail"]?.[0]?.["@value"] || "Non spécifié",
+                    securiteSociale: item["cabinet_medical:securiteSociale"]?.[0]?.["@value"] || "Non spécifié",
+                    status: item["cabinet_medical:status"]?.[0]?.["@value"] || "Non spécifié",
+                }));
+            } catch (error) {
+                console.error("Erreur lors de la récupération des rendez-vous :", error);
+                return [];
+            }
+        }
+
+        // Afficher les rendez-vous dans le tableau
+        async function displayAppointments() {
+            const appointments = await fetchAppointments();
+            const tableBody = document.querySelector("#appointmentsTable");
+
+            if (appointments.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Aucun rendez-vous trouvé pour le cabinet ${assignedCabinet}.</td></tr>`;
+            } else {
+                tableBody.innerHTML = appointments.map((appointment) => {
+                    return `
+                        <tr id="appointment-${appointment.id}">
+                            <td>${appointment.cabinet}</td>
+                            <td>${appointment.appointmentDate}</td>
+                               <td>${appointment.email}</td>
+                            <td>${appointment.securiteSociale}</td>
+                         
+                            <td class="action-buttons">
+                                <button class="validate-btn" onclick="validateAppointment(${appointment.id})">Valider</button>
+                                <button class="cancel-btn" onclick="cancelAppointment(${appointment.id})">Annuler</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+            }
+        }
+
+        // Fonction pour valider un rendez-vous
+        async function validateAppointment(id) {
+            try {
+                console.log(`Validation du rendez-vous ID: ${id}`);
+                alert("Rendez-vous validé !");
+            } catch (error) {
+                console.error("Erreur lors de la validation :", error);
+            }
+        }
+
+        // Fonction pour annuler un rendez-vous
+        async function cancelAppointment(id) {
+            if (confirm("Êtes-vous sûr de vouloir annuler ce rendez-vous ?")) {
+                try {
+                    const response = await fetch(`${apiUrl}items/${id}?key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`, {
+                        method: "DELETE",
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Erreur lors de l'annulation du rendez-vous");
+                    }
+
+                    console.log("Rendez-vous annulé avec succès");
+                    displayAppointments(); // Rafraîchir la liste après annulation
+                } catch (error) {
+                    console.error("Erreur lors de l'annulation du rendez-vous :", error);
+                    alert("Erreur lors de l'annulation du rendez-vous.");
+                }
+            }
+        }
+
+        // Initialiser la page en affichant les rendez-vous
+        displayAppointments();
+    </script>
+</body>
+</html>

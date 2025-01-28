@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte des Cabinets Médicaux à Paris</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Liste des Cabinets Médicaux à Paris</h2>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+    // Initialiser la carte
+    var map = L.map('map').setView([48.8566, 2.3522], 12); // Centrer la carte sur Paris
+
+    // Charger les tuiles OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 15,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Fonction pour ajouter des marqueurs
+    function addMarkers(addresses) {
+        addresses.forEach(function(address) {
+            L.marker([address.lat, address.lon]).addTo(map)
+                .bindPopup(address.display_name);
+        });
+    }
+
+    // Charger les données JSON à partir du fichier local 'data.json'
+    fetch('./Map.json')
+        .then(response => response.json())
+        .then(data => {
+            addMarkers(data);  // Ajouter les marqueurs sur la carte
+        })
+        .catch(error => {
+            console.error('Erreur lors du chargement du fichier JSON:', error);
+        });
+</script>
+
+</body>
+</html>

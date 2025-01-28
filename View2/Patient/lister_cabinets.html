@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lister les cabinets</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('../../images/images1.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 600;
+        }
+
+        td {
+            color: #333;
+            font-size: 14px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            th, td {
+                font-size: 12px;
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Liste des Cabinets</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Adresse</th>
+                <th>Spécialité</th>
+                <th>Médecin</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+            </tr>
+        </thead>
+        <tbody id="cabinet-list">
+            <!-- Les données des cabinets seront insérées ici dynamiquement -->
+        </tbody>
+    </table>
+</div>
+<script type="module">
+    class OmekaApiHelper {
+        constructor(params) {
+            this.api = params.apiOmk;
+            this.ident = params.ident;
+            this.key = params.key;
+        }
+
+        async fetchItems(resourceClassId) {
+            const url = `${this.api}items?resource_class_id=${resourceClassId}&key_identity=${this.ident}&key_credential=${this.key}`;
+            const response = await fetch(url, { method: 'GET' });
+
+            if (!response.ok) {
+                throw new Error(`Erreur lors de la récupération des données: ${response.statusText}`);
+            }
+
+            return response.json();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const apiHelper = new OmekaApiHelper({
+            apiOmk: 'http://localhost/Sites/omeka-s/api/',
+            ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+            key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
+        });
+
+        const cabinetList = document.getElementById('cabinet-list');
+
+        try {
+            // Récupérer les cabinets et les utilisateurs
+            const cabinets = await apiHelper.fetchItems(111); // ID de la classe "Cabinet Médical"
+            const users = await apiHelper.fetchItems(113); // ID de la classe "User"
+
+            if (cabinets.length === 0) {
+                cabinetList.innerHTML = `<tr><td colspan="6" style="text-align: center;">Aucun cabinet trouvé.</td></tr>`;
+            } else {
+                // Parcourir chaque cabinet pour récupérer ses détails
+                for (const cabinet of cabinets) {
+                    const nom = cabinet['cabinet_medical:nom']?.[0]?.['@value'] || 'Non spécifié';
+                    const adresse = cabinet['cabinet_medical:adresse']?.[0]?.['@value'] || 'Non spécifiée';
+                    const specialite = cabinet['cabinet_medical:specialite']?.[0]?.['@value'] || 'Non spécifiée';
+                    const doctorName = cabinet['cabinet_medical:username']?.[0]?.['@value'] || 'Non spécifié';
+
+                    // Trouver l'utilisateur associé
+                    const user = users.find(user => {
+                        return user['cabinet_medical:username']?.[0]?.['@value'] === doctorName;
+                    });
+
+                    const email = user ? user['cabinet_medical:mail']?.[0]?.['@value'] || 'Non spécifié' : 'Non spécifié';
+                    const telephone = user ? user['cabinet_medical:telephone']?.[0]?.['@value'] || 'Non spécifié' : 'Non spécifié';
+
+                    const row = `
+                        <tr>
+                            <td>${nom}</td>
+                            <td>${adresse}</td>
+                            <td>${specialite}</td>
+                            <td>${doctorName}</td>
+                            <td>${email}</td>
+                            <td>${telephone}</td>
+                        </tr>`;
+                    cabinetList.innerHTML += row;
+                }
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération des cabinets:', error);
+            cabinetList.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">Erreur lors de la récupération des cabinets.</td></tr>`;
+        }
+    });
+</script>
+
+</body>
+</html>

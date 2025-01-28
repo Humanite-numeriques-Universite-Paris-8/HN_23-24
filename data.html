@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Form Data Display</title>
+    <link rel="stylesheet" href="css/data.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+
+        table {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
+
+        a.questionnaire-link {
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            background-color: #007BFF;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        a.questionnaire-link:hover, a.questionnaire-link:focus {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #333;
+            cursor: pointer;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #333;
+            border-bottom: 1px solid #007BFF;
+            padding-bottom: 10px;
+        }
+
+        .modal-content p {
+            margin: 10px 0;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+
+        .modal-content p strong {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+            color: #007BFF;
+        }
+
+
+
+        /* Style pour le modal */
+#detailModal {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fond transparent sombre */
+}
+
+/* Style pour le contenu du modal */
+#detailModal .modal-content {
+    background-color: #ffffff;
+    margin: 10% auto;
+    padding: 20px 30px;
+    border: 1px solid #ddd;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+/* Style pour le bouton de fermeture */
+#detailModal .close {
+    color: #aaa;
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    transition: color 0.3s;
+    cursor: pointer;
+}
+
+#detailModal .close:hover {
+    color: #333;
+}
+
+/* Style pour le titre du modal */
+#detailModal .modal-content h2 {
+    margin-top: 0;
+    font-size: 20px;
+    color: #333;
+    border-bottom: 1px solid #007BFF;
+    padding-bottom: 10px;
+}
+
+/* Style pour chaque ligne de détail */
+#detailModal .modal-content #detailContent p {
+    margin: 10px 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+#detailModal .modal-content #detailContent p strong {
+    color: #007BFF; /* Couleur bleue pour les titres */
+    font-weight: bold;
+    display: inline-block;
+    width: 150px; /* Largeur pour aligner les titres et les valeurs */
+}
+
+    </style>
+</head>
+<body>
+    <h1>Formulaire Patients</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Time submit</th>
+                <th>Quel est votre sexe?</th>
+                <th>Quel âge avez vous ?</th>
+                <th>Vous fumez?</th>
+                <th>Vous Faites le sport et le régime ?</th>
+                <th>Vous Buvez de l'Alcool ?</th>
+                <th>Veuillez saisir votre email</th>
+            </tr>
+        </thead>
+        <tbody id="questionnaire-table">
+            <!-- Data will be dynamically inserted here by JavaScript -->
+        </tbody>
+    </table>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLScAyvTcCYkgsl9wE7qn8zPrgPHWa_T0RlJ_0_GNr25O6bkn8w/viewform?usp=sf_link" class="questionnaire-link" target="_blank">Joindre le formulaire à remplir</a>
+ 
+
+    <!-- Modal for displaying row details -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Affichage de la réponse par ligne</h2>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const sheetID = '1IythoFSP7yu-3qKPh_HPyY_rDxr7p6a2rs3Fx8zIWNI'; // My Google Sheet ID
+        const apiKey = 'AIzaSyCkey6LOcfqnlsdcErxgUQw6nuDO01VGVM'; // My Google API key
+
+        async function fetchData() {
+        
+            const range = encodeURIComponent('Réponses au formulaire 1'); // Replace with the correct sheet name
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${range}?key=${apiKey}`;
+          
+            try {
+                let response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                let data = await response.json();
+                displayData(data.values); // Pass the data to the display function
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        // Function to display data in the table
+        function displayData(data) {
+           
+            if (!data || data.length === 0) {
+                console.error('No data found.');
+                return;
+            }
+
+            const tableBody = document.getElementById('questionnaire-table');
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            data.forEach((row, index) => {
+                if (index === 0) return; // Skip the header row
+
+                let tr = document.createElement('tr');
+                row.forEach(cell => {
+                    let td = document.createElement('td');
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+
+                // Add click event to the row
+                tr.addEventListener('click', () => {
+                    showDetails(row);
+                });
+
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function showDetails(row) {
+            // Construct the content for the modal
+            const details = {
+                "Time submit": row[0],
+                "Quel est votre sexe?": row[1],
+                "Quel âge avez vous?": row[2],
+                "Vous fumez?": row[3],
+                "Vous Faites le sport et le régime?": row[4],
+                "Vous Buvez de l'Alcool?": row[5],
+                "Email": row[6]
+            };
+        
+            // Afficher dans la console chaque label avec sa valeur
+            console.log('Détails de la réponse:', details);
+            const content = `
+                <p><strong>Time submit:</strong> ${row[0]}</p>
+                <p><strong>Quel est votre sexe?</strong> ${row[1]}</p>
+                <p><strong>Quel âge avez vous?</strong> ${row[2]}</p>
+                <p><strong>Vous fumez?</strong> ${row[3]}</p>
+                <p><strong>Vous Faites le sport et le régime?</strong> ${row[4]}</p>
+                <p><strong>Vous Buvez de l'Alcool?</strong> ${row[5]}</p>
+                <p><strong>Email:</strong> ${row[6]}</p>
+            `;
+
+            // Display the content in the modal
+            document.getElementById('detailContent').innerHTML = content;
+            document.getElementById('detailModal').style.display = "block";
+        }
+
+        // Close the modal when the user clicks on <span> (x)
+        document.querySelector('.close').onclick = function() {
+            document.getElementById('detailModal').style.display = "none";
+        }
+
+        // Close the modal if the user clicks outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Fetch data when the page loads
+        fetchData();
+    </script>
+</body>
+</html>

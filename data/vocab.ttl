@@ -1,0 +1,147 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
+@prefix o: <http://omeka.org/s/vocabs/o#> .
+@prefix cabinet_medical: <https://jardindesconnaissances.univ-paris8.fr/onto/cabinet_medical#> .
+
+<https://jardindesconnaissances.univ-paris8.fr/onto/cabinet_medical> a owl:Ontology ;
+    dcterms:title "Gestion de Cabinet Médical - Université Paris 8" .
+
+### Classe Patient
+cabinet_medical:Patient a rdfs:Class ;
+    rdfs:label "Patient" ;
+    rdfs:comment "Représente un patient du cabinet médical" ;
+    vs:term_status "experimental" .
+
+cabinet_medical:timeSubmit a rdf:Property ;
+    rdfs:label "Date de soumission" ;
+    rdfs:domain cabinet_medical:Patient ;
+    vs:term_status "experimental" .
+
+cabinet_medical:sexe a rdf:Property ;
+    rdfs:label "Sexe" ;
+    rdfs:domain cabinet_medical:Patient ;
+    vs:term_status "experimental" .
+
+cabinet_medical:age a rdf:Property ;
+    rdfs:label "Age" ;
+    rdfs:domain cabinet_medical:Patient ;
+    vs:term_status "experimental" .
+
+cabinet_medical:fume a rdf:Property ;
+    rdfs:label "Fume" ;
+    rdfs:domain cabinet_medical:Patient ;
+    vs:term_status "experimental" .
+
+cabinet_medical:sport a rdf:Property ;
+    rdfs:label "Sport" ;
+    rdfs:domain cabinet_medical:Patient ;
+    vs:term_status "experimental" .
+
+cabinet_medical:alcool a rdf:Property ;
+    rdfs:label "Consommation d'Alcool" ;
+    rdfs:domain cabinet_medical:Patient ;
+    vs:term_status "experimental" .
+
+cabinet_medical:mail a rdf:Property ;
+    rdfs:label "Email" ;
+    rdfs:domain cabinet_medical:Patient ;
+    vs:term_status "experimental" .
+
+### Classe Cabinet
+cabinet_medical:Cabinet a rdfs:Class ;
+    rdfs:label "Cabinet Médical" ;
+    rdfs:comment "Représente un cabinet médical" ;
+    vs:term_status "experimental" .
+
+cabinet_medical:nom a rdf:Property ;
+    rdfs:label "Nom du Cabinet" ;
+    rdfs:domain cabinet_medical:Cabinet ;
+    vs:term_status "experimental" .
+
+cabinet_medical:adresse a rdf:Property ;
+    rdfs:label "Adresse" ;
+    rdfs:domain cabinet_medical:Cabinet ;
+    vs:term_status "experimental" .
+
+cabinet_medical:specialite a rdf:Property ;
+    rdfs:label "Spécialité Médicale" ;
+    rdfs:domain cabinet_medical:Cabinet ;
+    vs:term_status "experimental" .
+
+### Classe Appointment
+cabinet_medical:Appointment a rdfs:Class ;
+    rdfs:label "Rendez-vous" ;
+    rdfs:comment "Représente un rendez-vous médical" ;
+    vs:term_status "experimental" .
+
+cabinet_medical:appointmentDate a rdf:Property ;
+    rdfs:label "Date du Rendez-vous" ;
+    rdfs:domain cabinet_medical:Appointment ;
+    vs:term_status "experimental" .
+
+cabinet_medical:phone a rdf:Property ;
+    rdfs:label "Téléphone du Patient" ;
+    rdfs:domain cabinet_medical:Appointment ;
+    vs:term_status "experimental" .
+
+cabinet_medical:isValidated a rdf:Property ;
+    rdfs:label "Validation du Rendez-vous" ;
+    rdfs:domain cabinet_medical:Appointment ;
+    vs:term_status "experimental" .
+
+cabinet_medical:securiteSociale a rdf:Property ;
+    rdfs:label "Numéro de Sécurité Sociale" ;
+    rdfs:domain cabinet_medical:Appointment ;
+    vs:term_status "experimental" .
+
+### Classe User
+cabinet_medical:User a rdfs:Class ;
+    rdfs:label "Utilisateur" ;
+    rdfs:comment "Représente un utilisateur dans le système (admin, médecin, patient)" ;
+    vs:term_status "experimental" .
+
+cabinet_medical:username a rdf:Property ;
+    rdfs:label "Nom d'Utilisateur" ;
+    rdfs:domain cabinet_medical:User ;
+    vs:term_status "experimental" .
+
+cabinet_medical:password a rdf:Property ;
+    rdfs:label "Mot de Passe" ;
+    rdfs:domain cabinet_medical:User ;
+    vs:term_status "experimental" .
+
+cabinet_medical:role a rdf:Property ;
+    rdfs:label "Rôle" ;
+    rdfs:domain cabinet_medical:User ;
+    vs:term_status "experimental" .
+
+cabinet_medical:telephone a rdf:Property ;
+    rdfs:label "Numéro de Téléphone" ;
+    rdfs:domain cabinet_medical:User ;
+    vs:term_status "experimental" .
+
+### Classe Admin
+cabinet_medical:Admin a rdfs:Class ;
+    rdfs:label "Administrateur" ;
+    rdfs:comment "Représente un administrateur du système" ;
+    vs:term_status "experimental" .
+
+### Classe Medecin
+cabinet_medical:Medecin a rdfs:Class ;
+    rdfs:label "Médecin" ;
+    rdfs:comment "Représente un médecin dans le cabinet médical" ;
+    vs:term_status "experimental" .
+
+cabinet_medical:specialisation a rdf:Property ;
+    rdfs:label "Spécialisation du Médecin" ;
+    rdfs:domain cabinet_medical:Medecin ;
+    vs:term_status "experimental" .
+
+cabinet_medical:cabinetAssocie a rdf:Property ;
+    rdfs:label "Cabinet Associé" ;
+    rdfs:domain cabinet_medical:Medecin ;
+    rdfs:range cabinet_medical:Cabinet ;
+    vs:term_status "experimental" .

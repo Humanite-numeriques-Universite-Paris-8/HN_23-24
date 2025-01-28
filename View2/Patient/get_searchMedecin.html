@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résultats de la Recherche</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('../../images/cabinet.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        @media (max-width: 768px) {
+            th, td {
+                font-size: 12px;
+            }
+        }
+
+        .btn-modifier {
+            color: #fff;
+            background-color: #007bff;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .btn-supprimer {
+            color: #fff;
+            background-color: #dc3545;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-supprimer:hover, .btn-modifier:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Résultats de la Recherche</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom du Médecin</th>
+                    <th>Email</th>
+                    <th>Spécialité</th>
+                    <th>Téléphone</th>
+                    <th>Cabinet Associé</th>
+               
+                </tr>
+            </thead>
+            <tbody id="results-body">
+                <!-- Résultats injectés ici -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const apiUrl = "http://localhost/Sites/omeka-s/api/";
+        const apiKeyIdentity = "fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK";
+        const apiKeyCredential = "xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9";
+    
+        // Récupère le paramètre `search` de l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchQuery = urlParams.get("search")?.toLowerCase() || "";
+    
+        // Diviser le terme de recherche en spécialité et nom
+        const [searchSpecialite, searchName] = searchQuery.split(" - ").map(part => part?.trim().toLowerCase());
+    
+        // Fonction pour récupérer les médecins
+        async function fetchMedecins() {
+            try {
+                const response = await fetch(`${apiUrl}items?resource_class_id=111&key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+                if (!response.ok) {
+                    throw new Error(`Erreur API Médecins : ${response.statusText}`);
+                }
+    
+                const data = await response.json();
+                return data.map(item => ({
+                    name: item['cabinet_medical:username']?.[0]?.['@value'] || "Non spécifié",
+                    specialite: item['cabinet_medical:specialite']?.[0]?.['@value'] || "Non spécifiée",
+                    nom: item['cabinet_medical:nom']?.[0]?.['@value'] || "Non spécifiée",
+                    cabinetId: item['cabinet_medical:cabinet_id']?.[0]?.['@value'] || null
+                }));
+            } catch (error) {
+                console.error("Erreur lors de la récupération des médecins :", error);
+                return [];
+            }
+        }
+    
+        // Fonction pour récupérer les utilisateurs dans la table "user"
+        async function fetchUsers() {
+            try {
+                const response = await fetch(`${apiUrl}items?resource_class_id=113&key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+                if (!response.ok) {
+                    throw new Error(`Erreur API Utilisateurs : ${response.statusText}`);
+                }
+    
+                const data = await response.json();
+                return data
+                    .filter(user => (user['cabinet_medical:role']?.[0]?.['@value'] || "").toLowerCase() === "medecin")
+                    .map(user => ({
+                        email: user['cabinet_medical:mail']?.[0]?.['@value'] || "Non spécifié",
+                        name: user['cabinet_medical:username']?.[0]?.['@value'] || "Non spécifié",
+                        telephone: user['cabinet_medical:telephone']?.[0]?.['@value'] || "Non spécifié"
+                    }));
+            } catch (error) {
+                console.error("Erreur lors de la récupération des utilisateurs :", error);
+                return [];
+            }
+        }
+    
+        async function fetchCabinets() {
+            try {
+                const response = await fetch(`${apiUrl}items?resource_class_id=112&key_identity=${apiKeyIdentity}&key_credential=${apiKeyCredential}`);
+                if (!response.ok) {
+                    throw new Error(`Erreur API Cabinets : ${response.statusText}`);
+                }
+        
+                const data = await response.json();
+                return data.map(cabinet => ({
+                    id: cabinet['o:id'], // Utilisez l'identifiant correct pour le cabinet
+                    name: cabinet['cabinet_medical:nom']?.[0]?.['@value'] || "Non spécifié"
+                }));
+            } catch (error) {
+                console.error("Erreur lors de la récupération des cabinets :", error);
+                return [];
+            }
+        }
+    
+        // Fonction principale pour afficher les résultats filtrés
+        async function displayFilteredResults() {
+            const resultsBody = document.getElementById("results-body");
+    
+            try {
+                const medecins = await fetchMedecins();
+                const users = await fetchUsers();
+                const cabinets = await fetchCabinets();
+    
+                // Associer les utilisateurs (email, téléphone) et les cabinets aux médecins
+                const results = medecins.map(medecin => {
+                    const user = users.find(u => u.name === medecin.name);
+                    const cabinet = cabinets.find(c => c.id === medecin.cabinetId);
+                    return {
+                        ...medecin,
+                        email: user ? user.email : "Non spécifié",
+                        telephone: user ? user.telephone : "Non spécifié"
+                    };
+                });
+    
+                // Filtrer les résultats par spécialité et/ou nom
+                const filteredResults = results.filter(result => {
+                    const matchSpecialite = searchSpecialite ? result.specialite.toLowerCase().includes(searchSpecialite) : true;
+                    const matchName = searchName ? result.name.toLowerCase().includes(searchName) : true;
+                    return matchSpecialite && matchName;
+                });
+    
+                // Afficher les résultats filtrés
+                if (filteredResults.length === 0) {
+                    resultsBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center;">Aucun résultat trouvé pour "${searchQuery}".</td>
+                        </tr>
+                    `;
+                } else {
+                    resultsBody.innerHTML = filteredResults.map(result => `
+                        <tr>
+                            <td>${result.name}</td>
+                            <td>${result.email}</td>
+                            <td>${result.specialite}</td>
+                            <td>${result.telephone}</td>
+                            <td>${result.nom}</td>
+                     
+                        </tr>
+                    `).join("");
+                }
+            } catch (error) {
+                resultsBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: red;">Erreur lors de la récupération des résultats.</td>
+                    </tr>
+                `;
+            }
+        }
+    
+        // Charger les résultats dès que la page est chargée
+        document.addEventListener("DOMContentLoaded", displayFilteredResults);
+    </script>
+    
+
+</body>
+
+</html>

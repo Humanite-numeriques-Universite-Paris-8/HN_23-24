@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voir les Cabinets</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('../../images/images1.jpg');
+            background-size: cover;
+            background-position: center;
+            font-family: 'Poppins', sans-serif;
+        }
+        .container {
+            width: 80%;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+        .btn-edit {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-edit:hover {
+            background-color: #218838;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Liste des Cabinets</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Adresse</th>
+                <th>Spécialité</th>
+                <th>Médecin</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="cabinet-list">
+            <!-- Les données des cabinets seront insérées ici dynamiquement -->
+        </tbody>
+    </table>
+</div>
+
+<script type="module">
+    import { omkApiHelper } from './omkApiHelper.js';
+    class OmekaApiHelper {
+        constructor(params) {
+            this.api = params.apiOmk;
+            this.ident = params.ident;
+            this.key = params.key;
+        }
+
+        async fetchItems(resourceClassId) {
+            const url = `${this.api}items?resource_class_id=${resourceClassId}&key_identity=${this.ident}&key_credential=${this.key}`;
+            const response = await fetch(url, { method: 'GET' });
+
+            if (!response.ok) {
+                throw new Error(`Erreur lors de la récupération des données: ${response.statusText}`);
+            }
+
+            return response.json();
+        }
+
+        async deleteItem(itemId) {
+            const url = `${this.api}items/${itemId}?key_identity=${this.ident}&key_credential=${this.key}`;
+            const response = await fetch(url, { method: 'DELETE' });
+
+            if (!response.ok) {
+                throw new Error(`Erreur lors de la suppression: ${response.statusText}`);
+            }
+
+            return response.json();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const apiHelper = new OmekaApiHelper({
+            apiOmk: 'http://localhost/Sites/omeka-s/api/',
+            ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+            key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
+        });
+
+        const cabinetList = document.getElementById('cabinet-list');
+
+        try {
+            // Récupérer les cabinets
+            const cabinets = await apiHelper.fetchItems(111); // ID de la classe "Cabinet Médical"
+
+            if (cabinets.length === 0) {
+                cabinetList.innerHTML = `<tr><td colspan="5" style="text-align: center;">Aucun cabinet trouvé.</td></tr>`;
+            } else {
+                // Parcourir chaque cabinet pour récupérer ses détails
+                for (const cabinet of cabinets) {
+                    const nom = cabinet['cabinet_medical:nom']?.[0]?.['@value'] || 'Non spécifié';
+                    const adresse = cabinet['cabinet_medical:adresse']?.[0]?.['@value'] || 'Non spécifiée';
+                    const specialite = cabinet['cabinet_medical:specialite']?.[0]?.['@value'] || 'Non spécifiée';
+                    const doctorName = cabinet['cabinet_medical:username']?.[0]?.['@value'] || 'Non spécifié';
+
+                    const row = `
+                        <tr>
+                            <td>${nom}</td>
+                            <td>${adresse}</td>
+                            <td>${specialite}</td>
+                            <td>${doctorName}</td>
+                            <td>
+                                <button class="btn btn-edit" onclick="window.location.href='modifier_cabinet.html?id=${cabinet['o:id']}'">Modifier</button>
+                                <button class="btn btn-delete" onclick="deleteCabinet(${cabinet['o:id']})">Supprimer</button>
+                            </td>
+                        </tr>`;
+                    cabinetList.innerHTML += row;
+                }
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération des cabinets:', error);
+            cabinetList.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Erreur lors de la récupération des cabinets.</td></tr>`;
+        }
+    });
+    async function deleteCabinet(id) {
+        const apiHelper = new omkApiHelper({
+            apiOmk: 'http://localhost/Sites/omeka-s/api/',
+            ident: 'fRlUIv2xrskzSWvNeuTXUyx8E8WEoCBK',
+            key: 'xUcKJOyZW4F9l4jxYOlENB7WJ7tYABe9'
+        });
+    
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce cabinet ?')) {
+            try {
+                await apiHelper.deleteItem(id);
+                alert('Cabinet supprimé avec succès !');
+            } catch (error) {
+                console.warn('Une erreur est survenue mais le cabinet peut avoir été supprimé :', error.message);
+            } finally {
+                // Rafraîchir la page pour mettre à jour la liste
+                window.location.reload();
+            }
+        }
+    }
+    
+    // Rendre la fonction globalement accessible
+    window.deleteCabinet = deleteCabinet;
+</script>
+</body>
+</html>
